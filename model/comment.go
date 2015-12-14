@@ -1,6 +1,7 @@
 package model
 
 import (
+	"fmt"
 	"time"
 )
 
@@ -25,7 +26,7 @@ type Note struct {
 
 // Comment denotes a comment by a user in the system.
 type Comment struct {
-	CommentID    string                 `json:"comment_id" bson:"comment_id"`
+	CommentID    string                 `json:"comment_id" bson:"_id"`
 	UserID       string                 `json:"user_id" bson:"user_id" validate:"required"`
 	ParentID     string                 `json:"parent_id" bson:"parent_d"`
 	AssetID      string                 `json:"asset_id" bson:"asset_id"`
@@ -41,6 +42,16 @@ type Comment struct {
 	Notes        []Note                 `json:"notes" bson:"notes"`
 	Stats        map[string]interface{} `json:"stats" bson:"stats"`
 	Source       map[string]interface{} `json:"source" bson:"source"` // source document if imported
+}
+
+// Validate performs validation on a Comment value before it is processed.
+func (com *Comment) Validate() error {
+	errs := validate.Struct(com)
+	if errs != nil {
+		return fmt.Errorf("%v", errs)
+	}
+
+	return nil
 }
 
 // CreateComment creates a new comment resource

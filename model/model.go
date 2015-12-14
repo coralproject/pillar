@@ -4,11 +4,24 @@ import (
 	"fmt"
 	"gopkg.in/mgo.v2"
 	"os"
+	"gopkg.in/bluesuncorp/validator.v6"
 )
 
-const collectionAsset string = "asset"
-const collectionUser string = "user"
-const collectionComment string = "comment"
+const collectionUser string 	= "user"
+const collectionAsset string 	= "asset"
+const collectionComment string 	= "comment"
+
+// validate is used to perform model field validation.
+var validate *validator.Validate
+
+func init() {
+	config := validator.Config{
+		TagName:         "validate",
+		ValidationFuncs: validator.BakedInValidators,
+	}
+
+	validate = validator.New(config)
+}
 
 var (
 	mgoSession *mgo.Session
@@ -39,12 +52,8 @@ func init() {
 	mgoSession = session
 }
 
-func getSession() *mgo.Session {
-	return mgoSession.Clone()
-}
-
 func getMongoManager(collectionName string) *mongoManager {
-	session := getSession()
+	session := mgoSession.Clone()
 	collection := session.DB("").C(collectionName)
 	return &mongoManager{session, collection}
 }

@@ -1,13 +1,14 @@
 package model
 
 import (
+	"fmt"
 	"time"
 	"gopkg.in/mgo.v2/bson"
 )
 
 // User denotes a user in the system.
 type User struct {
-	UserID      string                 `json:"user_id" bson:"user_id"`
+	UserID      string                 `json:"user_id" bson:"_id"`
 	UserName    string                 `json:"user_name" bson:"user_name" validate:"required"`
 	Avatar      string                 `json:"avatar" bson:"avatar" validate:"omitempty,url"`
 	LastLogin   time.Time              `json:"last_login" bson:"last_login"`
@@ -17,6 +18,16 @@ type User struct {
 	Notes       []Note                 `json:"notes" bson:"notes"`
 	Stats       map[string]interface{} `json:"stats" bson:"stats"`
 	Source      map[string]interface{} `json:"source" bson:"source"` // source document if imported
+}
+
+// Validate performs validation on a User value before it is processed.
+func (u *User) Validate() error {
+	errs := validate.Struct(u)
+	if errs != nil {
+		return fmt.Errorf("%v", errs)
+	}
+
+	return nil
 }
 
 // FindUserByID retrieves an individual user resource
