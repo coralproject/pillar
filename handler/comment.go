@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/coralproject/pillar/model"
+	"github.com/coralproject/pillar/service"
 	"net/http"
 )
 
@@ -16,7 +17,7 @@ func AddComment(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 
-	dbUser, err := model.CreateComment(comment)
+	dbUser, err := service.CreateComment(comment)
 	if err != nil {
 		w.WriteHeader(401)
 		return
