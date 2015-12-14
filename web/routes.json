@@ -1,0 +1,26 @@
+[
+    {
+        "name": "About",
+        "method": "GET",
+        "pattern": "/about",
+        "handler": "controller.HandleAbout"
+    },
+    {
+        "name": "Login",
+        "method": "POST",
+        "pattern": "/login",
+        "handler": "controller.HandleLogin"
+    },
+    {
+        "name": "Logout",
+        "method": "POST",
+        "pattern": "/logout",
+        "handler": "controller.HandleLogout"
+    },
+    {
+        "name": "User",
+        "method": "POST",
+        "pattern": "/user",
+        "handler": "controller.HandleUser"
+    }
+]
