@@ -1,16 +1,16 @@
 package service
 
 import (
-	"os"
 	"fmt"
+	"github.com/coralproject/pillar/model"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
-	"github.com/coralproject/pillar/model"
+	"os"
 )
 
-const collectionUser string 	= "user"
-const collectionAsset string 	= "asset"
-const collectionComment string 	= "comment"
+const collectionUser string = "user"
+const collectionAsset string = "asset"
+const collectionComment string = "comment"
 
 var (
 	mgoSession *mgo.Session
@@ -48,11 +48,11 @@ func getMongoManager(collectionName string) *mongoManager {
 }
 
 // FindCommentByID retrieves an individual comment resource
-func FindCommentByID(id string) (*model.Comment, error) {
+func FindCommentByID(id bson.ObjectId) (*model.Comment, error) {
 
 	comment := model.Comment{}
 
-	// Fetch user
+	// Fetch comment
 	manager := getMongoManager(collectionComment)
 	defer manager.close()
 	err := manager.collection.FindId(id).One(&comment)
@@ -63,20 +63,45 @@ func FindCommentByID(id string) (*model.Comment, error) {
 	return &comment, nil
 }
 
-// CreateComment creates a new comment resource
-func CreateComment(comment model.Comment) (*model.Comment, error) {
+// FindCommentBySourceID retrieves an individual comment resource
+func FindCommentBySourceID(srcId string) (*model.Comment, error) {
 
-	// Write the user to mongo
+	comment := model.Comment{}
+
+	// Fetch comment
 	manager := getMongoManager(collectionComment)
 	defer manager.close()
 
+	err := manager.collection.Find(bson.M{"src_id": srcId}).One(&comment)
+	if err != nil {
+		return nil, err
+	}
 
-	dbItem, _ := FindCommentByID(comment.CommentID)
+	return &comment, nil
+}
+
+// CreateComment creates a new comment resource
+func CreateComment(comment model.Comment) (*model.Comment, error) {
+
+	//return, if exists
+	dbItem, _ := FindCommentByID(comment.ID)
 	if dbItem != nil {
-		fmt.Printf("Comment found:", dbItem.CommentID)
+		fmt.Printf("Comment[%s] exists!", comment.ID)
 		return dbItem, nil
 	}
 
+	//return, if exists
+	dbItem, _ = FindCommentBySourceID(comment.SourceID)
+	if dbItem != nil {
+		fmt.Printf("Comment[%s] exists!", comment.SourceID)
+		return dbItem, nil
+	}
+
+	// Insert Comment
+	manager := getMongoManager(collectionComment)
+	defer manager.close()
+
+	comment.ID = bson.NewObjectId()
 	err := manager.collection.Insert(comment)
 	if err != nil {
 		return nil, err
@@ -86,13 +111,14 @@ func CreateComment(comment model.Comment) (*model.Comment, error) {
 }
 
 // FindUserByID retrieves an individual user resource
-func FindUserByID(id string) (*model.User, error) {
+func FindUserByID(id bson.ObjectId) (*model.User, error) {
 
 	user := model.User{}
 
 	// Fetch user
 	manager := getMongoManager(collectionUser)
 	defer manager.close()
+
 	err := manager.collection.FindId(id).One(&user)
 	if err != nil {
 		return nil, err
@@ -101,14 +127,14 @@ func FindUserByID(id string) (*model.User, error) {
 	return &user, nil
 }
 
-// FindUserByEmail retrieves an individual user resource
-func FindUserByEmail(email string) (*model.User, error) {
+// FindUserBySourceID retrieves an individual user resource
+func FindUserBySourceID(srcId string) (*model.User, error) {
 
 	user := model.User{}
 	// Fetch user
 	manager := getMongoManager(collectionUser)
 	defer manager.close()
-	err := manager.collection.Find(bson.M{"email": email}).One(&user)
+	err := manager.collection.Find(bson.M{"src_id": srcId}).One(&user)
 	if err != nil {
 		return nil, err
 	}
@@ -118,14 +144,24 @@ func FindUserByEmail(email string) (*model.User, error) {
 
 // CreateUser creates a new user resource
 func CreateUser(user model.User) (*model.User, error) {
-	manager := getMongoManager(collectionUser)
-	defer manager.close()
 
-	dbItem, _ := FindUserByID(user.UserID)
+	//return, if exists
+	dbItem, _ := FindUserByID(user.ID)
 	if dbItem != nil {
-		fmt.Printf("User found:", dbItem.UserID)
+		fmt.Printf("User[%s] exists!", user.ID)
 		return dbItem, nil
 	}
+
+	//return, if exists
+	dbItem, _ = FindUserBySourceID(user.SourceID)
+	if dbItem != nil {
+		fmt.Printf("User[%s] exists!", user.SourceID)
+		return dbItem, nil
+	}
+
+	manager := getMongoManager(collectionUser)
+	defer manager.close()
+	user.ID = bson.NewObjectId()
 
 	// Write the user to mongo
 	err := manager.collection.Insert(user)

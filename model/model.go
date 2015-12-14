@@ -2,9 +2,9 @@ package model
 
 import (
 	"fmt"
-	"time"
-
 	"gopkg.in/bluesuncorp/validator.v6"
+	"gopkg.in/mgo.v2/bson"
+	"time"
 )
 
 // validate is used to perform model field validation.
@@ -25,28 +25,29 @@ func init() {
 //   TargetType and Target id may be zero value if data is a subdocument of the Target
 //   UserID may be zero value if the data is a subdocument of the actor
 type Action struct {
-	UserID     string    `json:"user_id" bson:"user_id" validate:"required"`
-	Type       string    `json:"type" bson:"type"`
-	Value      string    `json:"value" bson:"value"`
-	TargetType string    `json:"target_type" bson:"target_type"` // eg: comment, "" for actions existing within target documents
-	TargetID   string    `json:"target_type" bson:"target_type"` // eg: 23423
-	Date       time.Time `json:"date" bson:"date"`
+	UserID     bson.ObjectId `json:"user_id" bson:"user_id" validate:"required"`
+	Type       string        `json:"type" bson:"type"`
+	Value      string        `json:"value" bson:"value"`
+	TargetType string        `json:"target_type" bson:"target_type"` // eg: comment, "" for actions existing within target documents
+	TargetID   string        `json:"target_type" bson:"target_type"` // eg: 23423
+	Date       time.Time     `json:"date" bson:"date"`
 }
 
 // Note denotes a note by a user in the system.
 type Note struct {
-	UserID string    `json:"user_id" bson:"user_id"`
-	Body   string    `json:"body" bson:"body" validate:"required"`
-	Date   time.Time `json:"date" bson:"date"`
+	UserID bson.ObjectId `json:"user_id" bson:"user_id"`
+	Body   string        `json:"body" bson:"body" validate:"required"`
+	Date   time.Time     `json:"date" bson:"date"`
 }
 
 // Comment denotes a comment by a user in the system.
 type Comment struct {
-	CommentID    string                 `json:"comment_id" bson:"comment_id"`
+	ID           bson.ObjectId          `json:"id" bson:"_id"`
+	SourceID     string                 `json:"src_id" bson:"src_id"`
 	UserID       string                 `json:"user_id" bson:"user_id" validate:"required"`
 	ParentID     string                 `json:"parent_id" bson:"parent_d"`
-	AssetID      string                 `json:"asset_id" bson:"asset_id"`
-	Children     []string               `json:"children" bson:"children"` // experimental
+	AssetID      bson.ObjectId          `json:"asset_id" bson:"asset_id"`
+	Children     []bson.ObjectId        `json:"children" bson:"children"` // experimental
 	Path         string                 `json:"path" bson:"path"`
 	Body         string                 `json:"body" bson:"body" validate:"required"`
 	Status       string                 `json:"status" bson:"status"`
@@ -80,10 +81,10 @@ type Taxonomy struct {
 
 // Asset denotes an asset in the system e.g. an article or a blog etc.
 type Asset struct {
-	AssetID    string     `json:"asset_id" bson:"asset_id"`
-	SourceID   string     `json:"src_id" bson:"src_id"`
-	URL        string     `json:"url" bson:"url" validate:"url"`
-	Taxonomies []Taxonomy `json:"taxonomies" bson:"taxonomies"`
+	ID         bson.ObjectId `json:"id" bson:"_id"`
+	SourceID   string        `json:"src_id" bson:"src_id"`
+	URL        string        `json:"url" bson:"url" validate:"url"`
+	Taxonomies []Taxonomy    `json:"taxonomies" bson:"taxonomies"`
 }
 
 // Validate performs validation on an Asset value before it is processed.
@@ -100,9 +101,11 @@ func (a *Asset) Validate() error {
 
 // User denotes a user in the system.
 type User struct {
-	UserID      string                 `json:"user_id" bson:"user_id"`
+	ID          bson.ObjectId          `json:"id" bson:"_id"`
+	SourceID    string                 `json:"src_id" bson:"src_id"`
 	UserName    string                 `json:"user_name" bson:"user_name" validate:"required"`
 	Avatar      string                 `json:"avatar" bson:"avatar" validate:"omitempty,url"`
+	Status      string                 `json:"status" bson:"status"`
 	LastLogin   time.Time              `json:"last_login" bson:"last_login"`
 	MemberSince time.Time              `json:"member_since" bson:"member_since"`
 	ActionsBy   []Action               `json:"actions_by" bson:"actions_by"`
