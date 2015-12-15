@@ -40,25 +40,32 @@ type Note struct {
 	Date   time.Time     `json:"date" bson:"date"`
 }
 
+// CommentSource encapsulates all original id from the source system
+type CommentSource struct {
+	ID       string `json:"id" bson:"id" validate:"required"`
+	AssetID  string `json:"asset_id" bson:"asset_id" validate:"required"`
+	UserID   string `json:"user_id" bson:"user_id" validate:"required"`
+	ParentID string `json:"parent_id" bson:"parent_id"`
+
+}
+
 // Comment denotes a comment by a user in the system.
 type Comment struct {
-	ID           bson.ObjectId          `json:"id" bson:"_id"`
-	SourceID     string                 `json:"src_id" bson:"src_id"`
-	UserID       string                 `json:"user_id" bson:"user_id" validate:"required"`
-	ParentID     string                 `json:"parent_id" bson:"parent_d"`
-	AssetID      bson.ObjectId          `json:"asset_id" bson:"asset_id"`
-	Children     []bson.ObjectId        `json:"children" bson:"children"` // experimental
-	Path         string                 `json:"path" bson:"path"`
-	Body         string                 `json:"body" bson:"body" validate:"required"`
-	Status       string                 `json:"status" bson:"status"`
-	DateCreated  time.Time              `json:"date_created" bson:"date_created"`
-	DateUpdated  time.Time              `json:"date_updated" bson:"date_updated"`
-	DateApproved time.Time              `json:"date_approved" bson:"date_approved"`
-	Actions      []Action               `json:"actions" bson:"actions"`
-	ActionCounts map[string]int         `json:"actionCounts" bson:"actionCounts"`
-	Notes        []Note                 `json:"notes" bson:"notes"`
-	Stats        map[string]interface{} `json:"stats" bson:"stats"`
-	Source       map[string]interface{} `json:"source" bson:"source"` // source document if imported
+	ID           bson.ObjectId   `json:"id" bson:"_id"`
+	UserID       bson.ObjectId   `json:"user_id" bson:"user_id"`
+	ParentID     bson.ObjectId   `json:"parent_id" bson:"parent_d"`
+	AssetID      bson.ObjectId   `json:"asset_id" bson:"asset_id"`
+	Children     []bson.ObjectId `json:"children" bson:"children"` // experimental
+	Body         string          `json:"body" bson:"body" validate:"required"`
+	Status       string          `json:"status" bson:"status"`
+	DateCreated  time.Time       `json:"date_created" bson:"date_created"`
+	DateUpdated  time.Time       `json:"date_updated" bson:"date_updated"`
+	DateApproved time.Time       `json:"date_approved" bson:"date_approved"`
+	Actions      []Action        `json:"actions" bson:"actions"`
+	ActionCounts map[string]int  `json:"actionCounts" bson:"actionCounts"`
+	Notes        []Note          `json:"notes" bson:"notes"`
+	Source       CommentSource   `json:"source" bson:"source"`
+	//	Stats        map[string]interface{} `json:"stats" bson:"stats"`
 }
 
 // Validate performs validation on a Comment value before it is processed.
@@ -101,18 +108,18 @@ func (a *Asset) Validate() error {
 
 // User denotes a user in the system.
 type User struct {
-	ID          bson.ObjectId          `json:"id" bson:"_id"`
-	SourceID    string                 `json:"src_id" bson:"src_id"`
-	UserName    string                 `json:"user_name" bson:"user_name" validate:"required"`
-	Avatar      string                 `json:"avatar" bson:"avatar" validate:"omitempty,url"`
-	Status      string                 `json:"status" bson:"status"`
-	LastLogin   time.Time              `json:"last_login" bson:"last_login"`
-	MemberSince time.Time              `json:"member_since" bson:"member_since"`
-	ActionsBy   []Action               `json:"actions_by" bson:"actions_by"`
-	ActionsOn   []Action               `json:"actions_on" bson:"actions_on"`
-	Notes       []Note                 `json:"notes" bson:"notes"`
-	Stats       map[string]interface{} `json:"stats" bson:"stats"`
-	Source      map[string]interface{} `json:"source" bson:"source"` // source document if imported
+	ID          bson.ObjectId `json:"id" bson:"_id"`
+	SourceID    string        `json:"src_id" bson:"src_id"`
+	UserName    string        `json:"user_name" bson:"user_name" validate:"required"`
+	Avatar      string        `json:"avatar" bson:"avatar" validate:"omitempty,url"`
+	Status      string        `json:"status" bson:"status"`
+	LastLogin   time.Time     `json:"last_login" bson:"last_login"`
+	MemberSince time.Time     `json:"member_since" bson:"member_since"`
+	ActionsBy   []Action      `json:"actions_by" bson:"actions_by"`
+	ActionsOn   []Action      `json:"actions_on" bson:"actions_on"`
+	Notes       []Note        `json:"notes" bson:"notes"`
+	//	Stats       map[string]interface{} `json:"stats" bson:"stats"`
+	//	Source      map[string]interface{} `json:"source" bson:"source"` // source document if imported
 }
 
 // Validate performs validation on a User value before it is processed.
