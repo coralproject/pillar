@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/coralproject/pillar/model"
-	"github.com/coralproject/pillar/service"
 	"net/http"
+	"github.com/coralproject/pillar/service"
 )
 
 //AddComment function adds a new comment to the system

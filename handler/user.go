@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/coralproject/pillar/model"
-	"github.com/coralproject/pillar/service"
 	"net/http"
+	"github.com/coralproject/pillar/service"
 )
 
 //AddUser function adds a new user to the system

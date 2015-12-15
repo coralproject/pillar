@@ -46,7 +46,6 @@ type CommentSource struct {
 	AssetID  string `json:"asset_id" bson:"asset_id" validate:"required"`
 	UserID   string `json:"user_id" bson:"user_id" validate:"required"`
 	ParentID string `json:"parent_id" bson:"parent_id"`
-
 }
 
 // Comment denotes a comment by a user in the system.
@@ -55,7 +54,7 @@ type Comment struct {
 	UserID       bson.ObjectId   `json:"user_id" bson:"user_id"`
 	ParentID     bson.ObjectId   `json:"parent_id" bson:"parent_d"`
 	AssetID      bson.ObjectId   `json:"asset_id" bson:"asset_id"`
-	Children     []bson.ObjectId `json:"children" bson:"children"` // experimental
+	Children     []bson.ObjectId `json:"children" bson:"children"`
 	Body         string          `json:"body" bson:"body" validate:"required"`
 	Status       string          `json:"status" bson:"status"`
 	DateCreated  time.Time       `json:"date_created" bson:"date_created"`
@@ -89,9 +88,9 @@ type Taxonomy struct {
 // Asset denotes an asset in the system e.g. an article or a blog etc.
 type Asset struct {
 	ID         bson.ObjectId `json:"id" bson:"_id"`
-	SourceID   string        `json:"src_id" bson:"src_id"`
-	URL        string        `json:"url" bson:"url" validate:"url"`
-	Taxonomies []Taxonomy    `json:"taxonomies" bson:"taxonomies"`
+	SourceID   string        `json:"src_id,omitempty" bson:"src_id"`
+	URL        string        `json:"url" bson:"url"`
+	Taxonomies []Taxonomy    `json:"taxonomies,omitempty" bson:"taxonomies"`
 }
 
 // Validate performs validation on an Asset value before it is processed.
