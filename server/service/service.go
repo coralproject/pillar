@@ -2,6 +2,7 @@ package service
 
 import (
 	"fmt"
+	"github.com/coralproject/pillar/server/model"
 	"gopkg.in/mgo.v2"
 	"os"
 )
@@ -51,4 +52,23 @@ func getMongoManager() *mongoManager {
 	manager.comments = manager.session.DB("").C(collectionComment)
 
 	return &manager
+}
+
+func findOne(collection *mgo.Collection, query interface{}) model.DBType {
+
+	var one model.DBType
+
+	fmt.Printf("Session [%+v]\n", collection.Database.Session)
+
+	collection.Find(query).One(&one)
+	fmt.Printf("One [%+v]\n", one)
+
+	return one
+	//
+	//	if one == nil {
+	//		message := "{collection: " + collection.Name + ", query: " + query + "}"
+	//		return errors.New("Object not found - " + message)
+	//	}
+	//
+	//	return nil
 }

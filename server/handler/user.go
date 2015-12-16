@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"fmt"
 	"encoding/json"
 	"github.com/coralproject/pillar/server/model"
 	"github.com/coralproject/pillar/server/service"
@@ -10,8 +9,6 @@ import (
 
 //AddUser function adds a new user to the system
 func AddUser(w http.ResponseWriter, r *http.Request) {
-	fmt.Print("In AddUser")
-
 	//Get the user from request
 	jsonObject := model.User{}
 	json.NewDecoder(r.Body).Decode(&jsonObject)

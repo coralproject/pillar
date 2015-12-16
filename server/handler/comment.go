@@ -2,6 +2,7 @@ package handler
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/coralproject/pillar/server/model"
 	"github.com/coralproject/pillar/server/service"
 	"net/http"
@@ -13,11 +14,14 @@ func AddComment(w http.ResponseWriter, r *http.Request) {
 	jsonObject := model.Comment{}
 	json.NewDecoder(r.Body).Decode(&jsonObject)
 
+	fmt.Printf("%+v\n\n", jsonObject)
+
 	// Write content-type, statuscode, payload
 	w.Header().Set("Content-Type", "application/json")
 	dbObject, err := service.CreateComment(jsonObject)
 	if err != nil {
 		w.WriteHeader(401)
+		w.Write([]byte(err.Error()))
 		return
 	}
 

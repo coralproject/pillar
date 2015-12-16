@@ -31,11 +31,14 @@ type restResponse struct {
 
 func main() {
 
-	//insert users
-	//doRequest(methodPost, urlUser, dataUsers)
+//	//insert assets
+//	addAssets()
+//
+//	//insert users
+//	addUsers()
 
-	//insert assets
-	addAssets()
+	//insert comments
+	addComments()
 }
 
 func addAssets() {
@@ -53,6 +56,42 @@ func addAssets() {
 	for _, one := range objects {
 		data, _ := json.Marshal(one)
 		doRequest(methodPost, urlAsset, bytes.NewBuffer(data))
+	}
+}
+
+func addUsers() {
+	file, err := os.Open(dataUsers)
+	if err != nil {
+		fmt.Printf("Error reading user data [%s]", err.Error())
+	}
+
+	objects := []model.User{}
+	jsonParser := json.NewDecoder(file)
+	if err = jsonParser.Decode(&objects); err != nil {
+		fmt.Println("Error reading user data", err.Error())
+	}
+
+	for _, one := range objects {
+		data, _ := json.Marshal(one)
+		doRequest(methodPost, urlUser, bytes.NewBuffer(data))
+	}
+}
+
+func addComments() {
+	file, err := os.Open(dataComments)
+	if err != nil {
+		fmt.Printf("Error reading comment data [%s]", err.Error())
+	}
+
+	objects := []model.Comment{}
+	jsonParser := json.NewDecoder(file)
+	if err = jsonParser.Decode(&objects); err != nil {
+		fmt.Println("Error reading comment data", err.Error())
+	}
+
+	for _, one := range objects {
+		data, _ := json.Marshal(one)
+		doRequest(methodPost, urlComment, bytes.NewBuffer(data))
 	}
 }
 

@@ -19,6 +19,10 @@ func init() {
 	validate = validator.New(config)
 }
 
+type DBType interface {
+	Id() bson.ObjectId
+}
+
 //==============================================================================
 
 // Action denotes an action taken by an actor (User) on someone/something.
@@ -52,14 +56,14 @@ type CommentSource struct {
 type Comment struct {
 	ID           bson.ObjectId   `json:"id" bson:"_id"`
 	UserID       bson.ObjectId   `json:"user_id" bson:"user_id"`
-	ParentID     bson.ObjectId   `json:"parent_id" bson:"parent_d"`
 	AssetID      bson.ObjectId   `json:"asset_id" bson:"asset_id"`
-	Children     []bson.ObjectId `json:"children" bson:"children"`
+	ParentID     bson.ObjectId   `json:"parent_id,omitempty" bson:"parent_d,omitempty"`
+	Children     []bson.ObjectId `json:"children,omitempty" bson:"children,omitempty"`
 	Body         string          `json:"body" bson:"body" validate:"required"`
 	Status       string          `json:"status" bson:"status"`
 	DateCreated  time.Time       `json:"date_created" bson:"date_created"`
 	DateUpdated  time.Time       `json:"date_updated" bson:"date_updated"`
-	DateApproved time.Time       `json:"date_approved" bson:"date_approved"`
+	DateApproved time.Time       `json:"date_approved,omitempty" bson:"date_approved,omitempty"`
 	Actions      []Action        `json:"actions" bson:"actions"`
 	ActionCounts map[string]int  `json:"actionCounts" bson:"actionCounts"`
 	Notes        []Note          `json:"notes" bson:"notes"`
@@ -67,8 +71,12 @@ type Comment struct {
 	//	Stats        map[string]interface{} `json:"stats" bson:"stats"`
 }
 
+func (object Comment) Id() bson.ObjectId {
+	return object.ID
+}
+
 // Validate performs validation on a Comment value before it is processed.
-func (com *Comment) Validate() error {
+func (com Comment) Validate() error {
 	errs := validate.Struct(com)
 	if errs != nil {
 		return fmt.Errorf("%v", errs)
@@ -93,8 +101,12 @@ type Asset struct {
 	Taxonomies []Taxonomy    `json:"taxonomies,omitempty" bson:"taxonomies,omitempty"`
 }
 
+func (object Asset) Id() bson.ObjectId {
+	return object.ID
+}
+
 // Validate performs validation on an Asset value before it is processed.
-func (a *Asset) Validate() error {
+func (a Asset) Validate() error {
 	errs := validate.Struct(a)
 	if errs != nil {
 		return fmt.Errorf("%v", errs)
@@ -121,8 +133,12 @@ type User struct {
 	//	Source      map[string]interface{} `json:"source" bson:"source"` // source document if imported
 }
 
+func (object User) Id() bson.ObjectId {
+	return object.ID
+}
+
 // Validate performs validation on a User value before it is processed.
-func (u *User) Validate() error {
+func (u User) Validate() error {
 	errs := validate.Struct(u)
 	if errs != nil {
 		return fmt.Errorf("%v", errs)

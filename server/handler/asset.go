@@ -5,12 +5,10 @@ import (
 	"github.com/coralproject/pillar/server/model"
 	"github.com/coralproject/pillar/server/service"
 	"net/http"
-	"fmt"
 )
 
 //AddAsset function adds a new user to the system
 func AddAsset(w http.ResponseWriter, r *http.Request) {
-	fmt.Print("In AddAsset")
 	//Get the user from request
 	jsonObject := model.Asset{}
 	json.NewDecoder(r.Body).Decode(&jsonObject)
