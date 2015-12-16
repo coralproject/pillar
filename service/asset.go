@@ -7,7 +7,7 @@ import (
 )
 
 // CreateAsset creates a new asset resource
-func CreateAsset(input model.Asset) (*model.Asset, error) {
+func CreateAsset(object model.Asset) (*model.Asset, error) {
 
 	// Insert Comment
 	manager := getMongoManager()
@@ -16,24 +16,24 @@ func CreateAsset(input model.Asset) (*model.Asset, error) {
 	dbEntity := model.Asset{}
 
 	//return, if exists
-	manager.assets.FindId(input.ID).One(&dbEntity)
+	manager.assets.FindId(object.ID).One(&dbEntity)
 	if dbEntity.ID != "" {
-		fmt.Printf("Entity exists with ID [%s]", input.ID)
+		fmt.Printf("Entity exists with ID [%s]", object.ID)
 		return &dbEntity, nil
 	}
 
 	//return, if exists
-	manager.assets.Find(bson.M{"url": input.URL}).One(&dbEntity)
+	manager.assets.Find(bson.M{"url": object.URL}).One(&dbEntity)
 	if dbEntity.ID != "" {
-		fmt.Printf("Entity exists with URL [%s]", input.URL)
+		fmt.Printf("Entity exists with URL [%s]", object.URL)
 		return &dbEntity, nil
 	}
 
-	input.ID = bson.NewObjectId()
-	err := manager.assets.Insert(input)
+	object.ID = bson.NewObjectId()
+	err := manager.assets.Insert(object)
 	if err != nil {
 		return nil, err
 	}
 
-	return &dbEntity, nil
+	return &object, nil
 }

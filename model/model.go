@@ -88,9 +88,9 @@ type Taxonomy struct {
 // Asset denotes an asset in the system e.g. an article or a blog etc.
 type Asset struct {
 	ID         bson.ObjectId `json:"id" bson:"_id"`
-	SourceID   string        `json:"src_id,omitempty" bson:"src_id"`
-	URL        string        `json:"url" bson:"url"`
-	Taxonomies []Taxonomy    `json:"taxonomies,omitempty" bson:"taxonomies"`
+	SourceID   string        `json:"src_id,omitempty" bson:"src_id,omitempty"`
+	URL        string        `json:"url" bson:"url" validate:"required"`
+	Taxonomies []Taxonomy    `json:"taxonomies,omitempty" bson:"taxonomies,omitempty"`
 }
 
 // Validate performs validation on an Asset value before it is processed.
@@ -108,15 +108,15 @@ func (a *Asset) Validate() error {
 // User denotes a user in the system.
 type User struct {
 	ID          bson.ObjectId `json:"id" bson:"_id"`
-	SourceID    string        `json:"src_id" bson:"src_id"`
+	SourceID    string        `json:"src_id" bson:"src_id" validate:"required"`
 	UserName    string        `json:"user_name" bson:"user_name" validate:"required"`
-	Avatar      string        `json:"avatar" bson:"avatar" validate:"omitempty,url"`
-	Status      string        `json:"status" bson:"status"`
-	LastLogin   time.Time     `json:"last_login" bson:"last_login"`
-	MemberSince time.Time     `json:"member_since" bson:"member_since"`
-	ActionsBy   []Action      `json:"actions_by" bson:"actions_by"`
-	ActionsOn   []Action      `json:"actions_on" bson:"actions_on"`
-	Notes       []Note        `json:"notes" bson:"notes"`
+	Avatar      string        `json:"avatar" bson:"avatar" validate:"required"`
+	Status      string        `json:"status" bson:"status" validate:"required"`
+	LastLogin   time.Time     `json:"last_login,omitempty" bson:"last_login,omitempty"`
+	MemberSince time.Time     `json:"member_since,omitempty" bson:"member_since,omitempty"`
+	ActionsBy   []Action      `json:"actions_by,omitempty" bson:"actions_by,omitempty"`
+	ActionsOn   []Action      `json:"actions_on,omitempty" bson:"actions_on,omitempty"`
+	Notes       []Note        `json:"notes,omitempty" bson:"notes,omitempty"`
 	//	Stats       map[string]interface{} `json:"stats" bson:"stats"`
 	//	Source      map[string]interface{} `json:"source" bson:"source"` // source document if imported
 }

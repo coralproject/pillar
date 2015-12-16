@@ -7,7 +7,7 @@ import (
 )
 
 // CreateComment creates a new comment resource
-func CreateComment(input model.Comment) (*model.Comment, error) {
+func CreateComment(object model.Comment) (*model.Comment, error) {
 
 	// Insert Comment
 	manager := getMongoManager()
@@ -16,24 +16,24 @@ func CreateComment(input model.Comment) (*model.Comment, error) {
 	dbEntity := model.Comment{}
 
 	//return, if exists
-	manager.comments.FindId(input.ID).One(&dbEntity)
+	manager.comments.FindId(object.ID).One(&dbEntity)
 	if dbEntity.ID != "" {
-		fmt.Printf("Entity exists with ID [%s]", input.ID)
+		fmt.Printf("Entity exists with ID [%s]", object.ID)
 		return &dbEntity, nil
 	}
 
 	//return, if exists
-	manager.comments.Find(bson.M{"source.id": input.Source.ID}).One(&dbEntity)
+	manager.comments.Find(bson.M{"source.id": object.Source.ID}).One(&dbEntity)
 	if dbEntity.ID != "" {
-		fmt.Printf("Entity exists with URL [%s]", input.Source.ID)
+		fmt.Printf("Entity exists with URL [%s]", object.Source.ID)
 		return &dbEntity, nil
 	}
 
-	input.ID = bson.NewObjectId()
-	err := manager.comments.Insert(input)
+	object.ID = bson.NewObjectId()
+	err := manager.comments.Insert(object)
 	if err != nil {
 		return nil, err
 	}
 
-	return &dbEntity, nil
+	return &object, nil
 }

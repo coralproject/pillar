@@ -7,15 +7,15 @@ import (
 	"github.com/coralproject/pillar/service"
 )
 
-//AddComment function adds a new comment to the system
-func AddComment(w http.ResponseWriter, r *http.Request) {
+//AddAsset function adds a new user to the system
+func AddAsset(w http.ResponseWriter, r *http.Request) {
 	//Get the user from request
-	jsonObject := model.Comment{}
+	jsonObject := model.Asset{}
 	json.NewDecoder(r.Body).Decode(&jsonObject)
 
-	// Write content-type, statuscode, payload
+	// Write content-type, statuscode and payload
 	w.Header().Set("Content-Type", "application/json")
-	dbObject, err := service.CreateComment(jsonObject)
+	dbObject, err := service.CreateAsset(jsonObject)
 	if err != nil {
 		w.WriteHeader(401)
 		return

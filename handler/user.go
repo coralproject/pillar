@@ -2,7 +2,6 @@ package handler
 
 import (
 	"encoding/json"
-	"fmt"
 	"github.com/coralproject/pillar/model"
 	"net/http"
 	"github.com/coralproject/pillar/service"
@@ -11,25 +10,23 @@ import (
 //AddUser function adds a new user to the system
 func AddUser(w http.ResponseWriter, r *http.Request) {
 	//Get the user from request
-	user := model.User{}
-	json.NewDecoder(r.Body).Decode(&user)
-	fmt.Println("User: ", user)
+	jsonObject := model.User{}
+	json.NewDecoder(r.Body).Decode(&jsonObject)
 
+	// Write content-type, statuscode, payload
 	w.Header().Set("Content-Type", "application/json")
-
-	dbUser, err := service.CreateUser(user)
+	dbObject, err := service.CreateUser(jsonObject)
 	if err != nil {
 		w.WriteHeader(401)
 		return
 	}
 
-	js, err := json.Marshal(dbUser)
+	payload, err := json.Marshal(dbObject)
 	if err != nil {
 		w.WriteHeader(500)
 		return
 	}
 
-	// Write content-type, statuscode, payload
 	w.WriteHeader(200)
-	w.Write(js)
+	w.Write(payload)
 }

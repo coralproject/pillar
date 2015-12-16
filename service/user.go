@@ -7,7 +7,7 @@ import (
 )
 
 // CreateUser creates a new user resource
-func CreateUser(input model.User) (*model.User, error) {
+func CreateUser(object model.User) (*model.User, error) {
 
 	// Insert Comment
 	manager := getMongoManager()
@@ -16,24 +16,24 @@ func CreateUser(input model.User) (*model.User, error) {
 	dbEntity := model.User{}
 
 	//return, if exists
-	manager.users.FindId(input.ID).One(&dbEntity)
+	manager.users.FindId(object.ID).One(&dbEntity)
 	if dbEntity.ID != "" {
-		fmt.Printf("Entity exists with ID [%s]", input.ID)
+		fmt.Printf("Entity exists with ID [%s]", object.ID)
 		return &dbEntity, nil
 	}
 
 	//return, if exists
-	manager.users.Find(bson.M{"src_id": input.SourceID}).One(&dbEntity)
+	manager.users.Find(bson.M{"src_id": object.SourceID}).One(&dbEntity)
 	if dbEntity.ID != "" {
-		fmt.Printf("Entity exists with URL [%s]", input.SourceID)
+		fmt.Printf("Entity exists with URL [%s]", object.SourceID)
 		return &dbEntity, nil
 	}
 
-	input.ID = bson.NewObjectId()
-	err := manager.users.Insert(input)
+	object.ID = bson.NewObjectId()
+	err := manager.users.Insert(object)
 	if err != nil {
 		return nil, err
 	}
 
-	return &dbEntity, nil
+	return &object, nil
 }

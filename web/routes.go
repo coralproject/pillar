@@ -57,6 +57,12 @@ var routes = Routes{
 	Route{
 		"User",
 		"POST",
+		"/asset",
+		handler.AddAsset,
+	},
+	Route{
+		"User",
+		"POST",
 		"/user",
 		handler.AddUser,
 	},
