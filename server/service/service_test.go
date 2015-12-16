@@ -8,8 +8,12 @@ import (
 	"github.com/coralproject/pillar/server/model"
 )
 
+const dataUsers  = "../../data/users.json"
+const dataAssets  = "../../data/assets.json"
+const dataComments  = "../../data/comments.json"
+
 func TestCreateAsset(t *testing.T) {
-	file, err := os.Open("../../data/assets.json")
+	file, err := os.Open(dataAssets)
 	if err != nil {
 		fmt.Println("opening config file", err.Error())
 	}
@@ -29,7 +33,7 @@ func TestCreateAsset(t *testing.T) {
 }
 
 func TestCreateUser(t *testing.T) {
-	file, err := os.Open("../../data/users.json")
+	file, err := os.Open(dataUsers)
 	if err != nil {
 		fmt.Println("opening config file", err.Error())
 	}

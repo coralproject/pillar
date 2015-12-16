@@ -57,19 +57,19 @@ var routes = Routes{
 	Route{
 		"User",
 		"POST",
-		"/asset",
+		"/api/import/asset",
 		handler.AddAsset,
 	},
 	Route{
 		"User",
 		"POST",
-		"/user",
+		"/api/import/user",
 		handler.AddUser,
 	},
 	Route{
 		"Comment",
 		"POST",
-		"/comment",
+		"/api/import/comment",
 		handler.AddComment,
 	},
 }
