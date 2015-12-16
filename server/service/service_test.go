@@ -3,13 +3,13 @@ package service
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/coralproject/pillar/model"
 	"os"
 	"testing"
+	"github.com/coralproject/pillar/server/model"
 )
 
 func TestCreateAsset(t *testing.T) {
-	file, err := os.Open("assets.json")
+	file, err := os.Open("../../data/assets.json")
 	if err != nil {
 		fmt.Println("opening config file", err.Error())
 	}
@@ -29,7 +29,7 @@ func TestCreateAsset(t *testing.T) {
 }
 
 func TestCreateUser(t *testing.T) {
-	file, err := os.Open("users.json")
+	file, err := os.Open("../../data/users.json")
 	if err != nil {
 		fmt.Println("opening config file", err.Error())
 	}
