@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/coralproject/pillar/web"
+	"github.com/coralproject/pillar/server/web"
 	"log"
 	"net/http"
 )

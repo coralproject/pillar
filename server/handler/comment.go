@@ -2,9 +2,9 @@ package handler
 
 import (
 	"encoding/json"
-	"github.com/coralproject/pillar/model"
+	"github.com/coralproject/pillar/server/model"
+	"github.com/coralproject/pillar/server/service"
 	"net/http"
-	"github.com/coralproject/pillar/service"
 )
 
 //AddComment function adds a new comment to the system

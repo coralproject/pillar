@@ -2,7 +2,7 @@ package web
 
 import (
 	"encoding/json"
-	"github.com/coralproject/pillar/handler"
+	"github.com/coralproject/pillar/server/handler"
 	"github.com/gorilla/mux"
 	"log"
 	"net/http"

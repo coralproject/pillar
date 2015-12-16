@@ -2,20 +2,20 @@ package handler
 
 import (
 	"encoding/json"
-	"github.com/coralproject/pillar/model"
+	"github.com/coralproject/pillar/server/model"
+	"github.com/coralproject/pillar/server/service"
 	"net/http"
-	"github.com/coralproject/pillar/service"
 )
 
-//AddUser function adds a new user to the system
-func AddUser(w http.ResponseWriter, r *http.Request) {
+//AddAsset function adds a new user to the system
+func AddAsset(w http.ResponseWriter, r *http.Request) {
 	//Get the user from request
-	jsonObject := model.User{}
+	jsonObject := model.Asset{}
 	json.NewDecoder(r.Body).Decode(&jsonObject)
 
-	// Write content-type, statuscode, payload
+	// Write content-type, statuscode and payload
 	w.Header().Set("Content-Type", "application/json")
-	dbObject, err := service.CreateUser(jsonObject)
+	dbObject, err := service.CreateAsset(jsonObject)
 	if err != nil {
 		w.WriteHeader(401)
 		return
