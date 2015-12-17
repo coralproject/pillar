@@ -9,6 +9,7 @@ import (
 	"reflect"
 	"strings"
 	"time"
+	"fmt"
 )
 
 func wapoFiddler() {
@@ -71,11 +72,19 @@ func getComment(m objects.Map, url string) model.Comment {
 	t, _ = time.Parse(time.RFC3339, m.GetString("updated"))
 	comment.DateUpdated = t
 
-	comment.Source.ID = findCommentId(m.GetString("id"))
+	comment.Source.ID = getShortCommentID(m.GetString("id"))
 	comment.Source.AssetID = url
 	comment.Source.UserID = m.GetString("actor.id")
-	parentID := getOne(m.Get("targets")).GetString("conversationID")
-	comment.Source.ParentID = findCommentID(parentID)
+
+
+	target := getOne(m.Get("targets"))
+	targetID := getShortCommentID(target.GetString("id"))
+//	targetConversationID := getShortCommentID(target.GetString("conversationID"))
+	fmt.Printf("ID: %s\n", comment.Source.ID)
+	fmt.Printf("targetID: %s\n", targetID)
+//	fmt.Printf("targetConversationID: %s\n\n\n", targetConversationID)
+
+	comment.Source.ParentID = getShortCommentID(targetID)
 
 	return comment
 }
@@ -99,8 +108,7 @@ func getOne(list interface{}) objects.Map {
 
 //str := "http://washingtonpost.com/ECHO/item/c5c8f176-3f27-4228-94d1-8dffc73028ac"
 //str = "http://js-kit.com/activities/post/c5c8f176-3f27-4228-94d1-8dffc73028ac"
-
-func findCommentID(url string) string {
+func getShortCommentID(url string) string {
 	var s []string
 	s = strings.Split(url, "/")
 	return s[(len(s) - 1)]
