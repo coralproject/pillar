@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -20,9 +21,9 @@ const urlUser string = url + "user"
 const urlAsset string = url + "asset"
 const urlComment string = url + "comment"
 
-const dataUsers = "../data/users.json"
-const dataAssets = "../data/assets.json"
-const dataComments = "../data/comments.json"
+const dataUsers = "data/users.json"
+const dataAssets = "data/assets.json"
+const dataComments = "data/comments.json"
 
 type restResponse struct {
 	status  string
@@ -37,9 +38,10 @@ func main() {
 	//
 	//	//insert users
 	//	addUsers()
-
-	//insert comments
-	addComments()
+	//
+	//	//insert comments
+	//	addComments()
+	wapoFiddler()
 }
 
 func addAssets() {
@@ -96,7 +98,7 @@ func addComments() {
 	}
 }
 
-func doRequest(method string, urlStr string, payload *bytes.Buffer) {
+func doRequest(method string, urlStr string, payload io.Reader) {
 
 	request, err := http.NewRequest(method, urlStr, payload)
 	request.Header.Set("Content-Type", "application/json")
