@@ -1,0 +1,41 @@
+{
+	"comment": "",
+	"ignore": "test",
+	"package": [
+		{
+			"path": "github.com/gorilla/context",
+			"revision": "1c83b3eabd45b6d76072b66b746c20815fb2872d",
+			"revisionTime": "2015-08-19T22:12:45-07:00"
+		},
+		{
+			"path": "github.com/gorilla/mux",
+			"revision": "9c068cf16d982f8bd444b8c352acbeec34c4fe5b",
+			"revisionTime": "2015-11-11T18:35:30+08:00"
+		},
+		{
+			"path": "gopkg.in/bluesuncorp/validator.v6",
+			"revision": "15e8444e515459e82ef3c33c8cd2dc68b2031e5b",
+			"revisionTime": "2015-09-24T07:48:25-04:00"
+		},
+		{
+			"path": "gopkg.in/mgo.v2",
+			"revision": "f402e3a216db333ae6b3ba68b9152a34a0bc6984",
+			"revisionTime": "2015-10-05T19:07:38-07:00"
+		},
+		{
+			"path": "gopkg.in/mgo.v2/bson",
+			"revision": "f402e3a216db333ae6b3ba68b9152a34a0bc6984",
+			"revisionTime": "2015-10-05T19:07:38-07:00"
+		},
+		{
+			"path": "gopkg.in/mgo.v2/internal/sasl",
+			"revision": "f402e3a216db333ae6b3ba68b9152a34a0bc6984",
+			"revisionTime": "2015-10-05T19:07:38-07:00"
+		},
+		{
+			"path": "gopkg.in/mgo.v2/internal/scram",
+			"revision": "f402e3a216db333ae6b3ba68b9152a34a0bc6984",
+			"revisionTime": "2015-10-05T19:07:38-07:00"
+		}
+	]
+}

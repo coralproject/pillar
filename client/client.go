@@ -4,12 +4,13 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"github.com/coralproject/pillar/server/model"
 	"io"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
+
+	"github.com/coralproject/pillar/server/model"
 )
 
 const methodGet string = "GET"
@@ -20,9 +21,9 @@ const urlUser string = url + "user"
 const urlAsset string = url + "asset"
 const urlComment string = url + "comment"
 
-const dataUsers = "../src/github.com/coralproject/pillar/data/users.json"
-const dataAssets = "../src/github.com/coralproject/pillar/data/assets.json"
-const dataComments = "../src/github.com/coralproject/pillar/data/comments.json"
+const dataUsers = "data/users.json"
+const dataAssets = "data/assets.json"
+const dataComments = "data/comments.json"
 
 type restResponse struct {
 	Status     string
@@ -41,7 +42,6 @@ func main() {
 	//
 	//	//insert comments
 	//	addComments()
-
 	wapoFiddler()
 }
 

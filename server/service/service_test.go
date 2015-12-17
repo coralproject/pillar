@@ -3,14 +3,15 @@ package service
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/coralproject/pillar/server/model"
 	"os"
 	"testing"
+
+	"github.com/coralproject/pillar/server/model"
 )
 
-const dataUsers = "../../data/users.json"
-const dataAssets = "../../data/assets.json"
-const dataComments = "../../data/comments.json"
+const dataUsers = "fixtures/users.json"
+const dataAssets = "fixtures/assets.json"
+const dataComments = "fixtures/comments.json"
 
 func TestCreateAsset(t *testing.T) {
 	file, err := os.Open(dataAssets)
