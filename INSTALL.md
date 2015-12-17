@@ -32,3 +32,9 @@ go build
 ### Run the Client
 
 To test that your local service is working correctly you can run the client.
+
+```
+cd client
+go build
+./client
+```
