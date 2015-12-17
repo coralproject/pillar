@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/coralproject/pillar/server/model"
 	"gopkg.in/mgo.v2/bson"
+	"reflect"
 )
 
 // CreateComment creates a new comment resource
@@ -19,16 +20,15 @@ func CreateComment(object model.Comment) (*model.Comment, error) {
 	//return, if exists
 	manager.comments.FindId(object.ID).One(&dbEntity)
 	if dbEntity.ID != "" {
-		fmt.Printf("Entity exists with ID [%s]", object.ID)
+		fmt.Printf("%s exists with ID [%s]\n", reflect.TypeOf(object).Name(), object.ID)
 		return &dbEntity, nil
 	}
 
 	//find & return if one exist with the same source.id
-	one := findOne(manager.comments, bson.M{"source.id": object.Source.ID})
-	if one != nil {
-		fmt.Printf("Entity exists with source [%s]", object.Source.ID)
-		comment := one.(model.Comment)
-		return &comment, nil
+	manager.comments.Find(bson.M{"source.id": object.Source.ID}).One(&dbEntity)
+	if dbEntity.ID != "" {
+		fmt.Printf("%s exists with source [%s]\n", reflect.TypeOf(object).Name(), object.Source.ID)
+		return &dbEntity, nil
 	}
 
 	//fix all references with ObjectId
