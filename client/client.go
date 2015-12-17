@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/coralproject/pillar/server/model"
 	"io"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -24,9 +25,10 @@ const dataAssets = "../src/github.com/coralproject/pillar/data/assets.json"
 const dataComments = "../src/github.com/coralproject/pillar/data/comments.json"
 
 type restResponse struct {
-	status  string
-	header  http.Header
-	payload string
+	Status     string
+	Header     http.Header
+	Payload    string
+	StatusCode int
 }
 
 func main() {
@@ -97,7 +99,7 @@ func addComments() {
 	}
 }
 
-func doRequest(method string, urlStr string, payload io.Reader) {
+func doRequest(method string, urlStr string, payload io.Reader) restResponse {
 
 	request, err := http.NewRequest(method, urlStr, payload)
 	request.Header.Set("Content-Type", "application/json")
@@ -109,13 +111,14 @@ func doRequest(method string, urlStr string, payload io.Reader) {
 	}
 	defer response.Body.Close()
 
-//	resBody, _ := ioutil.ReadAll(response.Body)
-//
-//	rest := restResponse{
-//		response.Status,
-//		response.Header,
-//		string(resBody),
-//	}
-//
-//	fmt.Printf("%+v\n\n", rest)
+	resBody, _ := ioutil.ReadAll(response.Body)
+
+	rest := restResponse{
+		response.Status,
+		response.Header,
+		string(resBody),
+		response.StatusCode,
+	}
+
+	return rest
 }

@@ -21,7 +21,7 @@ func (manager *mongoManager) close() {
 	manager.session.Close()
 }
 
-//export MONGODB_URL=mongodb://localhost:27017/echo
+//export MONGODB_URL=mongodb://myuser:mypass@localhost:27017/echo
 func init() {
 	uri := os.Getenv("MONGODB_URL")
 	if uri == "" {
