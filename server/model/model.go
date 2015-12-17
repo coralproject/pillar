@@ -19,9 +19,9 @@ func init() {
 	validate = validator.New(config)
 }
 
-type DBType interface {
-	Id() bson.ObjectId
-}
+//type DBType interface {
+//	Id() bson.ObjectId
+//}
 
 //==============================================================================
 
@@ -71,9 +71,9 @@ type Comment struct {
 	//	Stats        map[string]interface{} `json:"stats" bson:"stats"`
 }
 
-func (object Comment) Id() bson.ObjectId {
-	return object.ID
-}
+//func (object Comment) Id() bson.ObjectId {
+//	return object.ID
+//}
 
 // Validate performs validation on a Comment value before it is processed.
 func (com Comment) Validate() error {
@@ -101,9 +101,9 @@ type Asset struct {
 	Taxonomies []Taxonomy    `json:"taxonomies,omitempty" bson:"taxonomies,omitempty"`
 }
 
-func (object Asset) Id() bson.ObjectId {
-	return object.ID
-}
+//func (object Asset) Id() bson.ObjectId {
+//	return object.ID
+//}
 
 // Validate performs validation on an Asset value before it is processed.
 func (a Asset) Validate() error {
@@ -133,9 +133,9 @@ type User struct {
 	//	Source      map[string]interface{} `json:"source" bson:"source"` // source document if imported
 }
 
-func (object User) Id() bson.ObjectId {
-	return object.ID
-}
+//func (object User) Id() bson.ObjectId {
+//	return object.ID
+//}
 
 // Validate performs validation on a User value before it is processed.
 func (u User) Validate() error {

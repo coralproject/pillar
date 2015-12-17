@@ -2,10 +2,10 @@ package service
 
 import (
 	"errors"
-	"fmt"
 	"github.com/coralproject/pillar/server/model"
 	"gopkg.in/mgo.v2/bson"
-	"reflect"
+	//	"fmt"
+	//	"reflect"
 )
 
 // CreateComment creates a new comment resource
@@ -19,14 +19,14 @@ func CreateComment(object model.Comment) (*model.Comment, error) {
 
 	//return, if exists
 	if manager.comments.FindId(object.ID).One(&dbEntity); dbEntity.ID != "" {
-		fmt.Printf("%s exists with ID [%s]\n", reflect.TypeOf(object).Name(), object.ID)
+		//fmt.Printf("%s exists with ID [%s]\n", reflect.TypeOf(object).Name(), object.ID)
 		return &dbEntity, nil
 	}
 
 	//find & return if one exist with the same source.id
 	manager.comments.Find(bson.M{"source.id": object.Source.ID}).One(&dbEntity)
 	if dbEntity.ID != "" {
-		fmt.Printf("%s exists with source [%s]\n", reflect.TypeOf(object).Name(), object.Source.ID)
+		//fmt.Printf("%s exists with source [%s]\n", reflect.TypeOf(object).Name(), object.Source.ID)
 		return &dbEntity, nil
 	}
 
@@ -73,7 +73,7 @@ func fixReferences(object *model.Comment, manager *mongoManager) error {
 			//parent.Children = make([]bson.ObjectId, 10)
 			children := append(parent.Children, object.ID)
 			manager.comments.Update(bson.M{"_id": parent.ID},
-				bson.M{ "$set" : bson.M{"children" : children} } )
+				bson.M{"$set": bson.M{"children": children}})
 		}
 	}
 	return nil
