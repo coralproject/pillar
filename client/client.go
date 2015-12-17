@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"github.com/coralproject/pillar/server/model"
 	"io"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -110,13 +109,13 @@ func doRequest(method string, urlStr string, payload io.Reader) {
 	}
 	defer response.Body.Close()
 
-	resBody, _ := ioutil.ReadAll(response.Body)
-
-	rest := restResponse{
-		response.Status,
-		response.Header,
-		string(resBody),
-	}
-
-	fmt.Printf("%+v\n\n", rest)
+//	resBody, _ := ioutil.ReadAll(response.Body)
+//
+//	rest := restResponse{
+//		response.Status,
+//		response.Header,
+//		string(resBody),
+//	}
+//
+//	fmt.Printf("%+v\n\n", rest)
 }

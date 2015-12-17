@@ -18,8 +18,7 @@ func CreateComment(object model.Comment) (*model.Comment, error) {
 	var dbEntity model.Comment
 
 	//return, if exists
-	manager.comments.FindId(object.ID).One(&dbEntity)
-	if dbEntity.ID != "" {
+	if manager.comments.FindId(object.ID).One(&dbEntity); dbEntity.ID != "" {
 		fmt.Printf("%s exists with ID [%s]\n", reflect.TypeOf(object).Name(), object.ID)
 		return &dbEntity, nil
 	}
@@ -33,13 +32,11 @@ func CreateComment(object model.Comment) (*model.Comment, error) {
 
 	//fix all references with ObjectId
 	object.ID = bson.NewObjectId()
-	err := fixReferences(&object, manager)
-	if err != nil {
+	if err := fixReferences(&object, manager); err != nil {
 		return nil, err
 	}
 
-	err = manager.comments.Insert(object)
-	if err != nil {
+	if err := manager.comments.Insert(object); err != nil {
 		return nil, err
 	}
 
@@ -51,7 +48,6 @@ func fixReferences(object *model.Comment, manager *mongoManager) error {
 	var asset model.Asset
 	manager.assets.Find(bson.M{"src_id": object.Source.AssetID}).One(&asset)
 	if asset.ID == "" {
-		//asset = findOne(manager.assets, bson.M{"url": object.Source.AssetID})
 		manager.assets.Find(bson.M{"url": object.Source.AssetID}).One(&asset)
 	}
 	if asset.ID == "" {
@@ -68,11 +64,17 @@ func fixReferences(object *model.Comment, manager *mongoManager) error {
 	object.UserID = user.ID
 
 	//find parent and add the reference to it
-	var parent model.Comment
-	manager.comments.Find(bson.M{"source.id": object.Source.UserID}).One(&parent)
-	if parent.ID != "" {
-		object.ParentID = parent.ID
+	if object.Source.ID != object.Source.ParentID {
+		var parent model.Comment
+		manager.comments.Find(bson.M{"source.parent_id": object.Source.ParentID}).One(&parent)
+		if parent.ID != "" {
+			object.ParentID = parent.ID
+			//add this as a child for the parent comment
+			//parent.Children = make([]bson.ObjectId, 10)
+			children := append(parent.Children, object.ID)
+			manager.comments.Update(bson.M{"_id": parent.ID},
+				bson.M{ "$set" : bson.M{"children" : children} } )
+		}
 	}
-
 	return nil
 }
