@@ -1,10 +1,11 @@
 package service
 
 import (
-	"fmt"
-	"github.com/coralproject/pillar/server/model"
-	"gopkg.in/mgo.v2"
+	"errors"
 	"os"
+
+	"github.com/ardanlabs/kit/log"
+	"gopkg.in/mgo.v2"
 )
 
 const collectionUser string = "user"
@@ -30,13 +31,14 @@ func (manager *mongoManager) close() {
 func init() {
 	uri := os.Getenv("MONGODB_URL")
 	if uri == "" {
-		fmt.Println("Error connecting - MONGODB_URL not found!")
+		log.Error("start", "init", errors.New("Error connecting - MONGODB_URL not found!"), "Getting MONGODB_URL env variable.")
 		os.Exit(1)
 	}
 
-	session, error := mgo.Dial(uri)
-	if error != nil {
-		panic(error) // no, not really
+	session, err := mgo.Dial(uri)
+	if err != nil {
+		log.Error("start", "init", err, "Connecting to mongo")
+		panic(err) // no, not really <--- do we really need to panic?
 	}
 
 	mgoSession = session

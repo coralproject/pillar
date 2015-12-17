@@ -2,10 +2,11 @@ package service
 
 import (
 	"errors"
+	"reflect"
+
+	"github.com/ardanlabs/kit/log"
 	"github.com/coralproject/pillar/server/model"
 	"gopkg.in/mgo.v2/bson"
-	//	"fmt"
-	//	"reflect"
 )
 
 // CreateComment creates a new comment resource
@@ -19,24 +20,26 @@ func CreateComment(object model.Comment) (*model.Comment, error) {
 
 	//return, if exists
 	if manager.comments.FindId(object.ID).One(&dbEntity); dbEntity.ID != "" {
-		//fmt.Printf("%s exists with ID [%s]\n", reflect.TypeOf(object).Name(), object.ID)
+		log.Dev("service", "Createcomment", "%s exists with ID [%s]\n", reflect.TypeOf(object).Name(), object.ID)
 		return &dbEntity, nil
 	}
 
 	//find & return if one exist with the same source.id
 	manager.comments.Find(bson.M{"source.id": object.Source.ID}).One(&dbEntity)
 	if dbEntity.ID != "" {
-		//fmt.Printf("%s exists with source [%s]\n", reflect.TypeOf(object).Name(), object.Source.ID)
+		log.Dev("service", "CreateComment", "%s exists with source [%s]\n", reflect.TypeOf(object).Name(), object.Source.ID)
 		return &dbEntity, nil
 	}
 
 	//fix all references with ObjectId
 	object.ID = bson.NewObjectId()
 	if err := fixReferences(&object, manager); err != nil {
+		log.Error("service", "CreateComment", err, "fix references")
 		return nil, err
 	}
 
 	if err := manager.comments.Insert(object); err != nil {
+		log.Error("service", "CreateComment", err, "Inserting comments")
 		return nil, err
 	}
 
@@ -59,7 +62,9 @@ func fixReferences(object *model.Comment, manager *mongoManager) error {
 	var user model.User
 	manager.users.Find(bson.M{"src_id": object.Source.UserID}).One(&user)
 	if user.ID == "" {
-		return errors.New("Cannot find user from source: " + object.Source.UserID)
+		err := errors.New("Cannot find user from source: " + object.Source.UserID)
+		log.Error("service", "fixReferences", err, "finding users")
+		return err
 	}
 	object.UserID = user.ID
 
