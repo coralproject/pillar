@@ -1,14 +1,15 @@
 package main
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
+	"github.com/coralproject/pillar/server/model"
+	"io"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
-	"github.com/coralproject/pillar/server/model"
-	"encoding/json"
-	"bytes"
 )
 
 const methodGet string = "GET"
@@ -19,26 +20,28 @@ const urlUser string = url + "user"
 const urlAsset string = url + "asset"
 const urlComment string = url + "comment"
 
-const dataUsers  = "../src/github.com/coralproject/pillar/data/users.json"
-const dataAssets  = "../src/github.com/coralproject/pillar/data/assets.json"
-const dataComments  = "../src/github.com/coralproject/pillar/data/comments.json"
+const dataUsers = "../src/github.com/coralproject/pillar/data/users.json"
+const dataAssets = "../src/github.com/coralproject/pillar/data/assets.json"
+const dataComments = "../src/github.com/coralproject/pillar/data/comments.json"
 
 type restResponse struct {
-	status string
-	header http.Header
+	status  string
+	header  http.Header
 	payload string
 }
 
 func main() {
 
-//	//insert assets
-//	addAssets()
-//
-//	//insert users
-//	addUsers()
+	//	//insert assets
+	//	addAssets()
+	//
+	//	//insert users
+	//	addUsers()
+	//
+	//	//insert comments
+	//	addComments()
 
-	//insert comments
-	addComments()
+	wapoFiddler()
 }
 
 func addAssets() {
@@ -95,7 +98,7 @@ func addComments() {
 	}
 }
 
-func doRequest(method string, urlStr string, payload *bytes.Buffer) {
+func doRequest(method string, urlStr string, payload io.Reader) {
 
 	request, err := http.NewRequest(method, urlStr, payload)
 	request.Header.Set("Content-Type", "application/json")
@@ -109,7 +112,7 @@ func doRequest(method string, urlStr string, payload *bytes.Buffer) {
 
 	resBody, _ := ioutil.ReadAll(response.Body)
 
-	rest := restResponse {
+	rest := restResponse{
 		response.Status,
 		response.Header,
 		string(resBody),
