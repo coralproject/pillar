@@ -38,7 +38,7 @@ Imports an ```Asset``` from an external system and the caller must pass a json p
 
 ~~~
 {
-  "src_id" : "42f215a2-066c-11e5-a428-c984eb077d4e"
+  "src_id" : "42f215a2-066c-11e5-a428-c984eb077d4e",
   "url" : "http://washingtonpost.com/world/national-security/some-nsa-surveillance-powers-set-to-expire-sunday-unless-senate-acts/2015/05/31/42f215a2-066c-11e5-a428-c984eb077d4e_story.html"
 }
 ~~~

@@ -7,26 +7,14 @@ import (
 	"net/http"
 )
 
-//AddAsset function adds a new user to the system
-func AddAsset(w http.ResponseWriter, r *http.Request) {
+//ImportAsset imports a new asset to the system
+func ImportAsset(w http.ResponseWriter, r *http.Request) {
 	//Get the user from request
 	jsonObject := model.Asset{}
 	json.NewDecoder(r.Body).Decode(&jsonObject)
 
-	// Write content-type, statuscode and payload
+	// Write content-type, status code and payload
 	w.Header().Set("Content-Type", "application/json")
 	dbObject, err := service.CreateAsset(jsonObject)
-	if err != nil {
-		w.WriteHeader(401)
-		return
-	}
-
-	payload, err := json.Marshal(dbObject)
-	if err != nil {
-		w.WriteHeader(500)
-		return
-	}
-
-	w.WriteHeader(200)
-	w.Write(payload)
+	doRespond(w, dbObject, err)
 }

@@ -2,7 +2,6 @@ package service
 
 import (
 	"fmt"
-	"github.com/coralproject/pillar/server/model"
 	"gopkg.in/mgo.v2"
 	"os"
 )

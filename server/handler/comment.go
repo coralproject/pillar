@@ -7,8 +7,8 @@ import (
 	"net/http"
 )
 
-//AddComment function adds a new comment to the system
-func AddComment(w http.ResponseWriter, r *http.Request) {
+//ImportComment imports a new comment to the system
+func ImportComment(w http.ResponseWriter, r *http.Request) {
 	//Get the user from request
 	jsonObject := model.Comment{}
 	json.NewDecoder(r.Body).Decode(&jsonObject)
@@ -16,18 +16,5 @@ func AddComment(w http.ResponseWriter, r *http.Request) {
 	// Write content-type, statuscode, payload
 	w.Header().Set("Content-Type", "application/json")
 	dbObject, err := service.CreateComment(jsonObject)
-	if err != nil {
-		w.WriteHeader(401)
-		w.Write([]byte(err.Error()))
-		return
-	}
-
-	payload, err := json.Marshal(dbObject)
-	if err != nil {
-		w.WriteHeader(500)
-		return
-	}
-
-	w.WriteHeader(200)
-	w.Write(payload)
+	doRespond(w, dbObject, err)
 }
