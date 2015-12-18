@@ -7,26 +7,14 @@ import (
 	"net/http"
 )
 
-//AddUser function adds a new user to the system
-func AddUser(w http.ResponseWriter, r *http.Request) {
+//ImportUser imports a new user to the system
+func ImportUser(w http.ResponseWriter, r *http.Request) {
 	//Get the user from request
 	jsonObject := model.User{}
 	json.NewDecoder(r.Body).Decode(&jsonObject)
 
-	// Write content-type, statuscode, payload
+	// Write content-type, status code, payload
 	w.Header().Set("Content-Type", "application/json")
 	dbObject, err := service.CreateUser(jsonObject)
-	if err != nil {
-		w.WriteHeader(401)
-		return
-	}
-
-	payload, err := json.Marshal(dbObject)
-	if err != nil {
-		w.WriteHeader(500)
-		return
-	}
-
-	w.WriteHeader(200)
-	w.Write(payload)
+	doRespond(w, dbObject, err)
 }

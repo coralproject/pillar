@@ -41,7 +41,7 @@ var routes = Routes{
 		"About",
 		"GET",
 		"/about",
-		handler.About,
+		handler.AboutThisApp,
 	},
 	Route{
 		"Login",
@@ -59,19 +59,19 @@ var routes = Routes{
 		"User",
 		"POST",
 		"/api/import/asset",
-		handler.AddAsset,
+		handler.ImportAsset,
 	},
 	Route{
 		"User",
 		"POST",
 		"/api/import/user",
-		handler.AddUser,
+		handler.ImportUser,
 	},
 	Route{
 		"Comment",
 		"POST",
 		"/api/import/comment",
-		handler.AddComment,
+		handler.ImportComment,
 	},
 }
 

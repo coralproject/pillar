@@ -7,9 +7,36 @@ import (
 	"net/http"
 )
 
-//About shows the about page
-func About(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintln(w, "Comment Demo App, Version - 0.0.1")
+type About struct {
+	app     string
+	version string
+}
+var about About
+
+func init() {
+	about.app = "Coral Pillar Web Service"
+	about.version = "Version - 0.0.1"
+}
+
+//AboutThisApp displays the about page
+func AboutThisApp(w http.ResponseWriter, r *http.Request) {
+	doRespond(w, about, nil)
+}
+
+func doRespond(w http.ResponseWriter, object interface{}, err error) {
+	if err != nil {
+		http.Error(w, err.Error(), 500)
+		return
+	}
+
+	payload, err := json.Marshal(object)
+	if err != nil {
+		http.Error(w, err.Error(), 500)
+		return
+	}
+
+	w.WriteHeader(200)
+	w.Write(payload)
 }
 
 //Logout logs the user out of the system
