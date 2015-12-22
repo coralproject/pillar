@@ -46,9 +46,10 @@ type Action struct {
 
 // Note denotes a note by a user in the system.
 type Note struct {
-	UserID bson.ObjectId `json:"user_id" bson:"user_id"`
-	Body   string        `json:"body" bson:"body" validate:"required"`
-	Date   time.Time     `json:"date" bson:"date"` // date created
+	UserID       bson.ObjectId `json:"user_id" bson:"user_id"`
+	SourceUserID string        `json:"src_user_id,omitempty" bson:"src_user_id,omitempty"`
+	Body         string        `json:"body" bson:"body" validate:"required"`
+	Date         time.Time     `json:"date" bson:"date"` // date created
 }
 
 // CommentSource encapsulates all original id from the source system
