@@ -50,7 +50,12 @@ func getMongoManager() *mongoManager {
 
 	manager.session = mgoSession.Clone()
 	manager.assets = manager.session.DB("").C(collectionAsset)
+	manager.assets.EnsureIndexKey("src_id")
+	manager.assets.EnsureIndexKey("url")
+
 	manager.users = manager.session.DB("").C(collectionUser)
+	manager.users.EnsureIndexKey("src_id")
+
 	manager.comments = manager.session.DB("").C(collectionComment)
 
 	return &manager

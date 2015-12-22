@@ -44,11 +44,12 @@ func CreateComment(object model.Comment) (*model.Comment, error) {
 		return nil, err
 	}
 
-//	add notes
+//	//add notes
 //	if err := setActions(&object, manager); err != nil {
 //		log.Error("service", "CreateComment", err, "add notes")
 //		return nil, err
 //	}
+
 	//fmt.Printf("Comment: %+v\n\n", object)
 	if err := manager.comments.Insert(object); err != nil {
 		log.Error("service", "CreateComment", err, "Inserting comments")

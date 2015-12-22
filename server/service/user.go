@@ -6,6 +6,7 @@ import (
 	"github.com/ardanlabs/kit/log"
 	"github.com/coralproject/pillar/server/model"
 	"gopkg.in/mgo.v2/bson"
+	"fmt"
 )
 
 // CreateUser creates a new user resource
@@ -20,14 +21,16 @@ func CreateUser(object model.User) (*model.User, error) {
 	//return, if exists
 	manager.users.FindId(object.ID).One(&dbEntity)
 	if dbEntity.ID != "" {
-		log.Dev("service", "CreateUser", "%s exists with ID [%s]\n", reflect.TypeOf(object).Name(), object.ID)
+		message := fmt.Sprint("%s exists with ID [%s]\n", reflect.TypeOf(object).Name(), object.ID)
+		fmt.Printf(message)
 		return &dbEntity, nil
 	}
 
 	//return, if exists
 	manager.users.Find(bson.M{"src_id": object.SourceID}).One(&dbEntity)
 	if dbEntity.ID != "" {
-		log.Dev("service", "CreateUser", "%s exists with source [%s]\n", reflect.TypeOf(object).Name(), object.SourceID)
+		message := fmt.Sprint("%s exists with source [%s]\n", reflect.TypeOf(object).Name(), object.SourceID)
+		fmt.Printf(message)
 		return &dbEntity, nil
 	}
 
