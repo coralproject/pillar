@@ -1,7 +1,6 @@
-package main
+package fiddler
 
 import (
-	"bytes"
 	"encoding/json"
 	"fmt"
 	"github.com/coralproject/pillar/server/model"
@@ -10,22 +9,22 @@ import (
 	"reflect"
 	"strings"
 	"time"
+	"github.com/coralproject/pillar/client/db"
+	"github.com/coralproject/pillar/client/rest"
 )
 
-const shortForm = "2015-06-30T14:51:21Z"
-
-func wapoFiddler() {
+func LoadComments() {
 
 	//story := "http://washingtonpost.com/posteverything/wp/2015/05/20/feminists-want-us-to-define-these-ugly-sexual-encounters-as-rape-dont-let-them/"
 	//story := "http://washingtonpost.com/opinions/reformers-want-to-erase-confuciuss-influence-in-asia-thats-a-mistake/2015/05/28/529c1d3a-042e-11e5-a428-c984eb077d4e_story.html"
 	story := "http://washingtonpost.com/world/europe/european-leaders-seek-last-ditch-offer-to-bring-greece-from-brink-of-default/2015/06/30/960aded8-1ea2-11e5-a135-935065bc30d0_story.html"
 
-	manager := getMongoManager()
-	defer manager.close()
+	manager := db.GetMongoManager()
+	defer manager.Close()
 
 	all := make([]interface{}, 10)
 
-	manager.comments.Find(bson.M{"object.context.uri": story}).Sort("postedTime").All(&all)
+	manager.Comments.Find(bson.M{"object.context.uri": story}).Sort("postedTime").All(&all)
 
 	fmt.Printf("Found %d comments\n", len(all))
 	fmt.Printf("Import in progress...\n")
@@ -37,31 +36,26 @@ func wapoFiddler() {
 		json.Unmarshal(data, &comment)
 
 		asset := getAsset(comment)
-		if response := doRequest(methodPost, urlAsset, getBuffer(asset)); response.StatusCode == 200 {
+		if response := rest.Request(rest.MethodPost, rest.UrlAsset, getBuffer(asset)); response.StatusCode == 200 {
 			nAssets++
 		}
 
-		if response := doRequest(methodPost, urlUser, getBuffer(getUser(comment))); response.StatusCode == 200 {
+		if response := rest.Request(rest.MethodPost, rest.UrlUser, getBuffer(getUser(comment))); response.StatusCode == 200 {
 			nUsers++
 		}
 
 		users := getAllUsers(comment)
 		for i:=0; i<len(users); i++ {
-			if response := doRequest(methodPost, urlUser, getBuffer(users[i])); response.StatusCode == 200 {
+			if response := rest.Request(rest.MethodPost, rest.UrlUser, getBuffer(users[i])); response.StatusCode == 200 {
 				nUsers++
 			}
 		}
 
-		if response := doRequest(methodPost, urlComment, getBuffer(getComment(comment, asset.URL))); response.StatusCode == 200 {
+		if response := rest.Request(rest.MethodPost, rest.UrlComment, getBuffer(getComment(comment, asset.URL))); response.StatusCode == 200 {
 			nComments++
 		}
 	}
 	fmt.Printf("Finished importing: Comments[%d]\n\n\n", nComments)
-}
-
-func getBuffer(object interface{}) *bytes.Buffer {
-	b, _ := json.Marshal(object)
-	return bytes.NewBuffer(b)
 }
 
 func getAsset(m objects.Map) model.Asset {

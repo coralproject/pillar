@@ -11,6 +11,7 @@ import (
 	"os"
 
 	"github.com/coralproject/pillar/server/model"
+	"github.com/coralproject/pillar/client/fiddler"
 )
 
 const methodGet string = "GET"
@@ -42,7 +43,12 @@ func main() {
 	//
 	//	//insert comments
 	//	addComments()
-	wapoFiddler()
+
+	//Load WAPO users
+	fiddler.LoadActors()
+
+	//Load WAPO comments
+	//fiddler.LoadComments()
 }
 
 func addAssets() {
