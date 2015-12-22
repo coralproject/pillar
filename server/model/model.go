@@ -44,7 +44,7 @@ type Action struct {
 type Note struct {
 	UserID bson.ObjectId `json:"user_id" bson:"user_id"`
 	Body   string        `json:"body" bson:"body" validate:"required"`
-	Date   time.Time     `json:"date" bson:"date"`
+	Date   time.Time     `json:"date" bson:"date"` // date created
 }
 
 // CommentSource encapsulates all original id from the source system
@@ -99,7 +99,7 @@ type Taxonomy struct {
 // Asset denotes an asset in the system e.g. an article or a blog etc.
 type Asset struct {
 	ID         bson.ObjectId `json:"id" bson:"_id"`
-	SourceID   string        `json:"src_id,omitempty" bson:"src_id,omitempty"`
+	SourceID   string        `json:"src_id,omitempty" bson:"src_id,omitempty"` // This is the original ID (in the external source) for the asset
 	URL        string        `json:"url" bson:"url" validate:"required"`
 	Taxonomies []Taxonomy    `json:"taxonomies,omitempty" bson:"taxonomies,omitempty"`
 }
