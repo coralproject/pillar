@@ -3,10 +3,13 @@ package handler
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/coralproject/pillar/server/model"
 	"net/http"
+
+	"github.com/ardanlabs/kit/log"
+	"github.com/coralproject/pillar/server/model"
 )
 
+// About not sure what it is!
 type About struct {
 	app     string
 	version string
@@ -26,12 +29,14 @@ func AboutThisApp(w http.ResponseWriter, r *http.Request) {
 
 func doRespond(w http.ResponseWriter, object interface{}, err error) {
 	if err != nil {
+		log.Error("handler", "doRespond", err, "Calling it with error")
 		http.Error(w, err.Error(), 500)
 		return
 	}
 
 	payload, err := json.Marshal(object)
 	if err != nil {
+		log.Error("handler", "doRespond", err, "Error when marshaling object")
 		http.Error(w, err.Error(), 500)
 		return
 	}
