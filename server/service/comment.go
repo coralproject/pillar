@@ -44,11 +44,11 @@ func CreateComment(object model.Comment) (*model.Comment, error) {
 		return nil, err
 	}
 
-//	//add notes
-//	if err := setActions(&object, manager); err != nil {
-//		log.Error("service", "CreateComment", err, "add notes")
-//		return nil, err
-//	}
+	//add notes
+	if err := setNotes(&object, manager); err != nil {
+		log.Error("service", "CreateComment", err, "add notes")
+		return nil, err
+	}
 
 	//fmt.Printf("Comment: %+v\n\n", object)
 	if err := manager.comments.Insert(object); err != nil {
@@ -105,7 +105,6 @@ func setActions(object *model.Comment, manager *mongoManager) error {
 
 	for i:=0; i<len(object.Actions); i++ {
 		one := &object.Actions[i]
-	//for _, one := range object.Actions {
 		manager.users.Find(bson.M{"src_id": one.SourceUserID}).One(&user)
 		if user.ID == "" {
 			invalid_users = append(invalid_users, one.SourceUserID)
@@ -113,7 +112,6 @@ func setActions(object *model.Comment, manager *mongoManager) error {
 		}
 
 		one.UserID = user.ID
-		//fmt.Printf("Action: %+v\n\n", one)
 	}
 
 	if(len(invalid_users) > 0) {
@@ -126,10 +124,12 @@ func setActions(object *model.Comment, manager *mongoManager) error {
 func setNotes(object *model.Comment, manager *mongoManager) error {
 	var user model.User
 	var invalid_users []string
-	for _, one := range object.Notes {
+
+	for i:=0; i<len(object.Notes); i++ {
+		one := &object.Notes[i]
 		manager.users.Find(bson.M{"src_id": one.SourceUserID}).One(&user)
 		if user.ID == "" {
-			invalid_users[len(invalid_users)] = one.SourceUserID
+			invalid_users = append(invalid_users, one.SourceUserID)
 			continue
 		}
 
@@ -137,7 +137,7 @@ func setNotes(object *model.Comment, manager *mongoManager) error {
 	}
 
 	if(len(invalid_users) > 0) {
-		return errors.New("Error setting Notes - Cannot find users")
+		return errors.New("Error setting Actions - Cannot find users")
 	}
 
 	return nil;
