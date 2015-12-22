@@ -40,7 +40,7 @@ type Action struct {
 	UserID       bson.ObjectId `json:"user_id" bson:"user_id"`
 	SourceUserID string        `json:"src_user_id,omitempty" bson:"src_user_id,omitempty"`
 	Type         string        `json:"type" bson:"type" validate:"required"`
-	Value        string        `json:"value,omitempty" bson:"value",omitempty`
+	Value        string        `json:"value,omitempty" bson:"value,omitempty"`
 	Date         time.Time     `json:"date" bson:"date" validate:"required"`
 }
 
