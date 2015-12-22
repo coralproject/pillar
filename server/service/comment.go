@@ -33,11 +33,23 @@ func CreateComment(object model.Comment) (*model.Comment, error) {
 
 	//fix all references with ObjectId
 	object.ID = bson.NewObjectId()
-	if err := fixReferences(&object, manager); err != nil {
-		log.Error("service", "CreateComment", err, "fix references")
+	if err := setReferences(&object, manager); err != nil {
+		log.Error("service", "CreateComment", err, "set references")
 		return nil, err
 	}
 
+	//add actions
+	if err := setActions(&object, manager); err != nil {
+		log.Error("service", "CreateComment", err, "add actions")
+		return nil, err
+	}
+
+//	add notes
+//	if err := setActions(&object, manager); err != nil {
+//		log.Error("service", "CreateComment", err, "add notes")
+//		return nil, err
+//	}
+	//fmt.Printf("Comment: %+v\n\n", object)
 	if err := manager.comments.Insert(object); err != nil {
 		log.Error("service", "CreateComment", err, "Inserting comments")
 		return nil, err
@@ -46,7 +58,7 @@ func CreateComment(object model.Comment) (*model.Comment, error) {
 	return &object, nil
 }
 
-func fixReferences(object *model.Comment, manager *mongoManager) error {
+func setReferences(object *model.Comment, manager *mongoManager) error {
 	//find asset and add the reference to it
 	var asset model.Asset
 	manager.assets.Find(bson.M{"src_id": object.Source.AssetID}).One(&asset)
@@ -81,5 +93,51 @@ func fixReferences(object *model.Comment, manager *mongoManager) error {
 				bson.M{"$set": bson.M{"children": children}})
 		}
 	}
+
+
 	return nil
+}
+
+func setActions(object *model.Comment, manager *mongoManager) error {
+	var user model.User
+	var invalid_users []string
+
+	for i:=0; i<len(object.Actions); i++ {
+		one := &object.Actions[i]
+	//for _, one := range object.Actions {
+		manager.users.Find(bson.M{"src_id": one.SourceUserID}).One(&user)
+		if user.ID == "" {
+			invalid_users = append(invalid_users, one.SourceUserID)
+			continue
+		}
+
+		one.UserID = user.ID
+		//fmt.Printf("Action: %+v\n\n", one)
+	}
+
+	if(len(invalid_users) > 0) {
+		return errors.New("Error setting Actions - Cannot find users")
+	}
+
+	return nil;
+}
+
+func setNotes(object *model.Comment, manager *mongoManager) error {
+	var user model.User
+	var invalid_users []string
+	for _, one := range object.Notes {
+		manager.users.Find(bson.M{"src_id": one.SourceUserID}).One(&user)
+		if user.ID == "" {
+			invalid_users[len(invalid_users)] = one.SourceUserID
+			continue
+		}
+
+		one.UserID = user.ID
+	}
+
+	if(len(invalid_users) > 0) {
+		return errors.New("Error setting Notes - Cannot find users")
+	}
+
+	return nil;
 }

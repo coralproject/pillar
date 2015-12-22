@@ -12,6 +12,8 @@ import (
 	"time"
 )
 
+const shortForm = "2015-06-30T14:51:21Z"
+
 func wapoFiddler() {
 
 	//story := "http://washingtonpost.com/posteverything/wp/2015/05/20/feminists-want-us-to-define-these-ugly-sexual-encounters-as-rape-dont-let-them/"
@@ -43,6 +45,13 @@ func wapoFiddler() {
 			nUsers++
 		}
 
+		users := getAllUsers(comment)
+		for i:=0; i<len(users); i++ {
+			if response := doRequest(methodPost, urlUser, getBuffer(users[i])); response.StatusCode == 200 {
+				nUsers++
+			}
+		}
+
 		if response := doRequest(methodPost, urlComment, getBuffer(getComment(comment, asset.URL))); response.StatusCode == 200 {
 			nComments++
 		}
@@ -57,7 +66,7 @@ func getBuffer(object interface{}) *bytes.Buffer {
 
 func getAsset(m objects.Map) model.Asset {
 	asset := model.Asset{}
-	url := getOne(m.Get("object.context")).GetString("uri")
+	url := getArray(m.Get("object.context"))[0].GetString("uri")
 	asset.URL = url
 	asset.SourceID = url
 	return asset
@@ -72,6 +81,28 @@ func getUser(m objects.Map) model.User {
 	user.Avatar = m.GetStringOrEmpty("actor.avatar")
 
 	return user
+}
+
+func getAllUsers(m objects.Map) []model.User {
+	users := []model.User{}
+
+	maps := getArray(m.Get("object.likes"))
+	for _, one := range maps {
+		m := one.Get("actor")
+		if m!= nil {
+			users = append(users, getUser(m.(map[string]interface {})))
+		}
+	}
+
+	maps = getArray(m.Get("object.flags"))
+	for _, one := range maps {
+		m := one.Get("actor")
+		if m!= nil {
+			users = append(users, getUser(m.(map[string]interface {})))
+		}
+	}
+
+	return users
 }
 
 func getComment(m objects.Map, url string) model.Comment {
@@ -90,14 +121,18 @@ func getComment(m objects.Map, url string) model.Comment {
 	comment.Source.AssetID = url
 	comment.Source.UserID = m.GetString("actor.id")
 
-	target := getOne(m.Get("targets"))
+	target := getArray(m.Get("targets"))[0]
 	targetID := getShortCommentID(target.GetString("id"))
-	//	targetConversationID := getShortCommentID(target.GetString("conversationID"))
-	//	fmt.Printf("ID: %s\n", comment.Source.ID)
-	//	fmt.Printf("targetID: %s\n", targetID)
-	//	fmt.Printf("targetConversationID: %s\n\n\n", targetConversationID)
-
 	comment.Source.ParentID = getShortCommentID(targetID)
+
+	//fmt.Printf("Comment: %s\n\n", comment.Source.ID)
+
+	//get likes and flags as actions
+	populateActions(m.Get("object.likes"), model.Likes, &comment)
+//	fmt.Printf("Getting Flags....\n\n")
+	populateActions(m.Get("object.flags"), model.Flags, &comment)
+
+	//fmt.Printf("Actions....%d\n\n", len(comment.Actions))
 
 	return comment
 }
@@ -111,8 +146,8 @@ func getOne(list interface{}) objects.Map {
 
 		//must convert the Interface to map[string]interface{}
 		//so that it can be converted to an objects.Map
-		var m map[string]interface{}
-		m = slice.Index(0).Interface().(map[string]interface{})
+		//var m map[string]interface{}
+		m := slice.Index(0).Interface().(map[string]interface{})
 
 		return objects.Map(m)
 	}
@@ -126,3 +161,57 @@ func getShortCommentID(url string) string {
 	s = strings.Split(url, "/")
 	return s[(len(s) - 1)]
 }
+
+func populateActions(list interface{}, actionType string, comment *model.Comment) {
+
+	array := getArray(list)
+	if len(array) == 0 {
+		return
+	}
+
+	for i:=0; i<len(array); i++ {
+	//for _, one := range getArray(list) {
+		action := model.Action{}
+		if array[i] == nil {
+			continue
+		}
+		//fmt.Printf("Item: %s\n\n\n", array[i])
+
+		t, _ := time.Parse(time.RFC3339, array[i].GetString("published"))
+//		time.Parse(time.RFC3339, m.GetString("updated"))
+//		t, _ := time.Parse(shortForm, array[i].GetString("published"))
+		action.SourceUserID = array[i].GetString("actor.id")
+		action.Date = t
+		action.Type = actionType
+		//fmt.Printf("Action: %+v\n", action)
+		comment.Actions = append(comment.Actions, action)
+	}
+}
+
+//when the item is an array, we must convert it to a slice
+func getArray(list interface{}) []objects.Map {
+
+	var resultArray []objects.Map
+	if list == nil {
+		return resultArray
+	}
+
+	switch reflect.TypeOf(list).Kind() {
+	case reflect.Slice:
+		slice := reflect.ValueOf(list)
+
+		//must convert the Interface to map[string]interface{}
+		//so that it can be converted to an objects.Map
+		//fmt.Printf("Size of slice: %d\n\n", slice.Len())
+		for i:=0; i<slice.Len(); i++ {
+			//var m map[string]interface{}
+			//fmt.Printf("Item: %s\n\n", slice.Index(i))
+			resultArray = append(resultArray, slice.Index(i).Interface().(map[string]interface{}))
+		}
+
+		return resultArray
+	}
+
+	return nil
+}
+
