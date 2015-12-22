@@ -11,6 +11,7 @@ type About struct {
 	app     string
 	version string
 }
+
 var about About
 
 func init() {

@@ -28,23 +28,28 @@ func init() {
 
 //==============================================================================
 
+const (
+	Likes string = "likes"
+	Flags string = "flags"
+)
+
 // Action denotes an action taken by an actor (User) on someone/something.
-//   TargetType and Target id may be zero value if data is a subdocument of the Target
-//   UserID may be zero value if the data is a subdocument of the actor
+// TargetType and Target id may be zero value if data is a subdocument of the Target
+// UserID may be zero value if the data is a subdocument of the actor
 type Action struct {
-	UserID     bson.ObjectId `json:"user_id" bson:"user_id" validate:"required"`
-	Type       string        `json:"type" bson:"type"`
-	Value      string        `json:"value" bson:"value"`
-	TargetType string        `json:"target_type" bson:"target_type"` // eg: comment, "" for actions existing within target documents
-	TargetID   string        `json:"target_type" bson:"target_type"` // eg: 23423
-	Date       time.Time     `json:"date" bson:"date"`
+	UserID       bson.ObjectId `json:"user_id" bson:"user_id"`
+	SourceUserID string        `json:"src_user_id,omitempty" bson:"src_user_id,omitempty"`
+	Type         string        `json:"type" bson:"type" validate:"required"`
+	Value        string        `json:"value,omitempty" bson:"value",omitempty`
+	Date         time.Time     `json:"date" bson:"date" validate:"required"`
 }
 
 // Note denotes a note by a user in the system.
 type Note struct {
-	UserID bson.ObjectId `json:"user_id" bson:"user_id"`
-	Body   string        `json:"body" bson:"body" validate:"required"`
-	Date   time.Time     `json:"date" bson:"date"`
+	UserID       bson.ObjectId `json:"user_id" bson:"user_id"`
+	SourceUserID string        `json:"src_user_id,omitempty" bson:"src_user_id,omitempty"`
+	Body         string        `json:"body" bson:"body" validate:"required"`
+	Date         time.Time     `json:"date" bson:"date" validate:"required"`
 }
 
 // CommentSource encapsulates all original id from the source system
