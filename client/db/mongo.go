@@ -44,8 +44,8 @@ func GetMongoManager() *MongoManager {
 
 	manager := MongoManager{}
 
-	manager.Session  = mgoSession.Clone()
-	manager.Actors   = manager.Session.DB("").C(collectionActor)
+	manager.Session = mgoSession.Clone()
+	manager.Actors = manager.Session.DB("").C(collectionActor)
 	manager.Comments = manager.Session.DB("").C(collectionComment)
 
 	return &manager

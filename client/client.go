@@ -10,8 +10,8 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/coralproject/pillar/server/model"
 	"github.com/coralproject/pillar/client/fiddler"
+	"github.com/coralproject/pillar/server/model"
 )
 
 const methodGet string = "GET"

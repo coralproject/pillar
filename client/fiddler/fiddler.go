@@ -1,9 +1,9 @@
 package fiddler
-import (
-	"encoding/json"
-	"bytes"
-)
 
+import (
+	"bytes"
+	"encoding/json"
+)
 
 func getBuffer(object interface{}) *bytes.Buffer {
 	b, _ := json.Marshal(object)

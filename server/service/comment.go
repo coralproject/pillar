@@ -95,7 +95,6 @@ func setReferences(object *model.Comment, manager *mongoManager) error {
 		}
 	}
 
-
 	return nil
 }
 
@@ -103,7 +102,7 @@ func setActions(object *model.Comment, manager *mongoManager) error {
 	var user model.User
 	var invalid_users []string
 
-	for i:=0; i<len(object.Actions); i++ {
+	for i := 0; i < len(object.Actions); i++ {
 		one := &object.Actions[i]
 		manager.users.Find(bson.M{"src_id": one.SourceUserID}).One(&user)
 		if user.ID == "" {
@@ -114,18 +113,18 @@ func setActions(object *model.Comment, manager *mongoManager) error {
 		one.UserID = user.ID
 	}
 
-	if(len(invalid_users) > 0) {
+	if len(invalid_users) > 0 {
 		return errors.New("Error setting Actions - Cannot find users")
 	}
 
-	return nil;
+	return nil
 }
 
 func setNotes(object *model.Comment, manager *mongoManager) error {
 	var user model.User
 	var invalid_users []string
 
-	for i:=0; i<len(object.Notes); i++ {
+	for i := 0; i < len(object.Notes); i++ {
 		one := &object.Notes[i]
 		manager.users.Find(bson.M{"src_id": one.SourceUserID}).One(&user)
 		if user.ID == "" {
@@ -136,9 +135,9 @@ func setNotes(object *model.Comment, manager *mongoManager) error {
 		one.UserID = user.ID
 	}
 
-	if(len(invalid_users) > 0) {
+	if len(invalid_users) > 0 {
 		return errors.New("Error setting Actions - Cannot find users")
 	}
 
-	return nil;
+	return nil
 }

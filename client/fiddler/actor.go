@@ -3,10 +3,10 @@ package fiddler
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/coralproject/pillar/server/model"
-	"github.com/stretchr/stew/objects"
 	"github.com/coralproject/pillar/client/db"
 	"github.com/coralproject/pillar/client/rest"
+	"github.com/coralproject/pillar/server/model"
+	"github.com/stretchr/stew/objects"
 )
 
 func LoadActors() {

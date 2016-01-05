@@ -3,14 +3,14 @@ package fiddler
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/coralproject/pillar/client/db"
+	"github.com/coralproject/pillar/client/rest"
 	"github.com/coralproject/pillar/server/model"
 	"github.com/stretchr/stew/objects"
 	"gopkg.in/mgo.v2/bson"
 	"reflect"
 	"strings"
 	"time"
-	"github.com/coralproject/pillar/client/db"
-	"github.com/coralproject/pillar/client/rest"
 )
 
 func LoadComments() {
@@ -45,7 +45,7 @@ func LoadComments() {
 		}
 
 		users := getAllUsers(comment)
-		for i:=0; i<len(users); i++ {
+		for i := 0; i < len(users); i++ {
 			if response := rest.Request(rest.MethodPost, rest.UrlUser, getBuffer(users[i])); response.StatusCode == 200 {
 				nUsers++
 			}
@@ -83,16 +83,16 @@ func getAllUsers(m objects.Map) []model.User {
 	maps := getArray(m.Get("object.likes"))
 	for _, one := range maps {
 		m := one.Get("actor")
-		if m!= nil {
-			users = append(users, getUser(m.(map[string]interface {})))
+		if m != nil {
+			users = append(users, getUser(m.(map[string]interface{})))
 		}
 	}
 
 	maps = getArray(m.Get("object.flags"))
 	for _, one := range maps {
 		m := one.Get("actor")
-		if m!= nil {
-			users = append(users, getUser(m.(map[string]interface {})))
+		if m != nil {
+			users = append(users, getUser(m.(map[string]interface{})))
 		}
 	}
 
@@ -123,7 +123,7 @@ func getComment(m objects.Map, url string) model.Comment {
 
 	//get likes and flags as actions
 	populateActions(m.Get("object.likes"), model.Likes, &comment)
-//	fmt.Printf("Getting Flags....\n\n")
+	//	fmt.Printf("Getting Flags....\n\n")
 	populateActions(m.Get("object.flags"), model.Flags, &comment)
 
 	//fmt.Printf("Actions....%d\n\n", len(comment.Actions))
@@ -163,8 +163,8 @@ func populateActions(list interface{}, actionType string, comment *model.Comment
 		return
 	}
 
-	for i:=0; i<len(array); i++ {
-	//for _, one := range getArray(list) {
+	for i := 0; i < len(array); i++ {
+		//for _, one := range getArray(list) {
 		action := model.Action{}
 		if array[i] == nil {
 			continue
@@ -172,8 +172,8 @@ func populateActions(list interface{}, actionType string, comment *model.Comment
 		//fmt.Printf("Item: %s\n\n\n", array[i])
 
 		t, _ := time.Parse(time.RFC3339, array[i].GetString("published"))
-//		time.Parse(time.RFC3339, m.GetString("updated"))
-//		t, _ := time.Parse(shortForm, array[i].GetString("published"))
+		//		time.Parse(time.RFC3339, m.GetString("updated"))
+		//		t, _ := time.Parse(shortForm, array[i].GetString("published"))
 		action.SourceUserID = array[i].GetString("actor.id")
 		action.Date = t
 		action.Type = actionType
@@ -197,7 +197,7 @@ func getArray(list interface{}) []objects.Map {
 		//must convert the Interface to map[string]interface{}
 		//so that it can be converted to an objects.Map
 		//fmt.Printf("Size of slice: %d\n\n", slice.Len())
-		for i:=0; i<slice.Len(); i++ {
+		for i := 0; i < slice.Len(); i++ {
 			//var m map[string]interface{}
 			//fmt.Printf("Item: %s\n\n", slice.Index(i))
 			resultArray = append(resultArray, slice.Index(i).Interface().(map[string]interface{}))
@@ -208,4 +208,3 @@ func getArray(list interface{}) []objects.Map {
 
 	return nil
 }
-
