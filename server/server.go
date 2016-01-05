@@ -7,6 +7,7 @@ import (
 	"github.com/ardanlabs/kit/cfg"
 	"github.com/ardanlabs/kit/log"
 
+	"github.com/coralproject/pillar/server/pkg/stats"
 	"github.com/coralproject/pillar/server/web"
 )
 
@@ -25,6 +26,14 @@ func init() {
 func main() {
 
 	log.Dev("startup", "main", "Start")
+
+	stats.Init()
+
+	// temporary test trigger
+	p := make(map[string]string)
+	p["_id"] = "567b0850e19ac8852dd2bb5c"
+
+	stats.Event <- stats.Message{"entity.comment.create", p}
 
 	router := web.NewRouter()
 
