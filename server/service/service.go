@@ -16,15 +16,15 @@ var (
 	mgoSession *mgo.Session
 )
 
-type mongoManager struct {
-	session  *mgo.Session
-	assets   *mgo.Collection
-	users    *mgo.Collection
-	comments *mgo.Collection
+type MongoManager struct {
+	Session  *mgo.Session
+	Assets   *mgo.Collection
+	Users    *mgo.Collection
+	Comments *mgo.Collection
 }
 
-func (manager *mongoManager) close() {
-	manager.session.Close()
+func (manager *MongoManager) Close() {
+	manager.Session.Close()
 }
 
 //export MONGODB_URL=mongodb://localhost:27017/coral
@@ -44,19 +44,19 @@ func init() {
 	mgoSession = session
 }
 
-func getMongoManager() *mongoManager {
+func GetMongoManager() *MongoManager {
 
-	manager := mongoManager{}
+	manager := MongoManager{}
 
-	manager.session = mgoSession.Clone()
-	manager.assets = manager.session.DB("").C(collectionAsset)
-	manager.assets.EnsureIndexKey("src_id")
-	manager.assets.EnsureIndexKey("url")
+	manager.Session = mgoSession.Clone()
+	manager.Assets = manager.Session.DB("").C(collectionAsset)
+	manager.Assets.EnsureIndexKey("src_id")
+	manager.Assets.EnsureIndexKey("url")
 
-	manager.users = manager.session.DB("").C(collectionUser)
-	manager.users.EnsureIndexKey("src_id")
+	manager.Users = manager.Session.DB("").C(collectionUser)
+	manager.Users.EnsureIndexKey("src_id")
 
-	manager.comments = manager.session.DB("").C(collectionComment)
+	manager.Comments = manager.Session.DB("").C(collectionComment)
 
 	return &manager
 }

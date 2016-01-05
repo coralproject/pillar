@@ -15,27 +15,27 @@ import (
 func CreateAsset(object model.Asset) (*model.Asset, error) {
 
 	// Insert Comment
-	manager := getMongoManager()
-	defer manager.close()
+	manager := GetMongoManager()
+	defer manager.Close()
 
 	dbEntity := model.Asset{}
 
 	//return, if exists
-	manager.assets.FindId(object.ID).One(&dbEntity)
+	manager.Assets.FindId(object.ID).One(&dbEntity)
 	if dbEntity.ID != "" {
 		log.Dev("service", "CreateAsset", "%s exists with ID [%s]\n", reflect.TypeOf(object).Name(), object.ID)
 		return &dbEntity, nil
 	}
 
 	//return, if exists
-	manager.assets.Find(bson.M{"url": object.URL}).One(&dbEntity)
+	manager.Assets.Find(bson.M{"url": object.URL}).One(&dbEntity)
 	if dbEntity.ID != "" {
 		log.Dev("service", "CreateAsset", "%s exists with source [%s]\n", reflect.TypeOf(object).Name(), object.URL)
 		return &dbEntity, nil
 	}
 
 	object.ID = bson.NewObjectId()
-	err := manager.assets.Insert(object)
+	err := manager.Assets.Insert(object)
 	if err != nil {
 		log.Error("service", "CreateAsset", err, "Insert assets")
 		return nil, err
