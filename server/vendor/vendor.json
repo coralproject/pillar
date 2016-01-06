@@ -3,16 +3,6 @@
 	"ignore": "test",
 	"package": [
 		{
-			"path": "github.com/ardanlabs/kit/log",
-			"revision": "272eb4c250f53119c91778e8ab3acf0a5a70c4b2",
-			"revisionTime": "2015-12-12T03:50:02-05:00"
-		},
-		{
-			"path": "github.com/coralproject/sponge/pkg/log",
-			"revision": "a428649b043ba4db65cdb580b40f6ee13efe5933",
-			"revisionTime": "2015-12-17T12:01:40-08:00"
-		},
-		{
 			"path": "github.com/gorilla/context",
 			"revision": "1c83b3eabd45b6d76072b66b746c20815fb2872d",
 			"revisionTime": "2015-08-19T22:12:45-07:00"
