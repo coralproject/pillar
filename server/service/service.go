@@ -32,10 +32,12 @@ func init() {
 		log.Logger.Fatal("Error connecting to mongo database: MONGODB_URL not found")
 	}
 
-	mgoSession, err := mgo.Dial(uri)
+	session, err := mgo.Dial(uri)
 	if err != nil {
 		log.Logger.Fatalf("Error connecting to mongo database: %s", err)
 	}
+
+	mgoSession = session
 
 	//url and src_id on Asset
 	mgoSession.DB("").C(collectionAsset).EnsureIndexKey("src_id")
