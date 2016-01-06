@@ -9,6 +9,7 @@ import (
 	"github.com/stretchr/stew/objects"
 )
 
+//LoadActors imports actors
 func LoadActors() {
 
 	manager := db.GetMongoManager()
@@ -20,18 +21,20 @@ func LoadActors() {
 
 	fmt.Printf("Found %d Actors\n", len(all))
 	fmt.Printf("Import in progress...\n")
-	var nUsers int
+	var nSuccess, nFailure int
 	for _, one := range all {
 		data, _ := json.Marshal(one)
 
 		user := map[string]interface{}{}
 		json.Unmarshal(data, &user)
 		m := objects.Map(user)
-		if response := rest.Request(rest.MethodPost, rest.UrlUser, getBuffer(getActor(m))); response.StatusCode == 200 {
-			nUsers++
+		if response := rest.Request(rest.MethodPost, rest.URLUser, getBuffer(getActor(m))); response.StatusCode == 200 {
+			nSuccess++
+		} else {
+			nFailure++
 		}
 	}
-	fmt.Printf("Finished importing: Actors[%d]\n\n\n", nUsers)
+	fmt.Printf("Finished importing actors, suceess: [%d] failure: [%d]\n\n\n", nSuccess, nFailure)
 }
 
 func getActor(m objects.Map) model.User {

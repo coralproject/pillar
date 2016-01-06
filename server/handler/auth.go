@@ -3,8 +3,8 @@ package handler
 import (
 	"encoding/json"
 	"fmt"
-	"net/http"
 	"github.com/coralproject/pillar/server/model"
+	"net/http"
 )
 
 // About - about this application

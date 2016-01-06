@@ -1,17 +1,18 @@
 package log
 
 import (
+	"fmt"
 	"log"
 	"os"
-	"fmt"
 	"strings"
 )
 
+//Single logger for the application
 var (
 	Logger *log.Logger
 )
 
-func init()  {
+func init() {
 	logFile := getLogFile()
 	fmt.Printf("Pillar log file: %s\n\n", logFile)
 	file, err := os.OpenFile(logFile, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0666)

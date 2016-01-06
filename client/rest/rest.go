@@ -7,26 +7,31 @@ import (
 	"net/http"
 )
 
-const MethodGet string = "GET"
-const MethodPost string = "POST"
+//various constants
+const (
+	MethodGet  string = "GET"
+	MethodPost string = "POST"
 
-const BaseUrl string = "http://localhost:8080/api/import/"
-const UrlUser string = BaseUrl + "user"
-const UrlAsset string = BaseUrl + "asset"
-const UrlComment string = BaseUrl + "comment"
+	BaseURL    string = "http://localhost:8080/api/import/"
+	URLUser    string = BaseURL + "user"
+	URLAsset   string = BaseURL + "asset"
+	URLComment string = BaseURL + "comment"
 
-const dataUsers = "data/users.json"
-const dataAssets = "data/assets.json"
-const dataComments = "data/comments.json"
+	dataUsers    = "data/users.json"
+	dataAssets   = "data/assets.json"
+	dataComments = "data/comments.json"
+)
 
-type RestResponse struct {
+//Response encapsulates a REST response
+type Response struct {
 	Status     string
 	Header     http.Header
 	Payload    string
 	StatusCode int
 }
 
-func Request(method string, urlStr string, payload io.Reader) RestResponse {
+//Request is a common method for a REST call, returns a Response
+func Request(method string, urlStr string, payload io.Reader) Response {
 
 	request, err := http.NewRequest(method, urlStr, payload)
 	request.Header.Set("Content-Type", "application/json")
@@ -40,7 +45,7 @@ func Request(method string, urlStr string, payload io.Reader) RestResponse {
 
 	resBody, _ := ioutil.ReadAll(response.Body)
 
-	rest := RestResponse{
+	rest := Response{
 		response.Status,
 		response.Header,
 		string(resBody),

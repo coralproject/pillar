@@ -6,8 +6,8 @@ import (
 	"os"
 
 	"github.com/coralproject/pillar/server/handler"
-	"github.com/gorilla/mux"
 	"github.com/coralproject/pillar/server/log"
+	"github.com/gorilla/mux"
 )
 
 //Route defines mappings of end-points to handler methods

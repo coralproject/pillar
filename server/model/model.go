@@ -26,6 +26,7 @@ func init() {
 
 //==============================================================================
 
+//Different action types
 const (
 	Likes string = "likes"
 	Flags string = "flags"

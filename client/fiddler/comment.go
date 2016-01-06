@@ -13,6 +13,7 @@ import (
 	"time"
 )
 
+//LoadComments imports comments
 func LoadComments() {
 
 	//story := "http://washingtonpost.com/posteverything/wp/2015/05/20/feminists-want-us-to-define-these-ugly-sexual-encounters-as-rape-dont-let-them/"
@@ -28,7 +29,7 @@ func LoadComments() {
 
 	fmt.Printf("Found %d comments\n", len(all))
 	fmt.Printf("Import in progress...\n")
-	var nAssets, nUsers, nComments int
+	var nAssets, nUsers, nSuccess, nFailure int
 	for _, one := range all {
 		data, _ := json.Marshal(one)
 
@@ -36,26 +37,28 @@ func LoadComments() {
 		json.Unmarshal(data, &comment)
 
 		asset := getAsset(comment)
-		if response := rest.Request(rest.MethodPost, rest.UrlAsset, getBuffer(asset)); response.StatusCode == 200 {
+		if response := rest.Request(rest.MethodPost, rest.URLAsset, getBuffer(asset)); response.StatusCode == 200 {
 			nAssets++
 		}
 
-		if response := rest.Request(rest.MethodPost, rest.UrlUser, getBuffer(getUser(comment))); response.StatusCode == 200 {
+		if response := rest.Request(rest.MethodPost, rest.URLUser, getBuffer(getUser(comment))); response.StatusCode == 200 {
 			nUsers++
 		}
 
 		users := getAllUsers(comment)
 		for i := 0; i < len(users); i++ {
-			if response := rest.Request(rest.MethodPost, rest.UrlUser, getBuffer(users[i])); response.StatusCode == 200 {
+			if response := rest.Request(rest.MethodPost, rest.URLUser, getBuffer(users[i])); response.StatusCode == 200 {
 				nUsers++
 			}
 		}
 
-		if response := rest.Request(rest.MethodPost, rest.UrlComment, getBuffer(getComment(comment, asset.URL))); response.StatusCode == 200 {
-			nComments++
+		if response := rest.Request(rest.MethodPost, rest.URLComment, getBuffer(getComment(comment, asset.URL))); response.StatusCode == 200 {
+			nSuccess++
+		} else {
+			nFailure++
 		}
 	}
-	fmt.Printf("Finished importing: Comments[%d]\n\n\n", nComments)
+	fmt.Printf("Finished importing comments, suceess: [%d] failure: [%d]\n\n\n", nSuccess, nFailure)
 }
 
 func getAsset(m objects.Map) model.Asset {

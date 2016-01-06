@@ -1,19 +1,27 @@
 package service
 
 import (
-	"os"
-	"gopkg.in/mgo.v2"
 	"github.com/coralproject/pillar/server/log"
+	"gopkg.in/mgo.v2"
+	"os"
 )
 
 const collectionUser string = "user"
 const collectionAsset string = "asset"
 const collectionComment string = "comment"
 
+// AppError encapsulates application specific error
+type AppError struct {
+	Error   error
+	Message string
+	Code    int
+}
+
 var (
 	mgoSession *mgo.Session
 )
 
+// MongoManager encapsulates a mongo session with all relevant collections
 type MongoManager struct {
 	Session  *mgo.Session
 	Assets   *mgo.Collection
@@ -21,6 +29,7 @@ type MongoManager struct {
 	Comments *mgo.Collection
 }
 
+//Close closes the mongodb session; must be called, else the session remain open
 func (manager *MongoManager) Close() {
 	manager.Session.Close()
 }
@@ -50,10 +59,10 @@ func init() {
 	mgoSession.DB("").C(collectionComment).EnsureIndexKey("source.id")
 }
 
+//GetMongoManager returns a cloned MongoManager
 func GetMongoManager() *MongoManager {
 
 	manager := MongoManager{}
-
 	manager.Session = mgoSession.Clone()
 	manager.Assets = manager.Session.DB("").C(collectionAsset)
 	manager.Users = manager.Session.DB("").C(collectionUser)

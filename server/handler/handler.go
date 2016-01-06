@@ -2,32 +2,25 @@ package handler
 
 import (
 	"encoding/json"
-	"net/http"
 	"github.com/coralproject/pillar/server/log"
+	"github.com/coralproject/pillar/server/service"
+	"net/http"
 )
 
-// AppError - application specific error
-type appError struct {
-	Error   error
-	Message string
-	Code    int
-}
-
-func doRespond(w http.ResponseWriter, object interface{}, err error) {
-	if err != nil {
-		log.Logger.Printf("Error %s", err)
-		http.Error(w, err.Error(), 500)
+func doRespond(w http.ResponseWriter, object interface{}, appErr *service.AppError) {
+	if appErr != nil {
+		log.Logger.Printf("Call failed [%s]", appErr.Message)
+		http.Error(w, appErr.Message, appErr.Code)
 		return
 	}
 
 	payload, err := json.Marshal(object)
 	if err != nil {
-		log.Logger.Printf("Error %s", err)
-		http.Error(w, err.Error(), 500)
+		log.Logger.Printf("Call failed [%s]", err.Error())
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	w.WriteHeader(200)
+	w.WriteHeader(http.StatusOK)
 	w.Write(payload)
 }
-

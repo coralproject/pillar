@@ -13,12 +13,14 @@ var (
 	mgoSession *mgo.Session
 )
 
+// MongoManager encapsulates a mongo session with all relevant collections
 type MongoManager struct {
 	Session  *mgo.Session
 	Actors   *mgo.Collection
 	Comments *mgo.Collection
 }
 
+//Close closes the mongodb session; must be called, else the session remain open
 func (manager *MongoManager) Close() {
 	manager.Session.Close()
 }
@@ -40,6 +42,7 @@ func init() {
 	mgoSession = session
 }
 
+//GetMongoManager returns a cloned MongoManager
 func GetMongoManager() *MongoManager {
 
 	manager := MongoManager{}

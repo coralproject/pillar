@@ -2,14 +2,15 @@ package service
 
 import (
 	"errors"
-	"reflect"
-	"github.com/coralproject/pillar/server/log"
+	"fmt"
 	"github.com/coralproject/pillar/server/model"
 	"gopkg.in/mgo.v2/bson"
+	"net/http"
+	"reflect"
 )
 
 // CreateComment creates a new comment resource
-func CreateComment(object model.Comment) (*model.Comment, error) {
+func CreateComment(object model.Comment) (*model.Comment, *AppError) {
 
 	// Insert Comment
 	manager := GetMongoManager()
@@ -19,40 +20,40 @@ func CreateComment(object model.Comment) (*model.Comment, error) {
 
 	//return, if exists
 	if manager.Comments.FindId(object.ID).One(&dbEntity); dbEntity.ID != "" {
-		log.Logger.Printf("%s exists with ID [%s]\n", reflect.TypeOf(object).Name(), object.ID)
-		return &dbEntity, nil
+		message := fmt.Sprintf("%s exists with ID [%s]\n", reflect.TypeOf(object).Name(), object.ID)
+		return nil, &AppError{nil, message, http.StatusInternalServerError}
 	}
 
 	//find & return if one exist with the same source.id
 	manager.Comments.Find(bson.M{"source.id": object.Source.ID}).One(&dbEntity)
 	if dbEntity.ID != "" {
-		log.Logger.Printf("%s exists with source [%s]\n", reflect.TypeOf(object).Name(), object.Source.ID)
-		return &dbEntity, nil
+		message := fmt.Sprintf("%s exists with source [%s]\n", reflect.TypeOf(object).Name(), object.Source.ID)
+		return nil, &AppError{nil, message, http.StatusInternalServerError}
 	}
 
 	//fix all references with ObjectId
 	object.ID = bson.NewObjectId()
 	if err := setReferences(&object, manager); err != nil {
-		log.Logger.Printf("Error setting references [%s]", err);
-		return nil, err
+		message := fmt.Sprintf("Error setting comment references [%s]", err)
+		return nil, &AppError{nil, message, http.StatusInternalServerError}
 	}
 
 	//add actions
 	if err := setActions(&object, manager); err != nil {
-		log.Logger.Printf("Error setting actions [%s]", err);
-		return nil, err
+		message := fmt.Sprintf("Error setting comment actions [%s]", err)
+		return nil, &AppError{nil, message, http.StatusInternalServerError}
 	}
 
 	//add notes
 	if err := setNotes(&object, manager); err != nil {
-		log.Logger.Printf("Error setting notes [%s]", err);
-		return nil, err
+		message := fmt.Sprintf("Error setting comment notes [%s]", err)
+		return nil, &AppError{nil, message, http.StatusInternalServerError}
 	}
 
 	//fmt.Printf("Comment: %+v\n\n", object)
 	if err := manager.Comments.Insert(object); err != nil {
-		log.Logger.Printf("Error creating comments [%s]", err);
-		return nil, err
+		message := fmt.Sprintf("Error creating comments [%s]", err)
+		return nil, &AppError{nil, message, http.StatusInternalServerError}
 	}
 
 	return &object, nil
@@ -98,21 +99,21 @@ func setReferences(object *model.Comment, manager *MongoManager) error {
 
 func setActions(object *model.Comment, manager *MongoManager) error {
 	var user model.User
-	var invalid_users []string
+	var invalidUsers []string
 
 	for i := 0; i < len(object.Actions); i++ {
 		one := &object.Actions[i]
 		manager.Users.Find(bson.M{"src_id": one.SourceUserID}).One(&user)
 		if user.ID == "" {
-			invalid_users = append(invalid_users, one.SourceUserID)
+			invalidUsers = append(invalidUsers, one.SourceUserID)
 			continue
 		}
 
 		one.UserID = user.ID
 	}
 
-	if len(invalid_users) > 0 {
-		return errors.New("Error setting Actions - Cannot find users")
+	if len(invalidUsers) > 0 {
+		return errors.New("Error setting comment actions - Cannot find users")
 	}
 
 	return nil
@@ -120,21 +121,21 @@ func setActions(object *model.Comment, manager *MongoManager) error {
 
 func setNotes(object *model.Comment, manager *MongoManager) error {
 	var user model.User
-	var invalid_users []string
+	var invalidUsers []string
 
 	for i := 0; i < len(object.Notes); i++ {
 		one := &object.Notes[i]
 		manager.Users.Find(bson.M{"src_id": one.SourceUserID}).One(&user)
 		if user.ID == "" {
-			invalid_users = append(invalid_users, one.SourceUserID)
+			invalidUsers = append(invalidUsers, one.SourceUserID)
 			continue
 		}
 
 		one.UserID = user.ID
 	}
 
-	if len(invalid_users) > 0 {
-		return errors.New("Error setting Actions - Cannot find users")
+	if len(invalidUsers) > 0 {
+		return errors.New("Error setting comment notes - Cannot find users")
 	}
 
 	return nil
