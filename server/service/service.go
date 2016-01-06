@@ -53,6 +53,7 @@ func GetMongoManager() *MongoManager {
 	manager.Users.EnsureIndexKey("src_id")
 
 	manager.Comments = manager.Session.DB("").C(collectionComment)
+	manager.Comments.EnsureIndexKey("source.id")
 
 	return &manager
 }
