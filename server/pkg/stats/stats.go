@@ -5,6 +5,8 @@ package stats
 import (
 	"errors"
 
+	"github.com/coralproject/pillar/server/model"
+
 	"github.com/ardanlabs/kit/log"
 )
 
@@ -24,7 +26,7 @@ Add Comment
 
 type Message struct {
 	Name    string
-	Payload map[string]string
+	Payload map[string]interface{}
 }
 
 var (
@@ -54,8 +56,12 @@ func listen() {
 				return
 			}
 
+			// this event name requires a comment in the payload
 			if event.Name == "entity.comment.create" {
-				onCreateComment(event.Payload)
+
+				// validate that event.Payload["comment"] is of type model.Comment
+
+				onCreateComment(event.Payload["comment"].(model.Comment))
 			}
 
 		}
