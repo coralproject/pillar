@@ -27,7 +27,7 @@ func LoadActors() {
 		user := map[string]interface{}{}
 		json.Unmarshal(data, &user)
 		m := objects.Map(user)
-		if response := rest.Request(rest.MethodPost, rest.UrlUser, getBuffer(getUser(m))); response.StatusCode == 200 {
+		if response := rest.Request(rest.MethodPost, rest.UrlUser, getBuffer(getActor(m))); response.StatusCode == 200 {
 			nUsers++
 		}
 	}
@@ -37,7 +37,7 @@ func LoadActors() {
 func getActor(m objects.Map) model.User {
 	user := model.User{}
 
-	user.SourceID = m.GetStringOrEmpty("id")
+	user.SourceID = m.GetStringOrEmpty("_id")
 	user.UserName = m.GetStringOrEmpty("title")
 	user.Status = m.GetStringOrEmpty("status")
 	user.Avatar = m.GetStringOrEmpty("avatar")

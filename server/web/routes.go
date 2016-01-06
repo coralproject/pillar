@@ -5,9 +5,9 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/ardanlabs/kit/log"
 	"github.com/coralproject/pillar/server/handler"
 	"github.com/gorilla/mux"
+	"github.com/coralproject/pillar/server/log"
 )
 
 //Route defines mappings of end-points to handler methods
@@ -78,13 +78,13 @@ var routes = Routes{
 func getRoutes() Routes {
 	file, err := os.Open("routes.json")
 	if err != nil {
-		log.Error("routes", "getroutes", err, "Opening routes.json")
+		log.Logger.Printf("Error opening routes.json: %s", err)
 	}
 
 	var routes Routes
 	jsonParser := json.NewDecoder(file)
 	if err = jsonParser.Decode(&routes); err != nil {
-		log.Error("routes", "getroutes", err, "Parsing routes.json")
+		log.Logger.Printf("Error parsing routes.json: %s", err)
 	}
 
 	return routes

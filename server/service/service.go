@@ -1,11 +1,9 @@
 package service
 
 import (
-	"errors"
 	"os"
-
-	"github.com/ardanlabs/kit/log"
 	"gopkg.in/mgo.v2"
+	"github.com/coralproject/pillar/server/log"
 )
 
 const collectionUser string = "user"
@@ -31,14 +29,12 @@ func (manager *MongoManager) Close() {
 func init() {
 	uri := os.Getenv("MONGODB_URL")
 	if uri == "" {
-		log.Error("start", "init", errors.New("Error connecting - MONGODB_URL not found!"), "Getting MONGODB_URL env variable.")
-		os.Exit(1)
+		log.Logger.Fatal("Error connecting to mongo database: MONGODB_URL not found")
 	}
 
 	session, err := mgo.Dial(uri)
 	if err != nil {
-		log.Error("start", "init", err, "Connecting to mongo")
-		panic(err) // no, not really <--- do we really need to panic?
+		log.Logger.Fatalf("Error connecting to mongo database: %s", err)
 	}
 
 	mgoSession = session

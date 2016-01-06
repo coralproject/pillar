@@ -6,8 +6,6 @@ import (
 
 	"gopkg.in/bluesuncorp/validator.v6"
 	"gopkg.in/mgo.v2/bson"
-
-	"github.com/ardanlabs/kit/log"
 )
 
 // validate is used to perform model field validation.
@@ -117,7 +115,6 @@ type Asset struct {
 func (a Asset) Validate() error {
 	errs := validate.Struct(a)
 	if errs != nil {
-		log.Error("server", "Validate", errs, "Insert assets")
 		return fmt.Errorf("%v", errs)
 	}
 
@@ -150,7 +147,6 @@ type User struct {
 func (u User) Validate() error {
 	errs := validate.Struct(u)
 	if errs != nil {
-		log.Error("server", "Validate", errs, "Insert assets")
 		return fmt.Errorf("%v", errs)
 	}
 

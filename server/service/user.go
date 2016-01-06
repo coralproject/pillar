@@ -1,10 +1,9 @@
 package service
 
 import (
-	"github.com/ardanlabs/kit/log"
+	"github.com/coralproject/pillar/server/log"
 	"github.com/coralproject/pillar/server/model"
 	"gopkg.in/mgo.v2/bson"
-	"fmt"
 	"reflect"
 )
 
@@ -20,23 +19,21 @@ func CreateUser(object model.User) (*model.User, error) {
 	//return, if exists
 	manager.Users.FindId(object.ID).One(&dbEntity)
 	if dbEntity.ID != "" {
-		message := fmt.Sprint("%s exists with ID [%s]\n", reflect.TypeOf(object).Name(), object.ID)
-		fmt.Printf(message)
+		log.Logger.Printf("%s exists with ID [%s]\n", reflect.TypeOf(object).Name(), object.ID)
 		return &dbEntity, nil
 	}
 
 	//return, if exists
 	manager.Users.Find(bson.M{"src_id": object.SourceID}).One(&dbEntity)
 	if dbEntity.ID != "" {
-		message := fmt.Sprint("%s exists with source [%s]\n", reflect.TypeOf(object).Name(), object.SourceID)
-		fmt.Printf(message)
+		log.Logger.Printf("%s exists with source [%s]\n", reflect.TypeOf(object).Name(), object.SourceID)
 		return &dbEntity, nil
 	}
 
 	object.ID = bson.NewObjectId()
 	err := manager.Users.Insert(object)
 	if err != nil {
-		log.Error("service", "CreateUser", err, "Inserting users")
+		log.Logger.Printf("Error creating user [%s]", err);
 		return nil, err
 	}
 

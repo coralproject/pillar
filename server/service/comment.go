@@ -3,8 +3,7 @@ package service
 import (
 	"errors"
 	"reflect"
-
-	"github.com/ardanlabs/kit/log"
+	"github.com/coralproject/pillar/server/log"
 	"github.com/coralproject/pillar/server/model"
 	"gopkg.in/mgo.v2/bson"
 )
@@ -20,39 +19,39 @@ func CreateComment(object model.Comment) (*model.Comment, error) {
 
 	//return, if exists
 	if manager.Comments.FindId(object.ID).One(&dbEntity); dbEntity.ID != "" {
-		log.Dev("service", "Createcomment", "%s exists with ID [%s]\n", reflect.TypeOf(object).Name(), object.ID)
+		log.Logger.Printf("%s exists with ID [%s]\n", reflect.TypeOf(object).Name(), object.ID)
 		return &dbEntity, nil
 	}
 
 	//find & return if one exist with the same source.id
 	manager.Comments.Find(bson.M{"source.id": object.Source.ID}).One(&dbEntity)
 	if dbEntity.ID != "" {
-		log.Dev("service", "CreateComment", "%s exists with source [%s]\n", reflect.TypeOf(object).Name(), object.Source.ID)
+		log.Logger.Printf("%s exists with source [%s]\n", reflect.TypeOf(object).Name(), object.Source.ID)
 		return &dbEntity, nil
 	}
 
 	//fix all references with ObjectId
 	object.ID = bson.NewObjectId()
 	if err := setReferences(&object, manager); err != nil {
-		log.Error("service", "CreateComment", err, "set references")
+		log.Logger.Printf("Error setting references [%s]", err);
 		return nil, err
 	}
 
 	//add actions
 	if err := setActions(&object, manager); err != nil {
-		log.Error("service", "CreateComment", err, "add actions")
+		log.Logger.Printf("Error setting actions [%s]", err);
 		return nil, err
 	}
 
 	//add notes
 	if err := setNotes(&object, manager); err != nil {
-		log.Error("service", "CreateComment", err, "add notes")
+		log.Logger.Printf("Error setting notes [%s]", err);
 		return nil, err
 	}
 
 	//fmt.Printf("Comment: %+v\n\n", object)
 	if err := manager.Comments.Insert(object); err != nil {
-		log.Error("service", "CreateComment", err, "Inserting comments")
+		log.Logger.Printf("Error creating comments [%s]", err);
 		return nil, err
 	}
 
@@ -76,7 +75,6 @@ func setReferences(object *model.Comment, manager *MongoManager) error {
 	manager.Users.Find(bson.M{"src_id": object.Source.UserID}).One(&user)
 	if user.ID == "" {
 		err := errors.New("Cannot find user from source: " + object.Source.UserID)
-		log.Error("service", "fixReferences", err, "finding users")
 		return err
 	}
 	object.UserID = user.ID
