@@ -32,12 +32,20 @@ func init() {
 		log.Logger.Fatal("Error connecting to mongo database: MONGODB_URL not found")
 	}
 
-	session, err := mgo.Dial(uri)
+	mgoSession, err := mgo.Dial(uri)
 	if err != nil {
 		log.Logger.Fatalf("Error connecting to mongo database: %s", err)
 	}
 
-	mgoSession = session
+	//url and src_id on Asset
+	mgoSession.DB("").C(collectionAsset).EnsureIndexKey("src_id")
+	mgoSession.DB("").C(collectionAsset).EnsureIndexKey("url")
+
+	//src_id on User
+	mgoSession.DB("").C(collectionUser).EnsureIndexKey("src_id")
+
+	//source.id on Comment
+	mgoSession.DB("").C(collectionComment).EnsureIndexKey("source.id")
 }
 
 func GetMongoManager() *MongoManager {
@@ -46,14 +54,8 @@ func GetMongoManager() *MongoManager {
 
 	manager.Session = mgoSession.Clone()
 	manager.Assets = manager.Session.DB("").C(collectionAsset)
-	manager.Assets.EnsureIndexKey("src_id")
-	manager.Assets.EnsureIndexKey("url")
-
 	manager.Users = manager.Session.DB("").C(collectionUser)
-	manager.Users.EnsureIndexKey("src_id")
-
 	manager.Comments = manager.Session.DB("").C(collectionComment)
-	manager.Comments.EnsureIndexKey("source.id")
 
 	return &manager
 }
