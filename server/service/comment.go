@@ -10,7 +10,7 @@ import (
 )
 
 // CreateComment creates a new comment resource
-func CreateComment(object model.Comment) (*model.Comment, *AppError) {
+func CreateComment(object *model.Comment) (*model.Comment, *AppError) {
 
 	// Insert Comment
 	manager := GetMongoManager()
@@ -33,7 +33,7 @@ func CreateComment(object model.Comment) (*model.Comment, *AppError) {
 
 	//fix all references with ObjectId
 	object.ID = bson.NewObjectId()
-	if err := setCommentReferences(&object, manager); err != nil {
+	if err := setCommentReferences(object, manager); err != nil {
 		message := fmt.Sprintf("Error setting comment references [%s]", err)
 		return nil, &AppError{nil, message, http.StatusInternalServerError}
 	}
@@ -44,18 +44,18 @@ func CreateComment(object model.Comment) (*model.Comment, *AppError) {
 	//		return nil, &AppError{nil, message, http.StatusInternalServerError}
 	//	}
 
-	//add notes
-	if err := setNotes(&object, manager); err != nil {
-		message := fmt.Sprintf("Error setting comment notes [%s]", err)
-		return nil, &AppError{nil, message, http.StatusInternalServerError}
-	}
+	//	//add notes
+	//	if err := setNotes(&object, manager); err != nil {
+	//		message := fmt.Sprintf("Error setting comment notes [%s]", err)
+	//		return nil, &AppError{nil, message, http.StatusInternalServerError}
+	//	}
 
 	if err := manager.Comments.Insert(object); err != nil {
 		message := fmt.Sprintf("Error creating comments [%s]", err)
 		return nil, &AppError{nil, message, http.StatusInternalServerError}
 	}
 
-	return &object, nil
+	return object, nil
 }
 
 func setCommentReferences(object *model.Comment, manager *MongoManager) error {
@@ -117,24 +117,24 @@ func setCommentReferences(object *model.Comment, manager *MongoManager) error {
 //	return nil
 //}
 
-func setNotes(object *model.Comment, manager *MongoManager) error {
-	var user model.User
-	var invalidUsers []string
-
-	for i := 0; i < len(object.Notes); i++ {
-		one := &object.Notes[i]
-		manager.Users.Find(bson.M{"src_id": one.SourceUserID}).One(&user)
-		if user.ID == "" {
-			invalidUsers = append(invalidUsers, one.SourceUserID)
-			continue
-		}
-
-		one.UserID = user.ID
-	}
-
-	if len(invalidUsers) > 0 {
-		return errors.New("Error setting comment notes - Cannot find users")
-	}
-
-	return nil
-}
+//func setNotes(object *model.Comment, manager *MongoManager) error {
+//	var user model.User
+//	var invalidUsers []string
+//
+//	for i := 0; i < len(object.Notes); i++ {
+//		one := &object.Notes[i]
+//		manager.Users.Find(bson.M{"src_id": one.SourceUserID}).One(&user)
+//		if user.ID == "" {
+//			invalidUsers = append(invalidUsers, one.SourceUserID)
+//			continue
+//		}
+//
+//		one.UserID = user.ID
+//	}
+//
+//	if len(invalidUsers) > 0 {
+//		return errors.New("Error setting comment notes - Cannot find users")
+//	}
+//
+//	return nil
+//}

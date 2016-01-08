@@ -15,6 +15,6 @@ func ImportComment(w http.ResponseWriter, r *http.Request) {
 
 	// Write content-type, statuscode, payload
 	w.Header().Set("Content-Type", "application/json")
-	dbObject, err := service.CreateComment(jsonObject)
+	dbObject, err := service.CreateComment(&jsonObject)
 	doRespond(w, dbObject, err)
 }

@@ -10,9 +10,8 @@ import (
 )
 
 // CreateAction creates a new action resource
-func CreateAction(object model.Action) (*model.Action, *AppError) {
+func CreateAction(object *model.Action) (*model.Action, *AppError) {
 
-	// Insert Comment
 	manager := GetMongoManager()
 	defer manager.Close()
 
@@ -35,7 +34,7 @@ func CreateAction(object model.Action) (*model.Action, *AppError) {
 	}
 
 	object.ID = bson.NewObjectId()
-	if err := setActionReferences(&object, manager); err != nil {
+	if err := setActionReferences(object, manager); err != nil {
 		message := fmt.Sprintf("Error setting action references [%s]", err)
 		return nil, &AppError{nil, message, http.StatusInternalServerError}
 	}
@@ -46,7 +45,7 @@ func CreateAction(object model.Action) (*model.Action, *AppError) {
 		return nil, &AppError{err, message, http.StatusInternalServerError}
 	}
 
-	return &object, nil
+	return object, nil
 }
 
 func setActionReferences(object *model.Action, manager *MongoManager) error {

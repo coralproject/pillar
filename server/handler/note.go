@@ -7,14 +7,14 @@ import (
 	"net/http"
 )
 
-//ImportAction imports actions into the system
-func ImportAction(w http.ResponseWriter, r *http.Request) {
+//ImportNote imports notes into the system
+func ImportNote(w http.ResponseWriter, r *http.Request) {
 	//Get the user from request
-	jsonObject := model.Action{}
+	jsonObject := model.Note{}
 	json.NewDecoder(r.Body).Decode(&jsonObject)
 
 	// Write content-type, status code and payload
 	w.Header().Set("Content-Type", "application/json")
-	dbObject, err := service.CreateAction(&jsonObject)
+	dbObject, err := service.CreateNote(&jsonObject)
 	doRespond(w, dbObject, err)
 }

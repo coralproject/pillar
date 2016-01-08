@@ -9,7 +9,7 @@ import (
 )
 
 // CreateAsset creates a new asset resource
-func CreateAsset(object model.Asset) (*model.Asset, *AppError) {
+func CreateAsset(object *model.Asset) (*model.Asset, *AppError) {
 
 	// Insert Asset
 	manager := GetMongoManager()
@@ -45,5 +45,5 @@ func CreateAsset(object model.Asset) (*model.Asset, *AppError) {
 		return nil, &AppError{err, message, http.StatusInternalServerError}
 	}
 
-	return &object, nil
+	return object, nil
 }

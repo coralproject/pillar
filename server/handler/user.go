@@ -15,6 +15,6 @@ func ImportUser(w http.ResponseWriter, r *http.Request) {
 
 	// Write content-type, status code, payload
 	w.Header().Set("Content-Type", "application/json")
-	dbObject, err := service.CreateUser(jsonObject)
+	dbObject, err := service.CreateUser(&jsonObject)
 	doRespond(w, dbObject, err)
 }

@@ -40,10 +40,19 @@ const (
 
 // Note denotes a note by a user in the system.
 type Note struct {
-	UserID       bson.ObjectId `json:"user_id" bson:"user_id"`
-	SourceUserID string        `json:"src_user_id,omitempty" bson:"src_user_id,omitempty"`
-	Body         string        `json:"body" bson:"body" validate:"required"`
-	Date         time.Time     `json:"date" bson:"date"` // date created
+	UserID     bson.ObjectId `json:"user_id" bson:"user_id"`
+	Body       string        `json:"body" bson:"body" validate:"required"`
+	Date       time.Time     `json:"date" bson:"date" validate:"required"`
+	TargetID   bson.ObjectId `json:"target_id" bson:"target_id" validate:"required"`
+	TargetType string        `json:"target_type" bson:"target_type" validate:"required"`
+	Source     NoteSource    `json:"source" bson:"source"`
+}
+
+// NoteSource encapsulates all original id from the source system
+type NoteSource struct {
+	ID       string `json:"id,omitempty" bson:"id,omitempty"`
+	UserID   string `json:"user_id" bson:"user_id" validate:"required"`
+	TargetID string `json:"target_id" bson:"target_id" validate:"required"`
 }
 
 //==============================================================================

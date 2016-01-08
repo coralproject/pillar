@@ -15,6 +15,6 @@ func ImportAsset(w http.ResponseWriter, r *http.Request) {
 
 	// Write content-type, status code and payload
 	w.Header().Set("Content-Type", "application/json")
-	dbObject, err := service.CreateAsset(jsonObject)
+	dbObject, err := service.CreateAsset(&jsonObject)
 	doRespond(w, dbObject, err)
 }

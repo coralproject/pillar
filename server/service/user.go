@@ -9,7 +9,7 @@ import (
 )
 
 // CreateUser creates a new user resource
-func CreateUser(object model.User) (*model.User, *AppError) {
+func CreateUser(object *model.User) (*model.User, *AppError) {
 
 	// get a mongo connection
 	manager := GetMongoManager()
@@ -38,5 +38,5 @@ func CreateUser(object model.User) (*model.User, *AppError) {
 		return nil, &AppError{err, message, http.StatusInternalServerError}
 	}
 
-	return &object, nil
+	return object, nil
 }
