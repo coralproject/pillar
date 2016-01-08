@@ -11,7 +11,7 @@ import (
 // CreateAsset creates a new asset resource
 func CreateAsset(object model.Asset) (*model.Asset, *AppError) {
 
-	// Insert Comment
+	// Insert Asset
 	manager := GetMongoManager()
 	defer manager.Close()
 

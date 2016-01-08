@@ -73,6 +73,12 @@ var routes = Routes{
 		"/api/import/comment",
 		handler.ImportComment,
 	},
+	Route{
+		"Action",
+		"POST",
+		"/api/import/action",
+		handler.ImportAction,
+	},
 }
 
 func getRoutes() Routes {

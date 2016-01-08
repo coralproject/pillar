@@ -6,9 +6,12 @@ import (
 	"os"
 )
 
-const collectionUser string = "user"
-const collectionAsset string = "asset"
-const collectionComment string = "comment"
+const (
+	CollectionUser 		string = "user"
+	CollectionAsset 	string = "asset"
+	CollectionAction 	string = "action"
+	CollectionComment 	string = "comment"
+)
 
 // AppError encapsulates application specific error
 type AppError struct {
@@ -26,6 +29,7 @@ type MongoManager struct {
 	Session  *mgo.Session
 	Assets   *mgo.Collection
 	Users    *mgo.Collection
+	Actions  *mgo.Collection
 	Comments *mgo.Collection
 }
 
@@ -49,24 +53,28 @@ func init() {
 	mgoSession = session
 
 	//url and src_id on Asset
-	mgoSession.DB("").C(collectionAsset).EnsureIndexKey("src_id")
-	mgoSession.DB("").C(collectionAsset).EnsureIndexKey("url")
+	mgoSession.DB("").C(CollectionAction).EnsureIndexKey("source.id")
+
+	//url and src_id on Asset
+	mgoSession.DB("").C(CollectionAsset).EnsureIndexKey("src_id")
+	mgoSession.DB("").C(CollectionAsset).EnsureIndexKey("url")
 
 	//src_id on User
-	mgoSession.DB("").C(collectionUser).EnsureIndexKey("src_id")
+	mgoSession.DB("").C(CollectionUser).EnsureIndexKey("src_id")
 
 	//source.id on Comment
-	mgoSession.DB("").C(collectionComment).EnsureIndexKey("source.id")
+	mgoSession.DB("").C(CollectionComment).EnsureIndexKey("source.id")
 }
 
 //GetMongoManager returns a cloned MongoManager
 func GetMongoManager() *MongoManager {
 
 	manager := MongoManager{}
-	manager.Session = mgoSession.Clone()
-	manager.Assets = manager.Session.DB("").C(collectionAsset)
-	manager.Users = manager.Session.DB("").C(collectionUser)
-	manager.Comments = manager.Session.DB("").C(collectionComment)
+	manager.Session 	= mgoSession.Clone()
+	manager.Users 		= manager.Session.DB("").C(CollectionUser)
+	manager.Assets 		= manager.Session.DB("").C(CollectionAsset)
+	manager.Actions 	= manager.Session.DB("").C(CollectionAction)
+	manager.Comments 	= manager.Session.DB("").C(CollectionComment)
 
 	return &manager
 }
