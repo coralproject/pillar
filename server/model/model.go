@@ -38,6 +38,18 @@ const (
 	TargetTypeComment string = "Comment"
 )
 
+// source encapsulates all original id from the source system
+// this is a common struct used primarily for import purposes
+type source struct {
+	ID       string `json:"id,omitempty" bson:"id,omitempty"`
+	UserID   string `json:"user_id,omitempty" bson:"user_id,omitempty"`
+	TargetID string `json:"target_id,omitempty" bson:"target_id,omitempty"`
+	AssetID  string `json:"asset_id,omitempty" bson:"asset_id,omitempty"`
+	ParentID string `json:"parent_id,omitempty" bson:"parent_id,omitempty"`
+}
+
+//==============================================================================
+
 // Note denotes a note by a user in the system.
 type Note struct {
 	UserID     bson.ObjectId `json:"user_id" bson:"user_id"`
@@ -45,14 +57,7 @@ type Note struct {
 	Date       time.Time     `json:"date" bson:"date" validate:"required"`
 	TargetID   bson.ObjectId `json:"target_id" bson:"target_id" validate:"required"`
 	TargetType string        `json:"target_type" bson:"target_type" validate:"required"`
-	Source     NoteSource    `json:"source" bson:"source"`
-}
-
-// NoteSource encapsulates all original id from the source system
-type NoteSource struct {
-	ID       string `json:"id,omitempty" bson:"id,omitempty"`
-	UserID   string `json:"user_id" bson:"user_id" validate:"required"`
-	TargetID string `json:"target_id" bson:"target_id" validate:"required"`
+	Source     source        `json:"source" bson:"source"`
 }
 
 //==============================================================================
@@ -60,9 +65,9 @@ type NoteSource struct {
 // Asset denotes an asset in the system e.g. an article or a blog etc.
 type Asset struct {
 	ID         bson.ObjectId `json:"id" bson:"_id"`
-	SourceID   string        `json:"src_id,omitempty" bson:"src_id,omitempty"` // This is the original ID (in the external source) for the asset
 	URL        string        `json:"url" bson:"url" validate:"required"`
 	Taxonomies []Taxonomy    `json:"taxonomies,omitempty" bson:"taxonomies,omitempty"`
+	Source     source        `json:"source" bson:"source"`
 }
 
 // Taxonomy holds all name-value pairs.
@@ -98,14 +103,7 @@ type Action struct {
 	TargetType string        `json:"target_type" bson:"target_type" validate:"required"`
 	Date       time.Time     `json:"date" bson:"date" validate:"required"`
 	Value      string        `json:"value,omitempty" bson:"value,omitempty"`
-	Source     ActionSource  `json:"source" bson:"source"`
-}
-
-// ActionSource encapsulates all original id from the source system
-type ActionSource struct {
-	ID       string `json:"id,omitempty" bson:"id,omitempty"`
-	UserID   string `json:"user_id" bson:"user_id" validate:"required"`
-	TargetID string `json:"target_id" bson:"target_id"`
+	Source     source        `json:"source" bson:"source"`
 }
 
 //==============================================================================
@@ -113,7 +111,6 @@ type ActionSource struct {
 // User denotes a user in the system.
 type User struct {
 	ID          bson.ObjectId   `json:"id" bson:"_id"`
-	SourceID    string          `json:"src_id" bson:"src_id" validate:"required"`
 	UserName    string          `json:"user_name" bson:"user_name" validate:"required"`
 	Avatar      string          `json:"avatar" bson:"avatar" validate:"required"`
 	Status      string          `json:"status" bson:"status" validate:"required"`
@@ -121,8 +118,8 @@ type User struct {
 	MemberSince time.Time       `json:"member_since,omitempty" bson:"member_since,omitempty"`
 	Actions     []bson.ObjectId `json:"actions" bson:"actions"`
 	Notes       []Note          `json:"notes,omitempty" bson:"notes,omitempty"`
+	Source      source          `json:"source" bson:"source"`
 	//	Stats       map[string]interface{} `json:"stats" bson:"stats"`
-	//	Source      map[string]interface{} `json:"source" bson:"source"` // source document if imported
 }
 
 //func (object User) Id() bson.ObjectId {
@@ -156,16 +153,8 @@ type Comment struct {
 	Actions      []bson.ObjectId `json:"actions" bson:"actions"`
 	ActionCounts map[string]int  `json:"actionCounts" bson:"actionCounts"`
 	Notes        []Note          `json:"notes" bson:"notes"`
-	Source       CommentSource   `json:"source" bson:"source"`
+	Source       source          `json:"source" bson:"source"`
 	//	Stats        map[string]interface{} `json:"stats" bson:"stats"`
-}
-
-// CommentSource encapsulates all original id from the source system
-type CommentSource struct {
-	ID       string `json:"id" bson:"id" validate:"required"`
-	AssetID  string `json:"asset_id" bson:"asset_id" validate:"required"`
-	UserID   string `json:"user_id" bson:"user_id" validate:"required"`
-	ParentID string `json:"parent_id" bson:"parent_id"`
 }
 
 //func (object Comment) Id() bson.ObjectId {

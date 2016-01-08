@@ -74,14 +74,14 @@ func getAsset(m objects.Map) model.Asset {
 	asset := model.Asset{}
 	url := getArray(m.Get("object.context"))[0].GetString("uri")
 	asset.URL = url
-	asset.SourceID = url
+	asset.Source.ID = url
 	return asset
 }
 
 func getUser(m objects.Map) model.User {
 	user := model.User{}
 
-	user.SourceID = m.GetStringOrEmpty("actor.id")
+	user.Source.ID = m.GetStringOrEmpty("actor.id")
 	user.UserName = m.GetStringOrEmpty("actor.title")
 	user.Status = m.GetStringOrEmpty("actor.status")
 	user.Avatar = m.GetStringOrEmpty("actor.avatar")
