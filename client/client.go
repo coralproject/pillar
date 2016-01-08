@@ -45,7 +45,7 @@ func main() {
 	//	addComments()
 
 	//Load WAPO users
-	fiddler.LoadActors()
+	//fiddler.LoadActors()
 
 	//Load WAPO comments
 	fiddler.LoadComments()

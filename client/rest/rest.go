@@ -15,6 +15,7 @@ const (
 	BaseURL    string = "http://localhost:8080/api/import/"
 	URLUser    string = BaseURL + "user"
 	URLAsset   string = BaseURL + "asset"
+	URLAction    string = BaseURL + "action"
 	URLComment string = BaseURL + "comment"
 
 	dataUsers    = "data/users.json"

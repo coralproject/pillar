@@ -17,8 +17,8 @@ import (
 func LoadComments() {
 
 	//story := "http://washingtonpost.com/posteverything/wp/2015/05/20/feminists-want-us-to-define-these-ugly-sexual-encounters-as-rape-dont-let-them/"
-	//story := "http://washingtonpost.com/opinions/reformers-want-to-erase-confuciuss-influence-in-asia-thats-a-mistake/2015/05/28/529c1d3a-042e-11e5-a428-c984eb077d4e_story.html"
-	story := "http://washingtonpost.com/world/europe/european-leaders-seek-last-ditch-offer-to-bring-greece-from-brink-of-default/2015/06/30/960aded8-1ea2-11e5-a135-935065bc30d0_story.html"
+	story := "http://washingtonpost.com/opinions/reformers-want-to-erase-confuciuss-influence-in-asia-thats-a-mistake/2015/05/28/529c1d3a-042e-11e5-a428-c984eb077d4e_story.html"
+	//story := "http://washingtonpost.com/world/europe/european-leaders-seek-last-ditch-offer-to-bring-greece-from-brink-of-default/2015/06/30/960aded8-1ea2-11e5-a135-935065bc30d0_story.html"
 
 	manager := db.GetMongoManager()
 	defer manager.Close()
@@ -29,33 +29,42 @@ func LoadComments() {
 
 	fmt.Printf("Found %d comments\n", len(all))
 	fmt.Printf("Import in progress...\n")
-	var nAssets, nUsers, nSuccess, nFailure int
+	var nActions, nAssets, nUsers, nSuccess, nFailure int
 	for _, one := range all {
 		data, _ := json.Marshal(one)
 
-		comment := map[string]interface{}{}
-		json.Unmarshal(data, &comment)
+		commentJson := map[string]interface{}{}
+		json.Unmarshal(data, &commentJson)
 
-		asset := getAsset(comment)
+		asset := getAsset(commentJson)
 		if response := rest.Request(rest.MethodPost, rest.URLAsset, getBuffer(asset)); response.StatusCode == 200 {
 			nAssets++
 		}
 
-		if response := rest.Request(rest.MethodPost, rest.URLUser, getBuffer(getUser(comment))); response.StatusCode == 200 {
+		if response := rest.Request(rest.MethodPost, rest.URLUser, getBuffer(getUser(commentJson))); response.StatusCode == 200 {
 			nUsers++
 		}
 
-		users := getAllUsers(comment)
+		users := getAllUsers(commentJson)
 		for i := 0; i < len(users); i++ {
 			if response := rest.Request(rest.MethodPost, rest.URLUser, getBuffer(users[i])); response.StatusCode == 200 {
 				nUsers++
 			}
 		}
 
-		if response := rest.Request(rest.MethodPost, rest.URLComment, getBuffer(getComment(comment, asset.URL))); response.StatusCode == 200 {
+		comment := getComment(commentJson, asset.URL)
+		if response := rest.Request(rest.MethodPost, rest.URLComment, getBuffer(comment)); response.StatusCode == 200 {
 			nSuccess++
 		} else {
 			nFailure++
+		}
+
+		actions := getAllActions(commentJson, &comment)
+		for i := 0; i < len(actions); i++ {
+			action := actions[i]
+			if response := rest.Request(rest.MethodPost, rest.URLAction, getBuffer(action)); response.StatusCode == 200 {
+				nActions++
+			}
 		}
 	}
 	fmt.Printf("Finished importing comments, suceess: [%d] failure: [%d]\n\n\n", nSuccess, nFailure)
@@ -124,10 +133,10 @@ func getComment(m objects.Map, url string) model.Comment {
 
 	//fmt.Printf("Comment: %s\n\n", comment.Source.ID)
 
-	//get likes and flags as actions
-	populateActions(m.Get("object.likes"), model.Likes, &comment)
-	//	fmt.Printf("Getting Flags....\n\n")
-	populateActions(m.Get("object.flags"), model.Flags, &comment)
+//	//get likes and flags as actions
+//	populateActions(m.Get("object.likes"), model.ActionTypeLikes, &comment)
+//	//	fmt.Printf("Getting Flags....\n\n")
+//	populateActions(m.Get("object.flags"), model.ActionTypeFlags, &comment)
 
 	//fmt.Printf("Actions....%d\n\n", len(comment.Actions))
 
@@ -159,31 +168,68 @@ func getShortCommentID(url string) string {
 	return s[(len(s) - 1)]
 }
 
-func populateActions(list interface{}, actionType string, comment *model.Comment) {
+func getAllActions(m objects.Map, comment *model.Comment) []model.Action {
 
-	array := getArray(list)
-	if len(array) == 0 {
-		return
-	}
+	actions := []model.Action{}
 
-	for i := 0; i < len(array); i++ {
-		//for _, one := range getArray(list) {
-		action := model.Action{}
-		if array[i] == nil {
+	//Add all likes
+	mapArray := getArray(m.Get("object.likes"))
+	for i := 0; i < len(mapArray); i++ {
+		if mapArray[i] == nil {
 			continue
 		}
-		//fmt.Printf("Item: %s\n\n\n", array[i])
-
-		t, _ := time.Parse(time.RFC3339, array[i].GetString("published"))
-		//		time.Parse(time.RFC3339, m.GetString("updated"))
-		//		t, _ := time.Parse(shortForm, array[i].GetString("published"))
-		action.SourceUserID = array[i].GetString("actor.id")
-		action.Date = t
-		action.Type = actionType
-		//fmt.Printf("Action: %+v\n", action)
-		comment.Actions = append(comment.Actions, action)
+		actions = append(actions, getOneAction(mapArray[i], comment, model.ActionTypeLikes))
 	}
+
+	//Add all flags
+	mapArray = getArray(m.Get("object.flags"))
+	for i := 0; i < len(mapArray); i++ {
+		if mapArray[i] == nil {
+			continue
+		}
+		actions = append(actions, getOneAction(mapArray[i], comment, model.ActionTypeFlags))
+	}
+
+	return actions
 }
+
+func getOneAction(m objects.Map, comment *model.Comment, actionType string) model.Action {
+	action := model.Action{}
+
+	t, _ := time.Parse(time.RFC3339, m.GetString("published"))
+	action.Date = t
+	action.Type = actionType
+	action.TargetType = model.TargetTypeComment
+	action.Source.UserID = m.GetString("actor.id")
+	action.Source.TargetID = comment.Source.ID
+
+	return action
+}
+
+//func populateActions(list interface{}, actionType string, comment *model.Comment) {
+//
+//	array := getArray(list)
+//	if len(array) == 0 {
+//		return
+//	}
+//
+//	for i := 0; i < len(array); i++ {
+//		action := model.Action{}
+//		if array[i] == nil {
+//			continue
+//		}
+//		//fmt.Printf("Item: %s\n\n\n", array[i])
+//
+//		t, _ := time.Parse(time.RFC3339, array[i].GetString("published"))
+//		//		time.Parse(time.RFC3339, m.GetString("updated"))
+//		//		t, _ := time.Parse(shortForm, array[i].GetString("published"))
+//		action.SourceUserID = array[i].GetString("actor.id")
+//		action.Date = t
+//		action.Type = actionType
+//		//fmt.Printf("Action: %+v\n", action)
+//		comment.Actions = append(comment.Actions, action)
+//	}
+//}
 
 //when the item is an array, we must convert it to a slice
 func getArray(list interface{}) []objects.Map {
