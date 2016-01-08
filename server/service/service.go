@@ -6,11 +6,12 @@ import (
 	"os"
 )
 
+// Various constants
 const (
-	CollectionUser 		string = "user"
-	CollectionAsset 	string = "asset"
-	CollectionAction 	string = "action"
-	CollectionComment 	string = "comment"
+	CollectionUser    string = "user"
+	CollectionAsset   string = "asset"
+	CollectionAction  string = "action"
+	CollectionComment string = "comment"
 )
 
 // AppError encapsulates application specific error
@@ -70,11 +71,11 @@ func init() {
 func GetMongoManager() *MongoManager {
 
 	manager := MongoManager{}
-	manager.Session 	= mgoSession.Clone()
-	manager.Users 		= manager.Session.DB("").C(CollectionUser)
-	manager.Assets 		= manager.Session.DB("").C(CollectionAsset)
-	manager.Actions 	= manager.Session.DB("").C(CollectionAction)
-	manager.Comments 	= manager.Session.DB("").C(CollectionComment)
+	manager.Session = mgoSession.Clone()
+	manager.Users = manager.Session.DB("").C(CollectionUser)
+	manager.Assets = manager.Session.DB("").C(CollectionAsset)
+	manager.Actions = manager.Session.DB("").C(CollectionAction)
+	manager.Comments = manager.Session.DB("").C(CollectionComment)
 
 	return &manager
 }

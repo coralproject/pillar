@@ -38,11 +38,11 @@ func CreateComment(object model.Comment) (*model.Comment, *AppError) {
 		return nil, &AppError{nil, message, http.StatusInternalServerError}
 	}
 
-//	//add actions
-//	if err := setActions(&object, manager); err != nil {
-//		message := fmt.Sprintf("Error setting comment actions [%s]", err)
-//		return nil, &AppError{nil, message, http.StatusInternalServerError}
-//	}
+	//	//add actions
+	//	if err := setActions(&object, manager); err != nil {
+	//		message := fmt.Sprintf("Error setting comment actions [%s]", err)
+	//		return nil, &AppError{nil, message, http.StatusInternalServerError}
+	//	}
 
 	//add notes
 	if err := setNotes(&object, manager); err != nil {

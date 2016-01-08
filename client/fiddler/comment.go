@@ -33,33 +33,33 @@ func LoadComments() {
 	for _, one := range all {
 		data, _ := json.Marshal(one)
 
-		commentJson := map[string]interface{}{}
-		json.Unmarshal(data, &commentJson)
+		commentJSON := map[string]interface{}{}
+		json.Unmarshal(data, &commentJSON)
 
-		asset := getAsset(commentJson)
+		asset := getAsset(commentJSON)
 		if response := rest.Request(rest.MethodPost, rest.URLAsset, getBuffer(asset)); response.StatusCode == 200 {
 			nAssets++
 		}
 
-		if response := rest.Request(rest.MethodPost, rest.URLUser, getBuffer(getUser(commentJson))); response.StatusCode == 200 {
+		if response := rest.Request(rest.MethodPost, rest.URLUser, getBuffer(getUser(commentJSON))); response.StatusCode == 200 {
 			nUsers++
 		}
 
-		users := getAllUsers(commentJson)
+		users := getAllUsers(commentJSON)
 		for i := 0; i < len(users); i++ {
 			if response := rest.Request(rest.MethodPost, rest.URLUser, getBuffer(users[i])); response.StatusCode == 200 {
 				nUsers++
 			}
 		}
 
-		comment := getComment(commentJson, asset.URL)
+		comment := getComment(commentJSON, asset.URL)
 		if response := rest.Request(rest.MethodPost, rest.URLComment, getBuffer(comment)); response.StatusCode == 200 {
 			nSuccess++
 		} else {
 			nFailure++
 		}
 
-		actions := getAllActions(commentJson, &comment)
+		actions := getAllActions(commentJSON, &comment)
 		for i := 0; i < len(actions); i++ {
 			action := actions[i]
 			if response := rest.Request(rest.MethodPost, rest.URLAction, getBuffer(action)); response.StatusCode == 200 {
@@ -133,10 +133,10 @@ func getComment(m objects.Map, url string) model.Comment {
 
 	//fmt.Printf("Comment: %s\n\n", comment.Source.ID)
 
-//	//get likes and flags as actions
-//	populateActions(m.Get("object.likes"), model.ActionTypeLikes, &comment)
-//	//	fmt.Printf("Getting Flags....\n\n")
-//	populateActions(m.Get("object.flags"), model.ActionTypeFlags, &comment)
+	//	//get likes and flags as actions
+	//	populateActions(m.Get("object.likes"), model.ActionTypeLikes, &comment)
+	//	//	fmt.Printf("Getting Flags....\n\n")
+	//	populateActions(m.Get("object.flags"), model.ActionTypeFlags, &comment)
 
 	//fmt.Printf("Actions....%d\n\n", len(comment.Actions))
 

@@ -30,13 +30,12 @@ func init() {
 const (
 
 	//action types
-	ActionTypeLikes 	string = "Likes"
-	ActionTypeFlags 	string = "Flags"
+	ActionTypeLikes string = "Likes"
+	ActionTypeFlags string = "Flags"
 
 	//target types
-	TargetTypeUser 		string = "User"
-	TargetTypeComment 	string = "Comment"
-
+	TargetTypeUser    string = "User"
+	TargetTypeComment string = "Comment"
 )
 
 // Note denotes a note by a user in the system.
@@ -83,14 +82,14 @@ func (a Asset) Validate() error {
 // TargetType and TargetID may be zero value if data is a sub-document of the Target
 // UserID may be zero value if the data is a subdocument of the actor
 type Action struct {
-	ID           bson.ObjectId `json:"id" bson:"_id"`
-	Type         string        `json:"type" bson:"type" validate:"required"`
-	UserID       bson.ObjectId `json:"user_id" bson:"user_id" validate:"required"`
-	TargetID     bson.ObjectId `json:"target_id" bson:"target_id" validate:"required"`
-	TargetType   string        `json:"target_type" bson:"target_type" validate:"required"`
-	Date         time.Time     `json:"date" bson:"date" validate:"required"`
-	Value        string        `json:"value,omitempty" bson:"value,omitempty"`
-	Source       ActionSource  `json:"source" bson:"source"`
+	ID         bson.ObjectId `json:"id" bson:"_id"`
+	Type       string        `json:"type" bson:"type" validate:"required"`
+	UserID     bson.ObjectId `json:"user_id" bson:"user_id" validate:"required"`
+	TargetID   bson.ObjectId `json:"target_id" bson:"target_id" validate:"required"`
+	TargetType string        `json:"target_type" bson:"target_type" validate:"required"`
+	Date       time.Time     `json:"date" bson:"date" validate:"required"`
+	Value      string        `json:"value,omitempty" bson:"value,omitempty"`
+	Source     ActionSource  `json:"source" bson:"source"`
 }
 
 // ActionSource encapsulates all original id from the source system
@@ -104,15 +103,15 @@ type ActionSource struct {
 
 // User denotes a user in the system.
 type User struct {
-	ID          bson.ObjectId `json:"id" bson:"_id"`
-	SourceID    string        `json:"src_id" bson:"src_id" validate:"required"`
-	UserName    string        `json:"user_name" bson:"user_name" validate:"required"`
-	Avatar      string        `json:"avatar" bson:"avatar" validate:"required"`
-	Status      string        `json:"status" bson:"status" validate:"required"`
-	LastLogin   time.Time     `json:"last_login,omitempty" bson:"last_login,omitempty"`
-	MemberSince time.Time     `json:"member_since,omitempty" bson:"member_since,omitempty"`
-	Actions      []bson.ObjectId `json:"actions" bson:"actions"`
-	Notes       []Note        `json:"notes,omitempty" bson:"notes,omitempty"`
+	ID          bson.ObjectId   `json:"id" bson:"_id"`
+	SourceID    string          `json:"src_id" bson:"src_id" validate:"required"`
+	UserName    string          `json:"user_name" bson:"user_name" validate:"required"`
+	Avatar      string          `json:"avatar" bson:"avatar" validate:"required"`
+	Status      string          `json:"status" bson:"status" validate:"required"`
+	LastLogin   time.Time       `json:"last_login,omitempty" bson:"last_login,omitempty"`
+	MemberSince time.Time       `json:"member_since,omitempty" bson:"member_since,omitempty"`
+	Actions     []bson.ObjectId `json:"actions" bson:"actions"`
+	Notes       []Note          `json:"notes,omitempty" bson:"notes,omitempty"`
 	//	Stats       map[string]interface{} `json:"stats" bson:"stats"`
 	//	Source      map[string]interface{} `json:"source" bson:"source"` // source document if imported
 }

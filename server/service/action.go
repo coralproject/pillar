@@ -1,12 +1,12 @@
 package service
 
 import (
+	"errors"
 	"fmt"
 	"github.com/coralproject/pillar/server/model"
 	"gopkg.in/mgo.v2/bson"
 	"net/http"
 	"reflect"
-	"errors"
 )
 
 // CreateAction creates a new action resource
@@ -62,39 +62,38 @@ func setActionReferences(object *model.Action, manager *MongoManager) error {
 
 	//find target and set the reference
 	switch object.TargetType {
-		case model.TargetTypeUser:
-			var user model.User
-			manager.Users.Find(bson.M{"src_id": object.Source.TargetID}).One(&user)
-			if user.ID == "" {
-				err := errors.New("Cannot find user from source: " + object.Source.TargetID)
-				return err
-			}
-			//set the reference
-			object.TargetID = user.ID
+	case model.TargetTypeUser:
+		var user model.User
+		manager.Users.Find(bson.M{"src_id": object.Source.TargetID}).One(&user)
+		if user.ID == "" {
+			err := errors.New("Cannot find user from source: " + object.Source.TargetID)
+			return err
+		}
+		//set the reference
+		object.TargetID = user.ID
 
-			//also append this action to user's actions array
-			actions := append(user.Actions, object.ID)
-			manager.Users.Update(bson.M{"_id": user.ID},
-				bson.M{"$set": bson.M{"actions": actions}})
-			break
+		//also append this action to user's actions array
+		actions := append(user.Actions, object.ID)
+		manager.Users.Update(bson.M{"_id": user.ID},
+			bson.M{"$set": bson.M{"actions": actions}})
+		break
 
-		case model.TargetTypeComment:
-			var comment model.Comment
-			manager.Comments.Find(bson.M{"source.id": object.Source.TargetID}).One(&comment)
-			if comment.ID == "" {
-				err := errors.New("Cannot find comment from source: " + object.Source.TargetID)
-				return err
-			}
-			//set the reference
-			object.TargetID = comment.ID
+	case model.TargetTypeComment:
+		var comment model.Comment
+		manager.Comments.Find(bson.M{"source.id": object.Source.TargetID}).One(&comment)
+		if comment.ID == "" {
+			err := errors.New("Cannot find comment from source: " + object.Source.TargetID)
+			return err
+		}
+		//set the reference
+		object.TargetID = comment.ID
 
-			//also append this action to comment's actions array
-			actions := append(comment.Actions, object.ID)
-			manager.Comments.Update(bson.M{"_id": comment.ID},
-				bson.M{"$set": bson.M{"actions": actions}})
-			break
+		//also append this action to comment's actions array
+		actions := append(comment.Actions, object.ID)
+		manager.Comments.Update(bson.M{"_id": comment.ID},
+			bson.M{"$set": bson.M{"actions": actions}})
+		break
 	}
 
 	return nil
 }
-
