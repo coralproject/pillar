@@ -40,3 +40,30 @@ func CreateUser(object *model.User) (*model.User, *AppError) {
 
 	return object, nil
 }
+
+//append action to user's actions array and update stats
+func updateUserOnAction(user *model.User, object *model.Action, manager *MongoManager) {
+	actions := append(user.Actions, object.ID)
+	if user.Stats[object.Type] == nil {
+		user.Stats[object.Type] = 0
+	}
+
+	user.Stats[object.Type] = user.Stats[object.Type].(int) + 1
+	manager.Comments.Update(
+		bson.M{"_id": user.ID},
+		bson.M{"$set": bson.M{"actions": actions, "stats": user.Stats}},
+	)
+}
+
+//update stats on this user for #comments
+func updateUserOnComment(user *model.User, manager *MongoManager) {
+	if user.Stats[model.StatsComments] == nil {
+		user.Stats[model.StatsComments] = 0
+	}
+
+	user.Stats[model.StatsComments] = user.Stats[model.StatsComments].(int) + 1
+	manager.Users.Update(
+		bson.M{"_id": user.ID},
+		bson.M{"$set": bson.M{"stats": user.Stats}},
+	)
+}

@@ -9,6 +9,8 @@ import (
 	"reflect"
 )
 
+var commenter *model.User
+
 // CreateComment creates a new comment resource
 func CreateComment(object *model.Comment) (*model.Comment, *AppError) {
 
@@ -55,6 +57,8 @@ func CreateComment(object *model.Comment) (*model.Comment, *AppError) {
 		return nil, &AppError{nil, message, http.StatusInternalServerError}
 	}
 
+	updateUserOnComment(commenter, manager)
+
 	return object, nil
 }
 
@@ -71,13 +75,12 @@ func setCommentReferences(object *model.Comment, manager *MongoManager) error {
 	object.AssetID = asset.ID
 
 	//find user and add the reference to it
-	var user model.User
-	manager.Users.Find(bson.M{"src_id": object.Source.UserID}).One(&user)
-	if user.ID == "" {
+	manager.Users.Find(bson.M{"src_id": object.Source.UserID}).One(&commenter)
+	if commenter.ID == "" {
 		err := errors.New("Cannot find user from source: " + object.Source.UserID)
 		return err
 	}
-	object.UserID = user.ID
+	object.UserID = commenter.ID
 
 	//find parent and add the reference to it
 	if object.Source.ID != object.Source.ParentID {
@@ -93,6 +96,20 @@ func setCommentReferences(object *model.Comment, manager *MongoManager) error {
 	}
 
 	return nil
+}
+
+//append action to comment's actions array and update stats
+func updateCommentOnAction(comment *model.Comment, object *model.Action, manager *MongoManager) {
+	actions := append(comment.Actions, object.ID)
+	if comment.Stats[object.Type] == nil {
+		comment.Stats[object.Type] = 0
+	}
+
+	comment.Stats[object.Type] = comment.Stats[object.Type].(int) + 1
+	manager.Comments.Update(
+		bson.M{"_id": comment.ID},
+		bson.M{"$set": bson.M{"actions": actions, "stats": comment.Stats}},
+	)
 }
 
 //func setActions(object *model.Comment, manager *MongoManager) error {

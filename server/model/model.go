@@ -29,17 +29,19 @@ func init() {
 //Various Constants
 const (
 
-	//action types
-	ActionTypeLikes string = "Likes"
-	ActionTypeFlags string = "Flags"
+	//Various Stats (counts)
+	StatsLikes 		string = "Likes"
+	StatsFlags 		string = "Flags"
+	StatsComments 	string = "Comments"
 
-	//target types
+	//Target types
 	TargetTypeUser    string = "User"
 	TargetTypeComment string = "Comment"
 )
 
 // source encapsulates all original id from the source system
 // this is a common struct used primarily for import purposes
+// client is responsible for passing in valid/correct source data
 type source struct {
 	ID       string `json:"id,omitempty" bson:"id,omitempty"`
 	UserID   string `json:"user_id,omitempty" bson:"user_id,omitempty"`
@@ -119,7 +121,7 @@ type User struct {
 	Actions     []bson.ObjectId `json:"actions" bson:"actions"`
 	Notes       []Note          `json:"notes,omitempty" bson:"notes,omitempty"`
 	Source      source          `json:"source" bson:"source"`
-	//	Stats       map[string]interface{} `json:"stats" bson:"stats"`
+	Stats       map[string]interface{} `json:"stats" bson:"stats"`
 }
 
 //func (object User) Id() bson.ObjectId {
@@ -151,10 +153,9 @@ type Comment struct {
 	DateUpdated  time.Time       `json:"date_updated" bson:"date_updated"`
 	DateApproved time.Time       `json:"date_approved,omitempty" bson:"date_approved,omitempty"`
 	Actions      []bson.ObjectId `json:"actions" bson:"actions"`
-	ActionCounts map[string]int  `json:"actionCounts" bson:"actionCounts"`
 	Notes        []Note          `json:"notes" bson:"notes"`
 	Source       source          `json:"source" bson:"source"`
-	//	Stats        map[string]interface{} `json:"stats" bson:"stats"`
+	Stats        map[string]interface{} `json:"stats" bson:"stats"`
 }
 
 //func (object Comment) Id() bson.ObjectId {

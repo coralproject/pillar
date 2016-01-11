@@ -71,10 +71,8 @@ func setActionReferences(object *model.Action, manager *MongoManager) error {
 		//set the reference
 		object.TargetID = user.ID
 
-		//also append this action to user's actions array
-		actions := append(user.Actions, object.ID)
-		manager.Users.Update(bson.M{"_id": user.ID},
-			bson.M{"$set": bson.M{"actions": actions}})
+		//update comment with this action
+		updateUserOnAction(&user, object, manager)
 		break
 
 	case model.TargetTypeComment:
@@ -87,10 +85,8 @@ func setActionReferences(object *model.Action, manager *MongoManager) error {
 		//set the reference
 		object.TargetID = comment.ID
 
-		//also append this action to comment's actions array
-		actions := append(comment.Actions, object.ID)
-		manager.Comments.Update(bson.M{"_id": comment.ID},
-			bson.M{"$set": bson.M{"actions": actions}})
+		//update comment with this action
+		updateCommentOnAction(&comment, object, manager)
 		break
 	}
 
