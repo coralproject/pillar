@@ -4,9 +4,9 @@ import (
 	"encoding/json"
 	"net/http"
 	"os"
+	"log"
 
 	"github.com/coralproject/pillar/server/handler"
-	"github.com/coralproject/pillar/server/log"
 	"github.com/gorilla/mux"
 )
 
@@ -90,13 +90,13 @@ var routes = Routes{
 func getRoutes() Routes {
 	file, err := os.Open("routes.json")
 	if err != nil {
-		log.Logger.Printf("Error opening routes.json: %s", err)
+		log.Fatal("Error opening routes.json: %s", err)
 	}
 
 	var routes Routes
 	jsonParser := json.NewDecoder(file)
 	if err = jsonParser.Decode(&routes); err != nil {
-		log.Logger.Printf("Error parsing routes.json: %s", err)
+		log.Fatal("Error parsing routes.json: %s", err)
 	}
 
 	return routes

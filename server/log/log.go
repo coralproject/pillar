@@ -50,5 +50,5 @@ func getLogFile() string {
 		os.MkdirAll(logPath, 0700)
 	}
 
-	return logPath + "/server.log"
+	return logPath + "/pillar.log"
 }

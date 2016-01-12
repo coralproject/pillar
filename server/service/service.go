@@ -1,9 +1,9 @@
 package service
 
 import (
-	"github.com/coralproject/pillar/server/log"
+	"github.com/coralproject/pillar/server/cfg"
 	"gopkg.in/mgo.v2"
-	"os"
+	"github.com/coralproject/pillar/server/log"
 )
 
 // Various constants
@@ -41,7 +41,7 @@ func (manager *MongoManager) Close() {
 
 //export MONGODB_URL=mongodb://localhost:27017/coral
 func init() {
-	uri := os.Getenv("MONGODB_URL")
+	uri := cfg.GetContext().MongoURL
 	if uri == "" {
 		log.Logger.Fatal("Error connecting to mongo database: MONGODB_URL not found")
 	}
