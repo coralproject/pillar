@@ -178,7 +178,7 @@ func getAllActions(m objects.Map, comment *model.Comment) []model.Action {
 		if mapArray[i] == nil {
 			continue
 		}
-		actions = append(actions, getOneAction(mapArray[i], comment, model.ActionTypeLikes))
+		actions = append(actions, getOneAction(mapArray[i], comment, model.StatsLikes))
 	}
 
 	//Add all flags
@@ -187,7 +187,7 @@ func getAllActions(m objects.Map, comment *model.Comment) []model.Action {
 		if mapArray[i] == nil {
 			continue
 		}
-		actions = append(actions, getOneAction(mapArray[i], comment, model.ActionTypeFlags))
+		actions = append(actions, getOneAction(mapArray[i], comment, model.StatsFlags))
 	}
 
 	return actions
@@ -202,6 +202,8 @@ func getOneAction(m objects.Map, comment *model.Comment, actionType string) mode
 	action.TargetType = model.TargetTypeComment
 	action.Source.UserID = m.GetString("actor.id")
 	action.Source.TargetID = comment.Source.ID
+	//make up an ID to uniquely identify this particular action e.g. user-likes-comment
+	action.Source.ID = action.Source.UserID + "-" + actionType + "-" + comment.Source.ID
 
 	return action
 }
