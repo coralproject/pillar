@@ -85,12 +85,21 @@ You may want to skip this if you're not comfortable with Docker. This section he
 ~~~
 
 ### Run Server Container
-Find the Docker Image with tag pillar-server:1.0 and run the IMAGE_ID.
+Find the Docker Image with tag pillar-server:0.1 and run the IMAGE_ID.
+
+You must pass the environment variables needed to run Pillar, using the env.list file
+
+~~~
+PILLAR_HOME=/opt/pillar
+MONGODB_URL=mongodb://192.xxx.xxx.xxx:27017/coral
+~~~
+
+Find the image id for ```pillar-server``` and run using the command below:
 
 ~~~
 > docker images
 REPOSITORY     TAG  IMAGE ID       CREATED         VIRTUAL SIZE
-pillar-server  1.0  7b59c4c5efde   6 minutes ago   728.2 MB
+pillar-server  0.1  7b59c4c5efde   6 minutes ago   728.2 MB
 
-> docker run -it --publish 8080:8080 7b59c4c5efde
+> docker run --env-file ./env.list --publish 8080:8080 7b59c4c5efde
 ~~~
