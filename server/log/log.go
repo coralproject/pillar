@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"strings"
+	"github.com/coralproject/pillar/server/cfg"
 )
 
 //Single logger for the application
@@ -40,7 +41,7 @@ func exists(path string) bool {
 }
 
 func getLogFile() string {
-	pillarHome := os.Getenv("PILLAR_HOME")
+	pillarHome := cfg.GetContext().Home
 	if pillarHome == "" {
 		pillarHome = strings.TrimSuffix(os.TempDir(), "/") + "/pillar"
 	}

@@ -1,9 +1,9 @@
 package cfg
 
 import (
-	"encoding/json"
 	"os"
 	"log"
+	"fmt"
 )
 
 //Context information for pillar server
@@ -21,19 +21,16 @@ func init() {
 	if home == "" {
 		log.Fatal("Error initializing Server: PILLAR_HOME not found.")
 	}
-
-	file, err := os.Open(home+"/pillar.json")
-	if err != nil {
-		log.Fatal("Error initializing Server: $PILLAR_HOME/pillar.json not found.")
-	}
-
-	jsonParser := json.NewDecoder(file)
-	if err = jsonParser.Decode(&context); err != nil {
-		log.Fatal("Error initializing Server: invalid pillar.json.")
-	}
-
 	//set pillar home
 	context.Home = home
+
+	url := os.Getenv("MONGODB_URL")
+	if home == "" {
+		log.Fatal("Error initializing Server: MONGODB_URL not found.")
+	}
+	context.MongoURL = url
+
+	fmt.Printf("Context: %+v\n\n", context)
 }
 
 func GetContext() Context {
