@@ -9,15 +9,15 @@ import (
 
 // About - about this application
 type About struct {
-	app     string
-	version string
+	App     string
+	Version string
 }
 
 var about About
 
 func init() {
-	about.app = "Coral Pillar Web Service"
-	about.version = "Version - 0.0.1"
+	about.App = "Coral Pillar Web Service"
+	about.Version = "Version - 0.0.1"
 }
 
 //AboutThisApp displays the about page
