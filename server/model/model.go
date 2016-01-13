@@ -145,7 +145,7 @@ type Comment struct {
 	ID           bson.ObjectId   `json:"id" bson:"_id"`
 	UserID       bson.ObjectId   `json:"user_id" bson:"user_id"`
 	AssetID      bson.ObjectId   `json:"asset_id" bson:"asset_id"`
-	ParentID     bson.ObjectId   `json:"parent_id,omitempty" bson:"parent_d,omitempty"`
+	ParentID     bson.ObjectId   `json:"parent_id,omitempty" bson:"parent_id,omitempty"`
 	Children     []bson.ObjectId `json:"children,omitempty" bson:"children,omitempty"`
 	Body         string          `json:"body" bson:"body" validate:"required"`
 	Status       string          `json:"status" bson:"status"`
