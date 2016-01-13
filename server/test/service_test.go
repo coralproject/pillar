@@ -53,3 +53,23 @@ func TestCreateUser(t *testing.T) {
 		}
 	}
 }
+
+func TestCreateComments(t *testing.T) {
+	file, err := os.Open(dataComments)
+	if err != nil {
+		fmt.Println("opening config file", err.Error())
+	}
+
+	objects := []model.Comment{}
+	jsonParser := json.NewDecoder(file)
+	if err = jsonParser.Decode(&objects); err != nil {
+		fmt.Println("Error reading user data", err.Error())
+	}
+
+	for _, one := range objects {
+		_, err := service.CreateComment(&one)
+		if err != nil {
+			t.Fail()
+		}
+	}
+}

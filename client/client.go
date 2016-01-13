@@ -48,7 +48,7 @@ func main() {
 	fiddler.LoadActors()
 
 	//Load WAPO comments
-	//fiddler.LoadComments()
+	fiddler.LoadComments()
 }
 
 func addAssets() {

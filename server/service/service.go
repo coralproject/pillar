@@ -52,11 +52,11 @@ func init() {
 	mgoSession.DB("").C(CollectionAction).EnsureIndexKey("source.id")
 
 	//url and src_id on Asset
-	mgoSession.DB("").C(CollectionAsset).EnsureIndexKey("src_id")
+	mgoSession.DB("").C(CollectionAsset).EnsureIndexKey("source.id")
 	mgoSession.DB("").C(CollectionAsset).EnsureIndexKey("url")
 
 	//src_id on User
-	mgoSession.DB("").C(CollectionUser).EnsureIndexKey("src_id")
+	mgoSession.DB("").C(CollectionUser).EnsureIndexKey("source.id")
 
 	//source.id on Comment
 	mgoSession.DB("").C(CollectionComment).EnsureIndexKey("source.id")

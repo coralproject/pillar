@@ -118,10 +118,10 @@ type User struct {
 	Status      string          `json:"status" bson:"status" validate:"required"`
 	LastLogin   time.Time       `json:"last_login,omitempty" bson:"last_login,omitempty"`
 	MemberSince time.Time       `json:"member_since,omitempty" bson:"member_since,omitempty"`
-	Actions     []bson.ObjectId `json:"actions" bson:"actions"`
+	Actions     []bson.ObjectId `json:"actions,omitempty" bson:"actions,omitempty"`
 	Notes       []Note          `json:"notes,omitempty" bson:"notes,omitempty"`
 	Source      source          `json:"source" bson:"source"`
-	Stats       map[string]interface{} `json:"stats" bson:"stats"`
+	Stats       map[string]interface{} `json:"stats,omitempty" bson:"stats,omitempty"`
 }
 
 //func (object User) Id() bson.ObjectId {
@@ -152,10 +152,10 @@ type Comment struct {
 	DateCreated  time.Time       `json:"date_created" bson:"date_created"`
 	DateUpdated  time.Time       `json:"date_updated" bson:"date_updated"`
 	DateApproved time.Time       `json:"date_approved,omitempty" bson:"date_approved,omitempty"`
-	Actions      []bson.ObjectId `json:"actions" bson:"actions"`
-	Notes        []Note          `json:"notes" bson:"notes"`
-	Source       source          `json:"source" bson:"source"`
-	Stats        map[string]interface{} `json:"stats" bson:"stats"`
+	Actions     []bson.ObjectId `json:"actions,omitempty" bson:"actions,omitempty"`
+	Notes       []Note          `json:"notes,omitempty" bson:"notes,omitempty"`
+	Source      source          `json:"source" bson:"source"`
+	Stats       map[string]interface{} `json:"stats,omitempty" bson:"stats,omitempty"`
 }
 
 //func (object Comment) Id() bson.ObjectId {
