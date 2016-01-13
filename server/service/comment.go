@@ -9,7 +9,7 @@ import (
 	"reflect"
 )
 
-var commenter *model.User
+var commenter model.User
 
 // CreateComment creates a new comment resource
 func CreateComment(object *model.Comment) (*model.Comment, *AppError) {
@@ -57,7 +57,7 @@ func CreateComment(object *model.Comment) (*model.Comment, *AppError) {
 		return nil, &AppError{nil, message, http.StatusInternalServerError}
 	}
 
-	updateUserOnComment(commenter, manager)
+	updateUserOnComment(&commenter, manager)
 
 	return object, nil
 }
@@ -65,7 +65,7 @@ func CreateComment(object *model.Comment) (*model.Comment, *AppError) {
 func setCommentReferences(object *model.Comment, manager *MongoManager) error {
 	//find asset and add the reference to it
 	var asset model.Asset
-	manager.Assets.Find(bson.M{"src_id": object.Source.AssetID}).One(&asset)
+	manager.Assets.Find(bson.M{"source.id": object.Source.AssetID}).One(&asset)
 	if asset.ID == "" {
 		manager.Assets.Find(bson.M{"url": object.Source.AssetID}).One(&asset)
 	}
@@ -75,7 +75,7 @@ func setCommentReferences(object *model.Comment, manager *MongoManager) error {
 	object.AssetID = asset.ID
 
 	//find user and add the reference to it
-	manager.Users.Find(bson.M{"src_id": object.Source.UserID}).One(&commenter)
+	manager.Users.Find(bson.M{"source.id": object.Source.UserID}).One(&commenter)
 	if commenter.ID == "" {
 		err := errors.New("Cannot find user from source: " + object.Source.UserID)
 		return err
@@ -101,6 +101,11 @@ func setCommentReferences(object *model.Comment, manager *MongoManager) error {
 //append action to comment's actions array and update stats
 func updateCommentOnAction(comment *model.Comment, object *model.Action, manager *MongoManager) {
 	actions := append(comment.Actions, object.ID)
+
+	if comment.Stats == nil {
+		comment.Stats = make(map[string]interface{})
+	}
+
 	if comment.Stats[object.Type] == nil {
 		comment.Stats[object.Type] = 0
 	}

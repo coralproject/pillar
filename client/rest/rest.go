@@ -18,9 +18,10 @@ const (
 	URLAction  string = BaseURL + "action"
 	URLComment string = BaseURL + "comment"
 
-	dataUsers    = "data/users.json"
-	dataAssets   = "data/assets.json"
-	dataComments = "data/comments.json"
+	DataUsers    = "fixtures/users.json"
+	DataAssets   = "fixtures/assets.json"
+	DataComments = "fixtures/comments.json"
+	DataActions  = "fixtures/actions.json"
 )
 
 //Response encapsulates a REST response

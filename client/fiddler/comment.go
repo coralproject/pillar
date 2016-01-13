@@ -17,8 +17,8 @@ import (
 func LoadComments() {
 
 	//story := "http://washingtonpost.com/posteverything/wp/2015/05/20/feminists-want-us-to-define-these-ugly-sexual-encounters-as-rape-dont-let-them/"
-	story := "http://washingtonpost.com/opinions/reformers-want-to-erase-confuciuss-influence-in-asia-thats-a-mistake/2015/05/28/529c1d3a-042e-11e5-a428-c984eb077d4e_story.html"
-	//story := "http://washingtonpost.com/world/europe/european-leaders-seek-last-ditch-offer-to-bring-greece-from-brink-of-default/2015/06/30/960aded8-1ea2-11e5-a135-935065bc30d0_story.html"
+	//story := "http://washingtonpost.com/opinions/reformers-want-to-erase-confuciuss-influence-in-asia-thats-a-mistake/2015/05/28/529c1d3a-042e-11e5-a428-c984eb077d4e_story.html"
+	story := "http://washingtonpost.com/world/europe/european-leaders-seek-last-ditch-offer-to-bring-greece-from-brink-of-default/2015/06/30/960aded8-1ea2-11e5-a135-935065bc30d0_story.html"
 
 	manager := db.GetMongoManager()
 	defer manager.Close()

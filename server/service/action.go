@@ -52,7 +52,7 @@ func setActionReferences(object *model.Action, manager *MongoManager) error {
 
 	//find user and set the reference
 	var user model.User
-	manager.Users.Find(bson.M{"src_id": object.Source.UserID}).One(&user)
+	manager.Users.Find(bson.M{"source.id": object.Source.UserID}).One(&user)
 	if user.ID == "" {
 		err := errors.New("Cannot find user from source: " + object.Source.UserID)
 		return err
@@ -63,7 +63,7 @@ func setActionReferences(object *model.Action, manager *MongoManager) error {
 	switch object.TargetType {
 	case model.TargetTypeUser:
 		var user model.User
-		manager.Users.Find(bson.M{"src_id": object.Source.TargetID}).One(&user)
+		manager.Users.Find(bson.M{"source.id": object.Source.TargetID}).One(&user)
 		if user.ID == "" {
 			err := errors.New("Cannot find user from source: " + object.Source.TargetID)
 			return err

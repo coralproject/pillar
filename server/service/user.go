@@ -57,6 +57,10 @@ func updateUserOnAction(user *model.User, object *model.Action, manager *MongoMa
 
 //update stats on this user for #comments
 func updateUserOnComment(user *model.User, manager *MongoManager) {
+	if user.Stats == nil {
+		user.Stats = make(map[string]interface{})
+	}
+
 	if user.Stats[model.StatsComments] == nil {
 		user.Stats[model.StatsComments] = 0
 	}
