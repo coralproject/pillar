@@ -1,4 +1,4 @@
-package service
+package test
 
 import (
 	"encoding/json"
@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/coralproject/pillar/server/model"
+	"github.com/coralproject/pillar/server/service"
 )
 
 const dataUsers = "fixtures/users.json"
@@ -26,7 +27,7 @@ func TestCreateAsset(t *testing.T) {
 	}
 
 	for _, one := range objects {
-		_, err := CreateAsset(one)
+		_, err := service.CreateAsset(&one)
 		if err != nil {
 			t.Fail()
 		}
@@ -46,7 +47,7 @@ func TestCreateUser(t *testing.T) {
 	}
 
 	for _, one := range objects {
-		_, err := CreateUser(one)
+		_, err := service.CreateUser(&one)
 		if err != nil {
 			t.Fail()
 		}

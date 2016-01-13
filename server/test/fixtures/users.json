@@ -1,20 +1,26 @@
 [
   {
-    "src_id" : "u6qTe%2BFQ%2BFli6rmbWJ6BEP%2BLRzrUEvutviR1VYa5PdNoGeVxxhJF5A%3D%3D",
     "user_name" : "Giantsmax",
     "avatar" : "https://wpidentity.s3.amazonaws.com/assets/images/avatar-default.png",
-    "status" : "ModeratorApproved"
+    "status" : "ModeratorApproved",
+    "source" : {
+      "id" : "u6qTe%2BFQ%2BFli6rmbWJ6BEP%2BLRzrUEvutviR1VYa5PdNoGeVxxhJF5A%3D%3D"
+    }
   },
   {
-    "src_id" : "zd%2BBV1C8EiALQwINNhStb3rE7VgS76krNWZjM5N3fM%2B%2B%2BfrlKkwhFQ%3D%3D",
     "status" : "ModeratorApproved",
     "user_name" : "jwc-ky",
     "avatar" : "https://wpidentity.s3.amazonaws.com/assets/images/avatar-default.png"
+    "source" : {
+      "id" : "zd%2BBV1C8EiALQwINNhStb3rE7VgS76krNWZjM5N3fM%2B%2B%2BfrlKkwhFQ%3D%3D"
+    }
   },
   {
-    "src_id" : "UM0RJ06WFAtsAheCHoc25nrE7VgS76krNWZjM5N3fM%2B%2B%2BfrlKkwhFQ%3D%3D",
     "status" : "ModeratorApproved",
     "user_name" : "camasca",
     "avatar" : "https://wpidentity.s3.amazonaws.com/assets/images/avatar-default.png"
+    "source" : {
+      "id" : "UM0RJ06WFAtsAheCHoc25nrE7VgS76krNWZjM5N3fM%2B%2B%2BfrlKkwhFQ%3D%3D"
+    }
   }
 ]
