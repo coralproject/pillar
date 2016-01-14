@@ -26,12 +26,12 @@ func CreateNote(object *model.Note) (*model.Note, *AppError) {
 	}
 
 	//find target and set the reference
-	switch object.TargetType {
-	case model.TargetTypeUser:
+	switch object.Target {
+	case model.CollectionUser:
 		addNoteToUser(object, manager)
 		break
 
-	case model.TargetTypeComment:
+	case model.CollectionComment:
 		addNoteToComment(object, manager)
 		break
 	}

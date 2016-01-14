@@ -82,7 +82,7 @@ func getUser(m objects.Map) model.User {
 	user := model.User{}
 
 	user.Source.ID = m.GetStringOrEmpty("actor.id")
-	user.UserName = m.GetStringOrEmpty("actor.title")
+	user.Name = m.GetStringOrEmpty("actor.title")
 	user.Status = m.GetStringOrEmpty("actor.status")
 	user.Avatar = m.GetStringOrEmpty("actor.avatar")
 
@@ -199,7 +199,7 @@ func getOneAction(m objects.Map, comment *model.Comment, actionType string) mode
 	t, _ := time.Parse(time.RFC3339, m.GetString("published"))
 	action.Date = t
 	action.Type = actionType
-	action.TargetType = model.TargetTypeComment
+	action.Target = model.CollectionComment
 	action.Source.UserID = m.GetString("actor.id")
 	action.Source.TargetID = comment.Source.ID
 	//make up an ID to uniquely identify this particular action e.g. user-likes-comment

@@ -30,13 +30,16 @@ func init() {
 const (
 
 	//Various Stats (counts)
-	StatsLikes 		string = "Likes"
-	StatsFlags 		string = "Flags"
-	StatsComments 	string = "Comments"
+	StatsLikes 		string = "likes"
+	StatsFlags 		string = "flags"
+	StatsComments 	string = "comments"
 
-	//Target types
-	TargetTypeUser    string = "User"
-	TargetTypeComment string = "Comment"
+	// Various Collections
+	CollectionUser    string = "user"
+	CollectionAsset   string = "asset"
+	CollectionAction  string = "action"
+	CollectionComment string = "comment"
+
 )
 
 // source encapsulates all original id from the source system
@@ -54,12 +57,12 @@ type source struct {
 
 // Note denotes a note by a user in the system.
 type Note struct {
-	UserID     bson.ObjectId `json:"user_id" bson:"user_id"`
-	Body       string        `json:"body" bson:"body" validate:"required"`
-	Date       time.Time     `json:"date" bson:"date" validate:"required"`
-	TargetID   bson.ObjectId `json:"target_id" bson:"target_id" validate:"required"`
-	TargetType string        `json:"target_type" bson:"target_type" validate:"required"`
-	Source     source        `json:"source" bson:"source"`
+	UserID   bson.ObjectId `json:"user_id" bson:"user_id"`
+	Body     string        `json:"body" bson:"body" validate:"required"`
+	Date     time.Time     `json:"date" bson:"date" validate:"required"`
+	TargetID bson.ObjectId `json:"target_id" bson:"target_id" validate:"required"`
+	Target   string        `json:"target" bson:"target" validate:"required"`
+	Source   source        `json:"source" bson:"source"`
 }
 
 //==============================================================================
@@ -98,14 +101,14 @@ func (a Asset) Validate() error {
 // TargetType and TargetID may be zero value if data is a sub-document of the Target
 // UserID may be zero value if the data is a subdocument of the actor
 type Action struct {
-	ID         bson.ObjectId `json:"id" bson:"_id"`
-	Type       string        `json:"type" bson:"type" validate:"required"`
-	UserID     bson.ObjectId `json:"user_id" bson:"user_id" validate:"required"`
-	TargetID   bson.ObjectId `json:"target_id" bson:"target_id" validate:"required"`
-	TargetType string        `json:"target_type" bson:"target_type" validate:"required"`
-	Date       time.Time     `json:"date" bson:"date" validate:"required"`
-	Value      string        `json:"value,omitempty" bson:"value,omitempty"`
-	Source     source        `json:"source" bson:"source"`
+	ID       bson.ObjectId `json:"id" bson:"_id"`
+	Type     string        `json:"type" bson:"type" validate:"required"`
+	UserID   bson.ObjectId `json:"user_id" bson:"user_id" validate:"required"`
+	TargetID bson.ObjectId `json:"target_id" bson:"target_id" validate:"required"`
+	Target   string        `json:"target" bson:"target" validate:"required"`
+	Date     time.Time     `json:"date" bson:"date" validate:"required"`
+	Value    string        `json:"value,omitempty" bson:"value,omitempty"`
+	Source   source        `json:"source" bson:"source"`
 }
 
 //==============================================================================
@@ -113,7 +116,7 @@ type Action struct {
 // User denotes a user in the system.
 type User struct {
 	ID          bson.ObjectId   `json:"id" bson:"_id"`
-	UserName    string          `json:"user_name" bson:"user_name" validate:"required"`
+	Name        string          `json:"name" bson:"name" validate:"required"`
 	Avatar      string          `json:"avatar" bson:"avatar" validate:"required"`
 	Status      string          `json:"status" bson:"status" validate:"required"`
 	LastLogin   time.Time       `json:"last_login,omitempty" bson:"last_login,omitempty"`

@@ -4,14 +4,7 @@ import (
 	"github.com/coralproject/pillar/server/cfg"
 	"gopkg.in/mgo.v2"
 	"log"
-)
-
-// Various constants
-const (
-	CollectionUser    string = "user"
-	CollectionAsset   string = "asset"
-	CollectionAction  string = "action"
-	CollectionComment string = "comment"
+	"github.com/coralproject/pillar/server/model"
 )
 
 // AppError encapsulates application specific error
@@ -49,17 +42,17 @@ func init() {
 	mgoSession = session
 
 	//url and src_id on Asset
-	mgoSession.DB("").C(CollectionAction).EnsureIndexKey("source.id")
+	mgoSession.DB("").C(model.CollectionAction).EnsureIndexKey("source.id")
 
 	//url and src_id on Asset
-	mgoSession.DB("").C(CollectionAsset).EnsureIndexKey("source.id")
-	mgoSession.DB("").C(CollectionAsset).EnsureIndexKey("url")
+	mgoSession.DB("").C(model.CollectionAsset).EnsureIndexKey("source.id")
+	mgoSession.DB("").C(model.CollectionAsset).EnsureIndexKey("url")
 
 	//src_id on User
-	mgoSession.DB("").C(CollectionUser).EnsureIndexKey("source.id")
+	mgoSession.DB("").C(model.CollectionUser).EnsureIndexKey("source.id")
 
 	//source.id on Comment
-	mgoSession.DB("").C(CollectionComment).EnsureIndexKey("source.id")
+	mgoSession.DB("").C(model.CollectionComment).EnsureIndexKey("source.id")
 }
 
 //GetMongoManager returns a cloned MongoManager
@@ -67,10 +60,10 @@ func GetMongoManager() *MongoManager {
 
 	manager := MongoManager{}
 	manager.Session = mgoSession.Clone()
-	manager.Users = manager.Session.DB("").C(CollectionUser)
-	manager.Assets = manager.Session.DB("").C(CollectionAsset)
-	manager.Actions = manager.Session.DB("").C(CollectionAction)
-	manager.Comments = manager.Session.DB("").C(CollectionComment)
+	manager.Users = manager.Session.DB("").C(model.CollectionUser)
+	manager.Assets = manager.Session.DB("").C(model.CollectionAsset)
+	manager.Actions = manager.Session.DB("").C(model.CollectionAction)
+	manager.Comments = manager.Session.DB("").C(model.CollectionComment)
 
 	return &manager
 }

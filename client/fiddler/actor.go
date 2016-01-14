@@ -41,7 +41,7 @@ func getActor(m objects.Map) model.User {
 	user := model.User{}
 
 	user.Source.ID = m.GetStringOrEmpty("_id")
-	user.UserName = m.GetStringOrEmpty("title")
+	user.Name = m.GetStringOrEmpty("title")
 	user.Status = m.GetStringOrEmpty("status")
 	user.Avatar = m.GetStringOrEmpty("avatar")
 

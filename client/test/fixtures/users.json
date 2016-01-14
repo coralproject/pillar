@@ -1,6 +1,6 @@
 [
   {
-    "user_name" : "Giantsmax",
+    "name" : "Giantsmax",
     "avatar" : "https://wpidentity.s3.amazonaws.com/assets/images/avatar-default.png",
     "status" : "ModeratorApproved",
     "source" : {
@@ -9,7 +9,7 @@
   },
   {
     "status" : "ModeratorApproved",
-    "user_name" : "jwc-ky",
+    "name" : "jwc-ky",
     "avatar" : "https://wpidentity.s3.amazonaws.com/assets/images/avatar-default.png",
     "source" : {
       "id" : "http://washingtonpost.com/2k5EMOH4o1EAkq9Fb0zxksgoWI6YUHMFVlNQOUtKBgd/tT03sC7QkQ%3D%3D/"
@@ -17,7 +17,7 @@
   },
   {
     "status" : "ModeratorApproved",
-    "user_name" : "camasca",
+    "name" : "camasca",
     "avatar" : "https://wpidentity.s3.amazonaws.com/assets/images/avatar-default.png",
     "source" : {
       "id" : "http://washingtonpost.com/DbG3YQhvTOTbgmccXKF4LXrE7VgS76krNWZjM5N3fM%2B%2B%2BfrlKkwhFQ%3D%3D/"
@@ -25,7 +25,7 @@
   },
   {
     "status" : "ModeratorApproved",
-    "user_name" : "pandabear",
+    "name" : "pandabear",
     "avatar" : "https://wpidentity.s3.amazonaws.com/assets/images/avatar-default.png",
     "source" : {
       "id" : "http://washingtonpost.com/5TGhIXDxMXgz5S%2BBc7ap4/JkV59ZvvsMNXwm4WKT3BRoGeVxxhJF5A%3D%3D/"
