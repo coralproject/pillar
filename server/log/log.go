@@ -21,7 +21,7 @@ func init() {
 		log.Fatalf("Error opening log file [%s], %s", logFile, err)
 	}
 
-	Logger = log.New(file, "Pillar: ", log.Ldate|log.Ltime)
+	Logger = log.New(file, "Pillar: ", log.LstdFlags|log.Llongfile|log.Ldate|log.Ltime)
 }
 
 func isDir(path string) bool {
