@@ -1,7 +1,7 @@
 package service
 
 import (
-	"github.com/coralproject/pillar/server/cfg"
+	"github.com/coralproject/pillar/server/config"
 	"gopkg.in/mgo.v2"
 	"log"
 	"github.com/coralproject/pillar/server/model"
@@ -34,7 +34,7 @@ func (manager *MongoManager) Close() {
 
 //export MONGODB_URL=mongodb://localhost:27017/coral
 func init() {
-	session, err := mgo.Dial(cfg.GetContext().MongoURL)
+	session, err := mgo.Dial(config.GetContext().MongoURL)
 	if err != nil {
 		log.Fatalf("Error connecting to mongo database: %s", err)
 	}
