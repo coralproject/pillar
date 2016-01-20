@@ -14,24 +14,24 @@ import (
 
 var (
 	context int32
-	db      *mgo.Session
+	db      *mgo.Database
 )
 
 //export MONGODB_URL=mongodb://localhost:27017/coral
-func initDb() *mgo.Session {
+func initDb() *mgo.Database {
 	uri := os.Getenv("MONGODB_URL")
 	if uri == "" {
 		log.Error("start", "init", errors.New("Error connecting - MONGODB_URL not found!"), "Getting MONGODB_URL env variable.")
 		os.Exit(1)
 	}
 
-	db, err := mgo.Dial(uri)
+	session, err := mgo.Dial(uri)
 	if err != nil {
 		log.Error("start", "init", err, "Connecting to mongo")
 		panic(err) // no, not really <--- do we really need to panic?
 	}
 
-	return db
+	return session.DB("coral")
 
 }
 
@@ -55,7 +55,9 @@ func main() {
 
 	log.User(context, "main", "Beginning main %+v", db)
 
-	initDurations()
-	buildTimeseries()
+	ds := getDurations()
+	cs := getCollections()
+
+	buildTimeseries(cs, ds)
 
 }
