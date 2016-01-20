@@ -17,12 +17,14 @@ var (
 
 func initDurations() {
 
+	// master duration strings, to be moved to config
 	durationStrings := map[string]string{
 		"hour": "1h",
 		"day":  "24h",
 		"week": "168h",
 	}
 
+	// parse strings into durations, build master DURATIONS map
 	for k, v := range durationStrings {
 
 		d, err := time.ParseDuration(v)
@@ -36,5 +38,9 @@ func initDurations() {
 	}
 
 	log.User(context, "initDurations", "%+v", DURATIONS)
+
+}
+
+func buildTimeseries() {
 
 }

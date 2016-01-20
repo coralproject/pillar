@@ -5,7 +5,7 @@ import (
 	"os"
 	"time"
 
-	//"github.com/coralproject/pillar/server/model"
+	//"github.com/coralproject/pillar/server/pkg/stats"
 
 	"gopkg.in/mgo.v2"
 
@@ -56,5 +56,6 @@ func main() {
 	log.User(context, "main", "Beginning main %+v", db)
 
 	initDurations()
+	buildTimeseries()
 
 }
