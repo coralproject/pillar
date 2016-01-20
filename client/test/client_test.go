@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/coralproject/pillar/server/model"
 	"github.com/coralproject/pillar/client/rest"
+	"github.com/coralproject/pillar/server/model"
 	"testing"
 )
 

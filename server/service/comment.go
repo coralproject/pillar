@@ -3,6 +3,7 @@ package service
 import (
 	"errors"
 	"fmt"
+	"github.com/coralproject/pillar/server/dto"
 	"github.com/coralproject/pillar/server/model"
 	"gopkg.in/mgo.v2/bson"
 	"net/http"
@@ -117,13 +118,37 @@ func updateCommentOnAction(comment *model.Comment, object *model.Action, manager
 	)
 }
 
+func updateCommentMetadata(object *dto.Metadata) (interface{}, *AppError) {
+	manager := GetMongoManager()
+	defer manager.Close()
+
+	dbEntity := model.Comment{}
+	if object.TargetID != "" {
+		manager.Comments.FindId(object.TargetID).One(&dbEntity)
+	} else {
+		manager.Comments.Find(bson.M{"source.id": object.Source.ID}).One(&dbEntity)
+	}
+
+	if dbEntity.ID == "" {
+		message := fmt.Sprintf("Cannot update metadata for [%+v]\n", object)
+		return nil, &AppError{nil, message, http.StatusInternalServerError}
+	}
+
+	manager.Comments.Update(
+		bson.M{"_id": dbEntity.ID},
+		bson.M{"$set": bson.M{"metadata": object.Metadata}},
+	)
+
+	return dbEntity, nil
+}
+
 //func setActions(object *model.Comment, manager *MongoManager) error {
 //	var user model.User
 //	var invalidUsers []string
 //
 //	for i := 0; i < len(object.Actions); i++ {
 //		one := &object.Actions[i]
-//		manager.Users.Find(bson.M{"src_id": one.Source.UserID}).One(&user)
+//		manager.Users.Find(bson.M{"source.id": one.Source.UserID}).One(&user)
 //		if user.ID == "" {
 //			invalidUsers = append(invalidUsers, one.Source.UserID)
 //			continue
@@ -145,7 +170,7 @@ func updateCommentOnAction(comment *model.Comment, object *model.Action, manager
 //
 //	for i := 0; i < len(object.Notes); i++ {
 //		one := &object.Notes[i]
-//		manager.Users.Find(bson.M{"src_id": one.SourceUserID}).One(&user)
+//		manager.Users.Find(bson.M{"source.id": one.SourceUserID}).One(&user)
 //		if user.ID == "" {
 //			invalidUsers = append(invalidUsers, one.SourceUserID)
 //			continue

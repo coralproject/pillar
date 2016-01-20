@@ -2,6 +2,7 @@ package service
 
 import (
 	"fmt"
+	"github.com/coralproject/pillar/server/dto"
 	"github.com/coralproject/pillar/server/model"
 	"gopkg.in/mgo.v2/bson"
 	"net/http"
@@ -25,7 +26,7 @@ func CreateUser(object *model.User) (*model.User, *AppError) {
 	}
 
 	//return, if exists
-	manager.Users.Find(bson.M{"src_id": object.Source.ID}).One(&dbEntity)
+	manager.Users.Find(bson.M{"source.id": object.Source.ID}).One(&dbEntity)
 	if dbEntity.ID != "" {
 		message := fmt.Sprintf("%s exists with source [%s]\n", reflect.TypeOf(object).Name(), object.Source.ID)
 		return nil, &AppError{nil, message, http.StatusInternalServerError}
@@ -70,4 +71,28 @@ func updateUserOnComment(user *model.User, manager *MongoManager) {
 		bson.M{"_id": user.ID},
 		bson.M{"$set": bson.M{"stats": user.Stats}},
 	)
+}
+
+func updateUserMetadata(object *dto.Metadata) (interface{}, *AppError) {
+	manager := GetMongoManager()
+	defer manager.Close()
+
+	dbEntity := model.User{}
+	if object.TargetID != "" {
+		manager.Users.FindId(object.TargetID).One(&dbEntity)
+	} else {
+		manager.Users.Find(bson.M{"source.id": object.Source.ID}).One(&dbEntity)
+	}
+
+	if dbEntity.ID == "" {
+		message := fmt.Sprintf("Cannot update metadata for [%+v]\n", object)
+		return nil, &AppError{nil, message, http.StatusInternalServerError}
+	}
+
+	manager.Users.Update(
+		bson.M{"_id": dbEntity.ID},
+		bson.M{"$set": bson.M{"metadata": object.Metadata}},
+	)
+
+	return dbEntity, nil
 }

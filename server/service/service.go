@@ -1,10 +1,13 @@
 package service
 
 import (
+	"fmt"
 	"github.com/coralproject/pillar/server/config"
+	"github.com/coralproject/pillar/server/dto"
+	"github.com/coralproject/pillar/server/model"
 	"gopkg.in/mgo.v2"
 	"log"
-	"github.com/coralproject/pillar/server/model"
+	"net/http"
 )
 
 // AppError encapsulates application specific error
@@ -41,14 +44,14 @@ func init() {
 
 	mgoSession = session
 
-	//url and src_id on Asset
+	//url and source.id on Asset
 	mgoSession.DB("").C(model.CollectionAction).EnsureIndexKey("source.id")
 
-	//url and src_id on Asset
+	//url and source.id on Asset
 	mgoSession.DB("").C(model.CollectionAsset).EnsureIndexKey("source.id")
 	mgoSession.DB("").C(model.CollectionAsset).EnsureIndexKey("url")
 
-	//src_id on User
+	//source.id on User
 	mgoSession.DB("").C(model.CollectionUser).EnsureIndexKey("source.id")
 
 	//source.id on Comment
@@ -66,4 +69,23 @@ func GetMongoManager() *MongoManager {
 	manager.Comments = manager.Session.DB("").C(model.CollectionComment)
 
 	return &manager
+}
+
+// UpdateMetadata updates metadata to an entity
+func UpdateMetadata(object *dto.Metadata) (interface{}, *AppError) {
+
+	switch object.Target {
+
+	case model.CollectionAsset:
+		return updateAssetMetadata(object)
+	case model.CollectionAction:
+		return updateActionMetadata(object)
+	case model.CollectionUser:
+		return updateUserMetadata(object)
+	case model.CollectionComment:
+		return updateCommentMetadata(object)
+	}
+
+	message := fmt.Sprintf("Invalid metadata [%+v]\n", object)
+	return nil, &AppError{nil, message, http.StatusInternalServerError}
 }

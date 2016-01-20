@@ -1,19 +1,21 @@
 package config
 
 import (
-	"os"
-	"log"
-	"strings"
 	"fmt"
+	"log"
+	"os"
+	"strings"
 )
 
 //Context information for pillar server - Read-Only
 type Context struct {
-	Home      string `json:"home" bson:"home"`
-	MongoURL  string `json:"mongo_url" bson:"mongo_url"` //mongodb://localhost:27017/coral
+	Home     string `json:"home" bson:"home"`
+	MongoURL string `json:"mongo_url" bson:"mongo_url"` //mongodb://localhost:27017/coral
 }
+
 var context Context
 
+//GetContext returns the context information for pillar
 func GetContext() Context {
 	return context
 }
@@ -44,7 +46,6 @@ func init() {
 		log.Fatalf("Error opening log file [%s], %s", logFile, err)
 	}
 	fmt.Printf("Pillar log file: %s\n\n", logFile)
-
 
 	Logger = log.New(file, "Pillar: ", log.LstdFlags|log.Llongfile|log.Ldate|log.Ltime)
 }
@@ -77,4 +78,3 @@ func getLogFile(pillarHome string) string {
 
 	return logPath + "/pillar.log"
 }
-

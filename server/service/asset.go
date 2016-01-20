@@ -2,6 +2,7 @@ package service
 
 import (
 	"fmt"
+	"github.com/coralproject/pillar/server/dto"
 	"github.com/coralproject/pillar/server/model"
 	"gopkg.in/mgo.v2/bson"
 	"net/http"
@@ -24,8 +25,8 @@ func CreateAsset(object *model.Asset) (*model.Asset, *AppError) {
 		return nil, &AppError{nil, message, http.StatusInternalServerError}
 	}
 
-	//return, if entity exists with same src_id
-	manager.Assets.Find(bson.M{"src_id": object.Source.ID}).One(&dbEntity)
+	//return, if entity exists with same source.id
+	manager.Assets.Find(bson.M{"source.id": object.Source.ID}).One(&dbEntity)
 	if dbEntity.ID != "" {
 		message := fmt.Sprintf("%s exists with source [%s]\n", reflect.TypeOf(object).Name(), object.Source.ID)
 		return nil, &AppError{nil, message, http.StatusInternalServerError}
@@ -46,4 +47,28 @@ func CreateAsset(object *model.Asset) (*model.Asset, *AppError) {
 	}
 
 	return object, nil
+}
+
+func updateAssetMetadata(object *dto.Metadata) (interface{}, *AppError) {
+	manager := GetMongoManager()
+	defer manager.Close()
+
+	dbEntity := model.Asset{}
+	if object.TargetID != "" {
+		manager.Assets.FindId(object.TargetID).One(&dbEntity)
+	} else {
+		manager.Assets.Find(bson.M{"source.id": object.Source.ID}).One(&dbEntity)
+	}
+
+	if dbEntity.ID == "" {
+		message := fmt.Sprintf("Cannot update metadata for [%+v]\n", object)
+		return nil, &AppError{nil, message, http.StatusInternalServerError}
+	}
+
+	manager.Assets.Update(
+		bson.M{"_id": dbEntity.ID},
+		bson.M{"$set": bson.M{"metadata": object.Metadata}},
+	)
+
+	return dbEntity, nil
 }

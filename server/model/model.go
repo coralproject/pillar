@@ -30,22 +30,21 @@ func init() {
 const (
 
 	//Various Stats (counts)
-	StatsLikes 		string = "likes"
-	StatsFlags 		string = "flags"
-	StatsComments 	string = "comments"
+	StatsLikes    string = "likes"
+	StatsFlags    string = "flags"
+	StatsComments string = "comments"
 
 	// Various Collections
 	CollectionUser    string = "user"
 	CollectionAsset   string = "asset"
 	CollectionAction  string = "action"
 	CollectionComment string = "comment"
-
 )
 
-// source encapsulates all original id from the source system
+// ImportSource encapsulates all original id from the source system
 // this is a common struct used primarily for import purposes
 // client is responsible for passing in valid/correct source data
-type source struct {
+type ImportSource struct {
 	ID       string `json:"id,omitempty" bson:"id,omitempty"`
 	UserID   string `json:"user_id,omitempty" bson:"user_id,omitempty"`
 	TargetID string `json:"target_id,omitempty" bson:"target_id,omitempty"`
@@ -62,17 +61,18 @@ type Note struct {
 	Date     time.Time     `json:"date" bson:"date" validate:"required"`
 	TargetID bson.ObjectId `json:"target_id" bson:"target_id" validate:"required"`
 	Target   string        `json:"target" bson:"target" validate:"required"`
-	Source   source        `json:"source" bson:"source"`
+	Source   ImportSource  `json:"source" bson:"source"`
 }
 
 //==============================================================================
 
 // Asset denotes an asset in the system e.g. an article or a blog etc.
 type Asset struct {
-	ID         bson.ObjectId `json:"id" bson:"_id"`
-	URL        string        `json:"url" bson:"url" validate:"required"`
-	Taxonomies []Taxonomy    `json:"taxonomies,omitempty" bson:"taxonomies,omitempty"`
-	Source     source        `json:"source" bson:"source"`
+	ID         bson.ObjectId          `json:"id" bson:"_id"`
+	URL        string                 `json:"url" bson:"url" validate:"required"`
+	Taxonomies []Taxonomy             `json:"taxonomies,omitempty" bson:"taxonomies,omitempty"`
+	Source     ImportSource           `json:"source" bson:"source"`
+	Metadata   map[string]interface{} `json:"metadata,omitempty" bson:"metadata,omitempty"`
 }
 
 // Taxonomy holds all name-value pairs.
@@ -101,30 +101,32 @@ func (a Asset) Validate() error {
 // TargetType and TargetID may be zero value if data is a sub-document of the Target
 // UserID may be zero value if the data is a subdocument of the actor
 type Action struct {
-	ID       bson.ObjectId `json:"id" bson:"_id"`
-	Type     string        `json:"type" bson:"type" validate:"required"`
-	UserID   bson.ObjectId `json:"user_id" bson:"user_id" validate:"required"`
-	TargetID bson.ObjectId `json:"target_id" bson:"target_id" validate:"required"`
-	Target   string        `json:"target" bson:"target" validate:"required"`
-	Date     time.Time     `json:"date" bson:"date" validate:"required"`
-	Value    string        `json:"value,omitempty" bson:"value,omitempty"`
-	Source   source        `json:"source" bson:"source"`
+	ID       bson.ObjectId          `json:"id" bson:"_id"`
+	Type     string                 `json:"type" bson:"type" validate:"required"`
+	UserID   bson.ObjectId          `json:"user_id" bson:"user_id" validate:"required"`
+	Target   string                 `json:"target" bson:"target" validate:"required"`
+	TargetID bson.ObjectId          `json:"target_id" bson:"target_id" validate:"required"`
+	Date     time.Time              `json:"date" bson:"date" validate:"required"`
+	Value    string                 `json:"value,omitempty" bson:"value,omitempty"`
+	Source   ImportSource           `json:"source" bson:"source"`
+	Metadata map[string]interface{} `json:"metadata,omitempty" bson:"metadata,omitempty"`
 }
 
 //==============================================================================
 
 // User denotes a user in the system.
 type User struct {
-	ID          bson.ObjectId   `json:"id" bson:"_id"`
-	Name        string          `json:"name" bson:"name" validate:"required"`
-	Avatar      string          `json:"avatar" bson:"avatar" validate:"required"`
-	Status      string          `json:"status" bson:"status" validate:"required"`
-	LastLogin   time.Time       `json:"last_login,omitempty" bson:"last_login,omitempty"`
-	MemberSince time.Time       `json:"member_since,omitempty" bson:"member_since,omitempty"`
-	Actions     []bson.ObjectId `json:"actions,omitempty" bson:"actions,omitempty"`
-	Notes       []Note          `json:"notes,omitempty" bson:"notes,omitempty"`
-	Source      source          `json:"source" bson:"source"`
+	ID          bson.ObjectId          `json:"id" bson:"_id"`
+	Name        string                 `json:"name" bson:"name" validate:"required"`
+	Avatar      string                 `json:"avatar" bson:"avatar" validate:"required"`
+	Status      string                 `json:"status" bson:"status" validate:"required"`
+	LastLogin   time.Time              `json:"last_login,omitempty" bson:"last_login,omitempty"`
+	MemberSince time.Time              `json:"member_since,omitempty" bson:"member_since,omitempty"`
+	Actions     []bson.ObjectId        `json:"actions,omitempty" bson:"actions,omitempty"`
+	Notes       []Note                 `json:"notes,omitempty" bson:"notes,omitempty"`
+	Source      ImportSource           `json:"source" bson:"source"`
 	Stats       map[string]interface{} `json:"stats,omitempty" bson:"stats,omitempty"`
+	Metadata    map[string]interface{} `json:"metadata,omitempty" bson:"metadata,omitempty"`
 }
 
 //func (object User) Id() bson.ObjectId {
@@ -145,20 +147,21 @@ func (u User) Validate() error {
 
 // Comment denotes a comment by a user in the system.
 type Comment struct {
-	ID           bson.ObjectId   `json:"id" bson:"_id"`
-	UserID       bson.ObjectId   `json:"user_id" bson:"user_id"`
-	AssetID      bson.ObjectId   `json:"asset_id" bson:"asset_id"`
-	ParentID     bson.ObjectId   `json:"parent_id,omitempty" bson:"parent_id,omitempty"`
-	Children     []bson.ObjectId `json:"children,omitempty" bson:"children,omitempty"`
-	Body         string          `json:"body" bson:"body" validate:"required"`
-	Status       string          `json:"status" bson:"status"`
-	DateCreated  time.Time       `json:"date_created" bson:"date_created"`
-	DateUpdated  time.Time       `json:"date_updated" bson:"date_updated"`
-	DateApproved time.Time       `json:"date_approved,omitempty" bson:"date_approved,omitempty"`
-	Actions     []bson.ObjectId `json:"actions,omitempty" bson:"actions,omitempty"`
-	Notes       []Note          `json:"notes,omitempty" bson:"notes,omitempty"`
-	Source      source          `json:"source" bson:"source"`
-	Stats       map[string]interface{} `json:"stats,omitempty" bson:"stats,omitempty"`
+	ID           bson.ObjectId          `json:"id" bson:"_id"`
+	UserID       bson.ObjectId          `json:"user_id" bson:"user_id"`
+	AssetID      bson.ObjectId          `json:"asset_id" bson:"asset_id"`
+	ParentID     bson.ObjectId          `json:"parent_id,omitempty" bson:"parent_id,omitempty"`
+	Children     []bson.ObjectId        `json:"children,omitempty" bson:"children,omitempty"`
+	Body         string                 `json:"body" bson:"body" validate:"required"`
+	Status       string                 `json:"status" bson:"status"`
+	DateCreated  time.Time              `json:"date_created" bson:"date_created"`
+	DateUpdated  time.Time              `json:"date_updated" bson:"date_updated"`
+	DateApproved time.Time              `json:"date_approved,omitempty" bson:"date_approved,omitempty"`
+	Actions      []bson.ObjectId        `json:"actions,omitempty" bson:"actions,omitempty"`
+	Notes        []Note                 `json:"notes,omitempty" bson:"notes,omitempty"`
+	Source       ImportSource           `json:"source" bson:"source"`
+	Stats        map[string]interface{} `json:"stats,omitempty" bson:"stats,omitempty"`
+	Metadata     map[string]interface{} `json:"metadata,omitempty" bson:"metadata,omitempty"`
 }
 
 //func (object Comment) Id() bson.ObjectId {
