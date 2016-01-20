@@ -3,9 +3,9 @@ package service
 import (
 	"fmt"
 	"github.com/coralproject/pillar/server/config"
-	"github.com/coralproject/pillar/server/dto"
 	"github.com/coralproject/pillar/server/model"
 	"gopkg.in/mgo.v2"
+	"gopkg.in/mgo.v2/bson"
 	"log"
 	"net/http"
 )
@@ -71,21 +71,28 @@ func GetMongoManager() *MongoManager {
 	return &manager
 }
 
-// UpdateMetadata updates metadata to an entity
-func UpdateMetadata(object *dto.Metadata) (interface{}, *AppError) {
+// UpdateMetadata updates metadata for an entity
+func UpdateMetadata(object *model.Metadata) (interface{}, *AppError) {
 
-	switch object.Target {
+	manager := GetMongoManager()
+	defer manager.Close()
 
-	case model.CollectionAsset:
-		return updateAssetMetadata(object)
-	case model.CollectionAction:
-		return updateActionMetadata(object)
-	case model.CollectionUser:
-		return updateUserMetadata(object)
-	case model.CollectionComment:
-		return updateCommentMetadata(object)
+	collection := manager.Session.DB("").C(object.Target)
+	var dbEntity bson.M
+	collection.FindId(object.TargetID).One(&dbEntity)
+	if len(dbEntity) == 0 {
+		collection.Find(bson.M{"source.id": object.Source.ID}).One(&dbEntity)
 	}
 
-	message := fmt.Sprintf("Invalid metadata [%+v]\n", object)
-	return nil, &AppError{nil, message, http.StatusInternalServerError}
+	if len(dbEntity) == 0 {
+		message := fmt.Sprintf("Cannot update metadata for [%+v]\n", object)
+		return nil, &AppError{nil, message, http.StatusInternalServerError}
+	}
+
+	collection.Update(
+		bson.M{"_id": dbEntity["_id"]},
+		bson.M{"$set": bson.M{"metadata": object.Metadata}},
+	)
+
+	return dbEntity, nil
 }

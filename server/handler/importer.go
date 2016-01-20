@@ -2,7 +2,6 @@ package handler
 
 import (
 	"encoding/json"
-	"github.com/coralproject/pillar/server/dto"
 	"github.com/coralproject/pillar/server/model"
 	"github.com/coralproject/pillar/server/service"
 	"net/http"
@@ -71,7 +70,7 @@ func ImportNote(w http.ResponseWriter, r *http.Request) {
 //ImportMetadata imports metadata to various entities in the system
 func ImportMetadata(w http.ResponseWriter, r *http.Request) {
 	//Get the user from request
-	jsonObject := dto.Metadata{}
+	jsonObject := model.Metadata{}
 	json.NewDecoder(r.Body).Decode(&jsonObject)
 
 	// Write content-type, status code and payload

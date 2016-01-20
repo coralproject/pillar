@@ -3,7 +3,6 @@ package service
 import (
 	"errors"
 	"fmt"
-	"github.com/coralproject/pillar/server/dto"
 	"github.com/coralproject/pillar/server/model"
 	"gopkg.in/mgo.v2/bson"
 	"net/http"
@@ -116,30 +115,6 @@ func updateCommentOnAction(comment *model.Comment, object *model.Action, manager
 		bson.M{"_id": comment.ID},
 		bson.M{"$set": bson.M{"actions": actions, "stats": comment.Stats}},
 	)
-}
-
-func updateCommentMetadata(object *dto.Metadata) (interface{}, *AppError) {
-	manager := GetMongoManager()
-	defer manager.Close()
-
-	dbEntity := model.Comment{}
-	if object.TargetID != "" {
-		manager.Comments.FindId(object.TargetID).One(&dbEntity)
-	} else {
-		manager.Comments.Find(bson.M{"source.id": object.Source.ID}).One(&dbEntity)
-	}
-
-	if dbEntity.ID == "" {
-		message := fmt.Sprintf("Cannot update metadata for [%+v]\n", object)
-		return nil, &AppError{nil, message, http.StatusInternalServerError}
-	}
-
-	manager.Comments.Update(
-		bson.M{"_id": dbEntity.ID},
-		bson.M{"$set": bson.M{"metadata": object.Metadata}},
-	)
-
-	return dbEntity, nil
 }
 
 //func setActions(object *model.Comment, manager *MongoManager) error {

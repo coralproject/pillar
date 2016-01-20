@@ -6,7 +6,6 @@ import (
 	"os"
 	"testing"
 
-	"github.com/coralproject/pillar/server/dto"
 	"github.com/coralproject/pillar/server/model"
 	"github.com/coralproject/pillar/server/service"
 )
@@ -105,7 +104,7 @@ func TestUpdateMetadata(t *testing.T) {
 		fmt.Println("opening config file", err.Error())
 	}
 
-	objects := []dto.Metadata{}
+	objects := []model.Metadata{}
 	jsonParser := json.NewDecoder(file)
 	if err = jsonParser.Decode(&objects); err != nil {
 		fmt.Println("Error reading user data", err.Error())
