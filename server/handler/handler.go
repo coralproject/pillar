@@ -3,6 +3,7 @@ package handler
 import (
 	"encoding/json"
 	"github.com/coralproject/pillar/server/config"
+	"github.com/coralproject/pillar/server/model"
 	"github.com/coralproject/pillar/server/service"
 	"net/http"
 )
@@ -23,4 +24,15 @@ func doRespond(w http.ResponseWriter, object interface{}, appErr *service.AppErr
 
 	w.WriteHeader(http.StatusOK)
 	w.Write(payload)
+}
+
+func CreateIndex(w http.ResponseWriter, r *http.Request) {
+	//Get the user from request
+	jsonObject := model.Index{}
+	json.NewDecoder(r.Body).Decode(&jsonObject)
+
+	// Write content-type, status code and payload
+	w.Header().Set("Content-Type", "application/json")
+	err := service.CreateIndex(&jsonObject)
+	doRespond(w, nil, err)
 }

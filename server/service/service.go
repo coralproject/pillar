@@ -1,10 +1,14 @@
 package service
 
 import (
+	"encoding/json"
+	"fmt"
 	"github.com/coralproject/pillar/server/config"
+	"github.com/coralproject/pillar/server/model"
 	"gopkg.in/mgo.v2"
 	"log"
-	"github.com/coralproject/pillar/server/model"
+	"net/http"
+	"os"
 )
 
 // AppError encapsulates application specific error
@@ -55,6 +59,25 @@ func init() {
 	mgoSession.DB("").C(model.CollectionComment).EnsureIndexKey("source.id")
 }
 
+func initDB() {
+	file, err := os.Open("dbindex.json")
+	if err != nil {
+		log.Fatalf("Error opening file %s\n", err.Error())
+	}
+
+	objects := []model.Index{}
+	jsonParser := json.NewDecoder(file)
+	if err = jsonParser.Decode(&objects); err != nil {
+		log.Fatalf("Error reading index information %v\n", err)
+	}
+
+	for _, one := range objects {
+		if err := CreateIndex(&one); err != nil {
+			log.Fatalf("Error creating indexes %v\n", err)
+		}
+	}
+}
+
 //GetMongoManager returns a cloned MongoManager
 func GetMongoManager() *MongoManager {
 
@@ -66,4 +89,20 @@ func GetMongoManager() *MongoManager {
 	manager.Comments = manager.Session.DB("").C(model.CollectionComment)
 
 	return &manager
+}
+
+func CreateIndex(object *model.Index) *AppError {
+
+	fmt.Printf("Object: %+v\n\n", object)
+
+	manager := GetMongoManager()
+	defer manager.Close()
+
+	err := manager.Session.DB("").C(object.Target).EnsureIndex(object.Index)
+	if err != nil {
+		message := fmt.Sprintf("Error creating index [%+v]", object)
+		return &AppError{err, message, http.StatusInternalServerError}
+	}
+
+	return nil
 }

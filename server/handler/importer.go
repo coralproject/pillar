@@ -66,4 +66,3 @@ func ImportNote(w http.ResponseWriter, r *http.Request) {
 	dbObject, err := service.CreateNote(&jsonObject)
 	doRespond(w, dbObject, err)
 }
-

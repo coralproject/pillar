@@ -2,8 +2,8 @@ package main
 
 import (
 	"github.com/coralproject/pillar/server/web"
-	"net/http"
 	"log"
+	"net/http"
 )
 
 func main() {

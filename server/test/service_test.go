@@ -14,6 +14,7 @@ const dataUsers = "fixtures/users.json"
 const dataAssets = "fixtures/assets.json"
 const dataComments = "fixtures/comments.json"
 const dataActions = "fixtures/actions.json"
+const dataIndexes = "fixtures/indexes.json"
 
 func TestCreateAsset(t *testing.T) {
 	file, err := os.Open(dataAssets)
@@ -90,6 +91,26 @@ func TestCreateActions(t *testing.T) {
 	for _, one := range objects {
 		_, err := service.CreateAction(&one)
 		if err != nil {
+			t.Fail()
+		}
+	}
+}
+
+func TestCreateIndexes(t *testing.T) {
+	file, err := os.Open(dataIndexes)
+	if err != nil {
+		fmt.Println("opening config file", err.Error())
+	}
+
+	objects := []model.Index{}
+	jsonParser := json.NewDecoder(file)
+	if err = jsonParser.Decode(&objects); err != nil {
+		fmt.Println("Error reading user data", err.Error())
+	}
+
+	for _, one := range objects {
+		if err := service.CreateIndex(&one); err != nil {
+			fmt.Printf("Error: %+v", err)
 			t.Fail()
 		}
 	}

@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"gopkg.in/bluesuncorp/validator.v6"
+	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 )
 
@@ -30,16 +31,15 @@ func init() {
 const (
 
 	//Various Stats (counts)
-	StatsLikes 		string = "likes"
-	StatsFlags 		string = "flags"
-	StatsComments 	string = "comments"
+	StatsLikes    string = "likes"
+	StatsFlags    string = "flags"
+	StatsComments string = "comments"
 
 	// Various Collections
 	CollectionUser    string = "user"
 	CollectionAsset   string = "asset"
 	CollectionAction  string = "action"
 	CollectionComment string = "comment"
-
 )
 
 // source encapsulates all original id from the source system
@@ -115,15 +115,15 @@ type Action struct {
 
 // User denotes a user in the system.
 type User struct {
-	ID          bson.ObjectId   `json:"id" bson:"_id"`
-	Name        string          `json:"name" bson:"name" validate:"required"`
-	Avatar      string          `json:"avatar" bson:"avatar" validate:"required"`
-	Status      string          `json:"status" bson:"status" validate:"required"`
-	LastLogin   time.Time       `json:"last_login,omitempty" bson:"last_login,omitempty"`
-	MemberSince time.Time       `json:"member_since,omitempty" bson:"member_since,omitempty"`
-	Actions     []bson.ObjectId `json:"actions,omitempty" bson:"actions,omitempty"`
-	Notes       []Note          `json:"notes,omitempty" bson:"notes,omitempty"`
-	Source      source          `json:"source" bson:"source"`
+	ID          bson.ObjectId          `json:"id" bson:"_id"`
+	Name        string                 `json:"name" bson:"name" validate:"required"`
+	Avatar      string                 `json:"avatar" bson:"avatar" validate:"required"`
+	Status      string                 `json:"status" bson:"status" validate:"required"`
+	LastLogin   time.Time              `json:"last_login,omitempty" bson:"last_login,omitempty"`
+	MemberSince time.Time              `json:"member_since,omitempty" bson:"member_since,omitempty"`
+	Actions     []bson.ObjectId        `json:"actions,omitempty" bson:"actions,omitempty"`
+	Notes       []Note                 `json:"notes,omitempty" bson:"notes,omitempty"`
+	Source      source                 `json:"source" bson:"source"`
 	Stats       map[string]interface{} `json:"stats,omitempty" bson:"stats,omitempty"`
 }
 
@@ -145,20 +145,20 @@ func (u User) Validate() error {
 
 // Comment denotes a comment by a user in the system.
 type Comment struct {
-	ID           bson.ObjectId   `json:"id" bson:"_id"`
-	UserID       bson.ObjectId   `json:"user_id" bson:"user_id"`
-	AssetID      bson.ObjectId   `json:"asset_id" bson:"asset_id"`
-	ParentID     bson.ObjectId   `json:"parent_id,omitempty" bson:"parent_id,omitempty"`
-	Children     []bson.ObjectId `json:"children,omitempty" bson:"children,omitempty"`
-	Body         string          `json:"body" bson:"body" validate:"required"`
-	Status       string          `json:"status" bson:"status"`
-	DateCreated  time.Time       `json:"date_created" bson:"date_created"`
-	DateUpdated  time.Time       `json:"date_updated" bson:"date_updated"`
-	DateApproved time.Time       `json:"date_approved,omitempty" bson:"date_approved,omitempty"`
-	Actions     []bson.ObjectId `json:"actions,omitempty" bson:"actions,omitempty"`
-	Notes       []Note          `json:"notes,omitempty" bson:"notes,omitempty"`
-	Source      source          `json:"source" bson:"source"`
-	Stats       map[string]interface{} `json:"stats,omitempty" bson:"stats,omitempty"`
+	ID           bson.ObjectId          `json:"id" bson:"_id"`
+	UserID       bson.ObjectId          `json:"user_id" bson:"user_id"`
+	AssetID      bson.ObjectId          `json:"asset_id" bson:"asset_id"`
+	ParentID     bson.ObjectId          `json:"parent_id,omitempty" bson:"parent_id,omitempty"`
+	Children     []bson.ObjectId        `json:"children,omitempty" bson:"children,omitempty"`
+	Body         string                 `json:"body" bson:"body" validate:"required"`
+	Status       string                 `json:"status" bson:"status"`
+	DateCreated  time.Time              `json:"date_created" bson:"date_created"`
+	DateUpdated  time.Time              `json:"date_updated" bson:"date_updated"`
+	DateApproved time.Time              `json:"date_approved,omitempty" bson:"date_approved,omitempty"`
+	Actions      []bson.ObjectId        `json:"actions,omitempty" bson:"actions,omitempty"`
+	Notes        []Note                 `json:"notes,omitempty" bson:"notes,omitempty"`
+	Source       source                 `json:"source" bson:"source"`
+	Stats        map[string]interface{} `json:"stats,omitempty" bson:"stats,omitempty"`
 }
 
 //func (object Comment) Id() bson.ObjectId {
@@ -176,3 +176,9 @@ func (com Comment) Validate() error {
 }
 
 //==============================================================================
+
+// Index denotes a request to add Index to various entities.
+type Index struct {
+	Target string    `json:"target" bson:"target" validate:"required"`
+	Index  mgo.Index `json:"index" bson:"index" validate:"required"`
+}
