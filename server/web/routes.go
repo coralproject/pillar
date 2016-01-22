@@ -91,6 +91,12 @@ var routes = Routes{
 		"/api/import/metadata",
 		handler.ImportMetadata,
 	},
+	Route{
+		"Index",
+		"POST",
+		"/api/import/index",
+		handler.CreateIndex,
+	},
 }
 
 func getRoutes() Routes {

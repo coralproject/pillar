@@ -15,6 +15,7 @@ const (
 	dataAssets   = "fixtures/assets.json"
 	dataComments = "fixtures/comments.json"
 	dataActions  = "fixtures/actions.json"
+	dataIndexes  = "fixtures/indexes.json"
 	dataMetadata = "fixtures/metadata.json"
 )
 
@@ -98,16 +99,36 @@ func TestCreateActions(t *testing.T) {
 	}
 }
 
+func TestCreateIndexes(t *testing.T) {
+	file, err := os.Open(dataIndexes)
+	if err != nil {
+		fmt.Println("opening config file", err.Error())
+	}
+
+	objects := []model.Index{}
+	jsonParser := json.NewDecoder(file)
+	if err = jsonParser.Decode(&objects); err != nil {
+		fmt.Println("Error reading index data", err.Error())
+	}
+
+	for _, one := range objects {
+		_, err := service.CreateIndex(&one)
+		if err != nil {
+			t.Fail()
+		}
+	}
+}
+
 func TestUpdateMetadata(t *testing.T) {
 	file, err := os.Open(dataMetadata)
 	if err != nil {
 		fmt.Println("opening config file", err.Error())
 	}
 
-	objects := []model.Metadata{}
+	objects := []model.Index{}
 	jsonParser := json.NewDecoder(file)
 	if err = jsonParser.Decode(&objects); err != nil {
-		fmt.Println("Error reading user data", err.Error())
+		fmt.Println("Error reading metadata ", err.Error())
 	}
 
 	for _, one := range objects {

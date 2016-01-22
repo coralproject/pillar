@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"gopkg.in/bluesuncorp/validator.v6"
+	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 )
 
@@ -186,4 +187,12 @@ type Metadata struct {
 	TargetID bson.ObjectId `json:"target_id" bson:"target_id" validate:"required"`
 	Source   ImportSource  `json:"source" bson:"source"`
 	Metadata bson.M        `json:"metadata,omitempty" bson:"metadata,omitempty"`
+}
+
+//==============================================================================
+
+// Index denotes a request to add Index to various entities.
+type Index struct {
+	Target string    `json:"target" bson:"target" validate:"required"`
+	Index  mgo.Index `json:"index" bson:"index" validate:"required"`
 }
