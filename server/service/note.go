@@ -17,7 +17,7 @@ func CreateNote(object *model.Note) (*model.Note, *AppError) {
 	if object.UserID == "" {
 		//find user using source information and set the reference
 		var user model.User
-		manager.Users.Find(bson.M{"src_id": object.Source.UserID}).One(&user)
+		manager.Users.Find(bson.M{"source.id": object.Source.UserID}).One(&user)
 		if user.ID == "" {
 			message := fmt.Sprintf("Invalid user with source ID [%s]\n", object.Source.UserID)
 			return nil, &AppError{nil, message, http.StatusInternalServerError}

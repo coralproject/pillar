@@ -6,9 +6,9 @@ import (
 
 func main() {
 
-    //Load WAPO users
-    fiddler.LoadActors()
+	//Load WAPO users
+	fiddler.LoadActors()
 
-    //Load WAPO comments
-    fiddler.LoadComments()
+	//Load WAPO comments
+	fiddler.LoadComments()
 }

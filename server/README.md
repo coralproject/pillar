@@ -23,14 +23,14 @@ Server provides the following end-points:
 Here is a generic example how you might use these end-points:
 
 ~~~
-> curl -i -H "Accept: application/json" -X POST -d '{"src_id": "original_id", "url": "url of the asset"}' http://localhost:8080/api/import/asset
+> curl -i -H "Accept: application/json" -X POST -d '{"source.id": "original_id", "url": "url of the asset"}' http://localhost:8080/api/import/asset
 
 HTTP/1.1 200 OK
 Content-Type: application/json
 Date: Tue, 20 Oct 2015 15:25:12 GMT
 Content-Length: 173
 
-{"id":"a5efbb05-6ed7-455e-bc4c-37236614ac14","src_id": "original_id", "url": "url of the asset"}> 
+{"id":"a5efbb05-6ed7-455e-bc4c-37236614ac14","source.id": "original_id", "url": "url of the asset"}> 
 ~~~
 
 ### /api/import/asset
@@ -38,7 +38,7 @@ Imports an ```Asset``` from an external system and the caller must pass a json p
 
 ~~~
 {
-  "src_id" : "42f215a2-066c-11e5-a428-c984eb077d4e",
+  "source.id" : "42f215a2-066c-11e5-a428-c984eb077d4e",
   "url" : "http://washingtonpost.com/world/national-security/some-nsa-surveillance-powers-set-to-expire-sunday-unless-senate-acts/2015/05/31/42f215a2-066c-11e5-a428-c984eb077d4e_story.html"
 }
 ~~~
@@ -48,7 +48,7 @@ Imports a ```User``` from an external system and the caller must pass a json pay
 
 ~~~
 {
-  "src_id" : "u6qTe%2BFQ%2BFli6rmbWJ6BEP%2BLRzrUEvutviR1VYa5PdNoGeVxxhJF5A%3D%3D",
+  "source.id" : "u6qTe%2BFQ%2BFli6rmbWJ6BEP%2BLRzrUEvutviR1VYa5PdNoGeVxxhJF5A%3D%3D",
   "user_name" : "sazcrin",
   "avatar" : "https://wpidentity.s3.amazonaws.com/assets/images/avatar-default.png",
   "status" : "ModeratorApproved"

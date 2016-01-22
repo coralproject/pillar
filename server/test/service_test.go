@@ -10,10 +10,13 @@ import (
 	"github.com/coralproject/pillar/server/service"
 )
 
-const dataUsers = "fixtures/users.json"
-const dataAssets = "fixtures/assets.json"
-const dataComments = "fixtures/comments.json"
-const dataActions = "fixtures/actions.json"
+const (
+	dataUsers    = "fixtures/users.json"
+	dataAssets   = "fixtures/assets.json"
+	dataComments = "fixtures/comments.json"
+	dataActions  = "fixtures/actions.json"
+	dataMetadata = "fixtures/metadata.json"
+)
 
 func TestCreateAsset(t *testing.T) {
 	file, err := os.Open(dataAssets)
@@ -89,6 +92,26 @@ func TestCreateActions(t *testing.T) {
 
 	for _, one := range objects {
 		_, err := service.CreateAction(&one)
+		if err != nil {
+			t.Fail()
+		}
+	}
+}
+
+func TestUpdateMetadata(t *testing.T) {
+	file, err := os.Open(dataMetadata)
+	if err != nil {
+		fmt.Println("opening config file", err.Error())
+	}
+
+	objects := []model.Metadata{}
+	jsonParser := json.NewDecoder(file)
+	if err = jsonParser.Decode(&objects); err != nil {
+		fmt.Println("Error reading user data", err.Error())
+	}
+
+	for _, one := range objects {
+		_, err := service.UpdateMetadata(&one)
 		if err != nil {
 			t.Fail()
 		}

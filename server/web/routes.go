@@ -2,9 +2,9 @@ package web
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
 	"os"
-	"log"
 
 	"github.com/coralproject/pillar/server/handler"
 	"github.com/gorilla/mux"
@@ -84,6 +84,12 @@ var routes = Routes{
 		"POST",
 		"/api/import/note",
 		handler.ImportNote,
+	},
+	Route{
+		"Metadata",
+		"POST",
+		"/api/import/metadata",
+		handler.ImportMetadata,
 	},
 }
 

@@ -24,8 +24,8 @@ func CreateAsset(object *model.Asset) (*model.Asset, *AppError) {
 		return nil, &AppError{nil, message, http.StatusInternalServerError}
 	}
 
-	//return, if entity exists with same src_id
-	manager.Assets.Find(bson.M{"src_id": object.Source.ID}).One(&dbEntity)
+	//return, if entity exists with same source.id
+	manager.Assets.Find(bson.M{"source.id": object.Source.ID}).One(&dbEntity)
 	if dbEntity.ID != "" {
 		message := fmt.Sprintf("%s exists with source [%s]\n", reflect.TypeOf(object).Name(), object.Source.ID)
 		return nil, &AppError{nil, message, http.StatusInternalServerError}

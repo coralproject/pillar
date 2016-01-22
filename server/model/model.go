@@ -30,22 +30,21 @@ func init() {
 const (
 
 	//Various Stats (counts)
-	StatsLikes 		string = "likes"
-	StatsFlags 		string = "flags"
-	StatsComments 	string = "comments"
+	StatsLikes    string = "likes"
+	StatsFlags    string = "flags"
+	StatsComments string = "comments"
 
 	// Various Collections
 	CollectionUser    string = "user"
 	CollectionAsset   string = "asset"
 	CollectionAction  string = "action"
 	CollectionComment string = "comment"
-
 )
 
-// source encapsulates all original id from the source system
+// ImportSource encapsulates all original id from the source system
 // this is a common struct used primarily for import purposes
 // client is responsible for passing in valid/correct source data
-type source struct {
+type ImportSource struct {
 	ID       string `json:"id,omitempty" bson:"id,omitempty"`
 	UserID   string `json:"user_id,omitempty" bson:"user_id,omitempty"`
 	TargetID string `json:"target_id,omitempty" bson:"target_id,omitempty"`
@@ -62,7 +61,7 @@ type Note struct {
 	Date     time.Time     `json:"date" bson:"date" validate:"required"`
 	TargetID bson.ObjectId `json:"target_id" bson:"target_id" validate:"required"`
 	Target   string        `json:"target" bson:"target" validate:"required"`
-	Source   source        `json:"source" bson:"source"`
+	Source   ImportSource  `json:"source" bson:"source"`
 }
 
 //==============================================================================
@@ -72,7 +71,8 @@ type Asset struct {
 	ID         bson.ObjectId `json:"id" bson:"_id"`
 	URL        string        `json:"url" bson:"url" validate:"required"`
 	Taxonomies []Taxonomy    `json:"taxonomies,omitempty" bson:"taxonomies,omitempty"`
-	Source     source        `json:"source" bson:"source"`
+	Source     ImportSource  `json:"source" bson:"source"`
+	Metadata   bson.M        `json:"metadata,omitempty" bson:"metadata,omitempty"`
 }
 
 // Taxonomy holds all name-value pairs.
@@ -104,11 +104,12 @@ type Action struct {
 	ID       bson.ObjectId `json:"id" bson:"_id"`
 	Type     string        `json:"type" bson:"type" validate:"required"`
 	UserID   bson.ObjectId `json:"user_id" bson:"user_id" validate:"required"`
-	TargetID bson.ObjectId `json:"target_id" bson:"target_id" validate:"required"`
 	Target   string        `json:"target" bson:"target" validate:"required"`
+	TargetID bson.ObjectId `json:"target_id" bson:"target_id" validate:"required"`
 	Date     time.Time     `json:"date" bson:"date" validate:"required"`
 	Value    string        `json:"value,omitempty" bson:"value,omitempty"`
-	Source   source        `json:"source" bson:"source"`
+	Source   ImportSource  `json:"source" bson:"source"`
+	Metadata bson.M        `json:"metadata,omitempty" bson:"metadata,omitempty"`
 }
 
 //==============================================================================
@@ -123,8 +124,9 @@ type User struct {
 	MemberSince time.Time       `json:"member_since,omitempty" bson:"member_since,omitempty"`
 	Actions     []bson.ObjectId `json:"actions,omitempty" bson:"actions,omitempty"`
 	Notes       []Note          `json:"notes,omitempty" bson:"notes,omitempty"`
-	Source      source          `json:"source" bson:"source"`
-	Stats       map[string]interface{} `json:"stats,omitempty" bson:"stats,omitempty"`
+	Source      ImportSource    `json:"source" bson:"source"`
+	Stats       bson.M          `json:"stats,omitempty" bson:"stats,omitempty"`
+	Metadata    bson.M          `json:"metadata,omitempty" bson:"metadata,omitempty"`
 }
 
 //func (object User) Id() bson.ObjectId {
@@ -155,10 +157,11 @@ type Comment struct {
 	DateCreated  time.Time       `json:"date_created" bson:"date_created"`
 	DateUpdated  time.Time       `json:"date_updated" bson:"date_updated"`
 	DateApproved time.Time       `json:"date_approved,omitempty" bson:"date_approved,omitempty"`
-	Actions     []bson.ObjectId `json:"actions,omitempty" bson:"actions,omitempty"`
-	Notes       []Note          `json:"notes,omitempty" bson:"notes,omitempty"`
-	Source      source          `json:"source" bson:"source"`
-	Stats       map[string]interface{} `json:"stats,omitempty" bson:"stats,omitempty"`
+	Actions      []bson.ObjectId `json:"actions,omitempty" bson:"actions,omitempty"`
+	Notes        []Note          `json:"notes,omitempty" bson:"notes,omitempty"`
+	Source       ImportSource    `json:"source" bson:"source"`
+	Stats        bson.M          `json:"stats,omitempty" bson:"stats,omitempty"`
+	Metadata     bson.M          `json:"metadata,omitempty" bson:"metadata,omitempty"`
 }
 
 //func (object Comment) Id() bson.ObjectId {
@@ -176,3 +179,11 @@ func (com Comment) Validate() error {
 }
 
 //==============================================================================
+
+// Metadata denotes a request to add/update Metadata for an entity
+type Metadata struct {
+	Target   string        `json:"target" bson:"target" validate:"required"`
+	TargetID bson.ObjectId `json:"target_id" bson:"target_id" validate:"required"`
+	Source   ImportSource  `json:"source" bson:"source"`
+	Metadata bson.M        `json:"metadata,omitempty" bson:"metadata,omitempty"`
+}

@@ -25,7 +25,7 @@ func CreateUser(object *model.User) (*model.User, *AppError) {
 	}
 
 	//return, if exists
-	manager.Users.Find(bson.M{"src_id": object.Source.ID}).One(&dbEntity)
+	manager.Users.Find(bson.M{"source.id": object.Source.ID}).One(&dbEntity)
 	if dbEntity.ID != "" {
 		message := fmt.Sprintf("%s exists with source [%s]\n", reflect.TypeOf(object).Name(), object.Source.ID)
 		return nil, &AppError{nil, message, http.StatusInternalServerError}

@@ -123,7 +123,7 @@ func updateCommentOnAction(comment *model.Comment, object *model.Action, manager
 //
 //	for i := 0; i < len(object.Actions); i++ {
 //		one := &object.Actions[i]
-//		manager.Users.Find(bson.M{"src_id": one.Source.UserID}).One(&user)
+//		manager.Users.Find(bson.M{"source.id": one.Source.UserID}).One(&user)
 //		if user.ID == "" {
 //			invalidUsers = append(invalidUsers, one.Source.UserID)
 //			continue
@@ -145,7 +145,7 @@ func updateCommentOnAction(comment *model.Comment, object *model.Action, manager
 //
 //	for i := 0; i < len(object.Notes); i++ {
 //		one := &object.Notes[i]
-//		manager.Users.Find(bson.M{"src_id": one.SourceUserID}).One(&user)
+//		manager.Users.Find(bson.M{"source.id": one.SourceUserID}).One(&user)
 //		if user.ID == "" {
 //			invalidUsers = append(invalidUsers, one.SourceUserID)
 //			continue
