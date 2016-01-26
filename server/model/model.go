@@ -102,6 +102,31 @@ type Taxonomy struct {
 	Value string `json:"value" bson:"value"`
 }
 
+type Author struct {
+	Id              int    `bson:"id" json:"id"`
+	Twitter         string `bson:"twitter" json:"twitter"`
+	TwitterName     string `bson:"twitter_name" json:"twitter_name"`
+	Name            string `bson:"name" json:"name"`
+	Title_case_name string `bson:"title_case_name" json:"title_case_name"`
+}
+
+type AssetSection struct {
+	Content     string   `bson:"content" json:"content"`
+	Keywords    []string `bson:"keywords" json:"keywords"`
+	DisplayName string   `bson:"display_name" json:"display_name"`
+}
+
+type AssetMetadata struct {
+	Type               string       `bson:"type" json:"type"`
+	Headline           string       `bson:"headline" json:"headline"`
+	Summary            string       `bson:"summary" json:"summary"`
+	Section            AssetSection `bson:"section" json:"section"`
+	Subsection         AssetSection `bson:"subsection" json:"subsection"`
+	Authors            []Author     `bson:"authors" json:"authors"`
+	PublicationDate    int64        `bson:"publicationdate" json:"publicationdate"`
+	PublicationDateISO time.Time    `bson:"publicationdateiso" json:"publicationdateiso"`
+}
+
 // Asset denotes an asset in the system e.g. an article or a blog etc.
 type Asset struct {
 	ID         bson.ObjectId          `json:"id" bson:"_id"`
@@ -109,6 +134,7 @@ type Asset struct {
 	URL        string                 `json:"url" bson:"url" validate:"required"`
 	Taxonomies []Taxonomy             `json:"taxonomies,omitempty" bson:"taxonomies,omitempty"`
 	Stats      map[string]interface{} `json:"stats" bson:"stats"`
+	Metadata   AssetMetadata          `json:"metadata,omitempty" bson:"metadata,omitempty"`
 }
 
 //func (object Asset) Id() bson.ObjectId {

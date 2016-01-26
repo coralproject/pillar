@@ -15,6 +15,7 @@ import (
 type Timeslice struct {
 	Id        bson.ObjectId `json:"id" bson:"_id"`
 	Start     int64         `json:"s" bson:"start"`
+	StartISO  time.Time     `json:"si" bson:"start_iso"`
 	Duration  string        `json:"d" bson:"duration"`
 	Target    string        `json:"t" bson:"target"`
 	TargetDoc interface{}   `json:"tdoc" bson:"target_doc"`
@@ -49,11 +50,65 @@ func getRange(c *mgo.Collection) (time.Time, time.Time) {
 
 }
 
-func calc(cs []*model.Comment) map[string]interface{} {
+type StatData struct {
+	Comments          map[string]int `bson:"comments" json:"comments"`
+	Sections          map[string]int `bson:"sections" json:"sections"`
+	Authors           map[string]int `bson:"authors" json:"authors"`
+	AcceptRatio       float32        `bson:"accept_ratio" json:"accept_ratio"`
+	Replies           int            `bson:"replies" json:"replied"`
+	RepliesPerComment float32        `bson:"replies_per_comment" json:"replies_per_comment"`
+	//	Replied           int            `bson:"replied" json:"replied"`
+	//	RepliedRatio      float32        `bson:"replied_ratio" json:"replied_ratio"`
+}
 
-	d := make(map[string]interface{})
+func calc(cs []*model.Comment) StatData {
 
-	d["comments"] = len(cs)
+	d := StatData{
+		Comments: make(map[string]int),
+		Sections: make(map[string]int),
+		Authors:  make(map[string]int),
+	}
+
+	for _, comment := range cs {
+
+		//var user model.User
+		//db.C("user").Find(bson.M{"_id": comment.UserID}).One(&user)
+
+		// comments status
+		d.Comments["total"]++
+		switch comment.Status {
+		case "1":
+			d.Comments["unmoderated"]++
+		case "2":
+			d.Comments["accepted"]++
+		case "3":
+			d.Comments["rejected"]++
+		case "4":
+			d.Comments["escalated"]++
+
+		}
+
+		d.Replies += len(comment.Children)
+
+		var asset model.Asset
+		db.C("asset").Find(bson.M{"_id": comment.AssetID}).One(&asset)
+
+		for _, author := range asset.Metadata.Authors {
+			if author.Title_case_name != "" {
+				d.Authors[author.Title_case_name]++
+			}
+		}
+
+		if asset.Metadata.Section.DisplayName != "" {
+			d.Sections[asset.Metadata.Section.DisplayName]++
+		}
+
+	}
+
+	if d.Comments["total"] > 0 {
+		d.AcceptRatio = float32(d.Comments["accepted"]) / float32(d.Comments["total"])
+		d.RepliesPerComment = float32(d.Replies) / float32(d.Comments["total"])
+	}
 
 	return d
 
@@ -64,7 +119,7 @@ func buildTimeseries(cs map[string]*mgo.Collection, ds map[string]time.Duration)
 	log.User(context, "buildTimeseries", "Building timeseries: collections %v, durations %v", cs, ds)
 
 	limiter := 0
-	limit := 1000
+	limit := 10000
 
 	// let's start fresh here
 	tc := db.C("comment_timeseries")
@@ -95,13 +150,14 @@ func buildTimeseries(cs map[string]*mgo.Collection, ds map[string]time.Duration)
 				t = t.Add(d)
 
 				data := calc(comments)
-				if data["comments"] == 0 {
+				if data.Comments["total"] == 0 {
 					continue
 				}
 
 				timeslice := Timeslice{
 					Id:       bson.NewObjectId(),
 					Start:    t.Unix(),
+					StartISO: t,
 					Duration: dk,
 					Target:   "total",
 					Data:     data,
@@ -114,22 +170,43 @@ func buildTimeseries(cs map[string]*mgo.Collection, ds map[string]time.Duration)
 
 				fmt.Printf("%v %+v\n", limiter, timeslice)
 
+				var asset model.Asset
+				var user model.User
+
 				// user map
 				us := make(map[bson.ObjectId][]*model.Comment)
 				// assets map
 				as := make(map[bson.ObjectId][]*model.Comment)
+
+				authors := make(map[string][]*model.Comment)
+				sections := make(map[string][]*model.Comment)
+				//keywords := make(map[string][]*model.Comment)
+
 				for _, comment := range comments {
 					us[comment.UserID] = append(us[comment.UserID], comment)
 					as[comment.AssetID] = append(as[comment.AssetID], comment)
+
+					db.C("asset").Find(bson.M{"_id": comment.AssetID}).One(&asset)
+
+					for _, author := range asset.Metadata.Authors {
+						if author.Title_case_name != "" {
+							authors[author.Title_case_name] = append(authors[author.Title_case_name], comment)
+						}
+					}
+
+					if asset.Metadata.Section.DisplayName != "" {
+						sections[asset.Metadata.Section.DisplayName] = append(sections[asset.Metadata.Section.DisplayName], comment)
+					}
+
 				}
 
 				// range through the user targets and insert
 				for tid, tcomments := range us {
-					var user model.User
 					db.C("user").Find(bson.M{"_id": tid}).One(&user)
 					timeslice = Timeslice{
 						Id:        bson.NewObjectId(),
 						Start:     t.Unix(),
+						StartISO:  t,
 						Duration:  dk,
 						Target:    "user",
 						TargetDoc: user,
@@ -144,14 +221,50 @@ func buildTimeseries(cs map[string]*mgo.Collection, ds map[string]time.Duration)
 
 				// range through the asset targets and insert
 				for tid, tcomments := range as {
-					var asset model.Asset
 					db.C("asset").Find(bson.M{"_id": tid}).One(&asset)
 					timeslice = Timeslice{
 						Id:        bson.NewObjectId(),
 						Start:     t.Unix(),
+						StartISO:  t,
 						Duration:  dk,
 						Target:    "asset",
 						TargetDoc: asset,
+						Data:      calc(tcomments),
+					}
+					err = tc.Insert(timeslice)
+					if err != nil {
+						log.Error(context, "Build", err, "Error inserting %+v\n", timeslice)
+					}
+
+				}
+
+				// range through the asset targets and insert
+				for tid, tcomments := range authors {
+					timeslice = Timeslice{
+						Id:        bson.NewObjectId(),
+						Start:     t.Unix(),
+						StartISO:  t,
+						Duration:  dk,
+						Target:    "author",
+						TargetDoc: tid,
+						Data:      calc(tcomments),
+					}
+					err = tc.Insert(timeslice)
+					if err != nil {
+						log.Error(context, "Build", err, "Error inserting %+v\n", timeslice)
+					}
+
+				}
+
+				// range through the asset targets and insert
+				for tid, tcomments := range sections {
+					timeslice = Timeslice{
+						Id:        bson.NewObjectId(),
+						Start:     t.Unix(),
+						StartISO:  t,
+						Duration:  dk,
+						Target:    "section",
+						TargetDoc: tid,
 						Data:      calc(tcomments),
 					}
 					err = tc.Insert(timeslice)

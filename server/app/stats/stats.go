@@ -55,6 +55,8 @@ func main() {
 
 	log.User(context, "main", "Beginning main %+v", db)
 
+	// getAssetMeta()
+
 	ds := getDurations()
 	cs := getCollections()
 

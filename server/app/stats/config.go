@@ -17,7 +17,7 @@ func getDurations() map[string]time.Duration {
 
 	// master duration strings, to be moved to config
 	durationStrings := map[string]string{
-		"hour":  "1h",
+		//		"hour":  "1h",
 		"day":   "24h",
 		"week":  "168h",
 		"month": "720h",
