@@ -3,8 +3,8 @@ package service
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/coralproject/pillar/server/config"
-	"github.com/coralproject/pillar/server/model"
+	"github.com/coralproject/pillar/config"
+	"github.com/coralproject/pillar/model"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 	"log"
@@ -46,18 +46,18 @@ func init() {
 
 	mgoSession = session
 
-	//url and source.id on Asset
-	mgoSession.DB("").C(model.CollectionAction).EnsureIndexKey("source.id")
-
-	//url and source.id on Asset
-	mgoSession.DB("").C(model.CollectionAsset).EnsureIndexKey("source.id")
-	mgoSession.DB("").C(model.CollectionAsset).EnsureIndexKey("url")
-
-	//source.id on User
-	mgoSession.DB("").C(model.CollectionUser).EnsureIndexKey("source.id")
-
-	//source.id on Comment
-	mgoSession.DB("").C(model.CollectionComment).EnsureIndexKey("source.id")
+//	//url and source.id on Asset
+//	mgoSession.DB("").C(model.CollectionAction).EnsureIndexKey("source.id")
+//
+//	//url and source.id on Asset
+//	mgoSession.DB("").C(model.CollectionAsset).EnsureIndexKey("source.id")
+//	mgoSession.DB("").C(model.CollectionAsset).EnsureIndexKey("url")
+//
+//	//source.id on User
+//	mgoSession.DB("").C(model.CollectionUser).EnsureIndexKey("source.id")
+//
+//	//source.id on Comment
+//	mgoSession.DB("").C(model.CollectionComment).EnsureIndexKey("source.id")
 }
 
 func initDB() {

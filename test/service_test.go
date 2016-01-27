@@ -6,8 +6,8 @@ import (
 	"os"
 	"testing"
 
-	"github.com/coralproject/pillar/server/model"
-	"github.com/coralproject/pillar/server/service"
+	"github.com/coralproject/pillar/model"
+	"github.com/coralproject/pillar/service"
 )
 
 const (

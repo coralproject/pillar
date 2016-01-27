@@ -2,7 +2,7 @@ package service
 
 import (
 	"fmt"
-	"github.com/coralproject/pillar/server/model"
+	"github.com/coralproject/pillar/model"
 	"gopkg.in/mgo.v2/bson"
 	"net/http"
 	"reflect"
