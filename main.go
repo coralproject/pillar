@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/coralproject/pillar/web"
+	"github.com/coralproject/pillar/web/route"
 	"github.com/gorilla/handlers"
 	"log"
 	"net/http"
@@ -9,7 +9,7 @@ import (
 
 func main() {
 
-	router := web.NewRouter()
+	router := route.NewRouter()
 
 	log.Printf(http.ListenAndServe(":8080", handlers.CORS()(router)).Error())
 }

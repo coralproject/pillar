@@ -3,7 +3,7 @@ package handler
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/coralproject/pillar/model"
+	"github.com/coralproject/pillar/pkg/model"
 	"net/http"
 )
 

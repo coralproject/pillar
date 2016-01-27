@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/coralproject/pillar/config"
-	"github.com/coralproject/pillar/model"
+	"github.com/coralproject/pillar/pkg/model"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 	"log"
