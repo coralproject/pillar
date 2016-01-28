@@ -1,4 +1,4 @@
-# Server
+# Pillar Server
 The backend service layer is a REST based web-service module written in golang. It provides the following services:
 
 * Imports external data into the coral data model
@@ -73,14 +73,14 @@ Imports a ```Comment``` from an external system and the caller must pass a json 
 ~~~
 
 
-## Server as a Docker Container
-You may want to skip this if you're not comfortable with Docker. This section helps you build and run a docker image of the Server.
+## Pillar Server as a Docker Container
+You may want to skip this if you're not comfortable with Docker. This section helps you build and run a docker image of the Pillar Server.
 
 
 ### Create a Server Docker Image (Optional)
 
 ~~~
-> cd $WORKSPACE/server
+> cd $GOPATH/src/github.com/coralproject/pillar/app/pillar
 > docker build -t pillar-server:1.0 .
 ~~~
 
