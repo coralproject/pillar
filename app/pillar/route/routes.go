@@ -1,4 +1,4 @@
-package web
+package route
 
 import (
 	"encoding/json"
@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/coralproject/pillar/server/handler"
+	"github.com/coralproject/pillar/app/pillar/handler"
 	"github.com/gorilla/mux"
 )
 

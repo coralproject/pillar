@@ -6,8 +6,8 @@ import (
 	"os"
 	"testing"
 
-	"github.com/coralproject/pillar/server/model"
-	"github.com/coralproject/pillar/server/service"
+	"github.com/coralproject/pillar/pkg/model"
+	"github.com/coralproject/pillar/pkg/service"
 )
 
 const (
@@ -112,7 +112,7 @@ func TestCreateIndexes(t *testing.T) {
 	}
 
 	for _, one := range objects {
-		_, err := service.CreateIndex(&one)
+		err := service.CreateIndex(&one)
 		if err != nil {
 			t.Fail()
 		}
@@ -125,7 +125,7 @@ func TestUpdateMetadata(t *testing.T) {
 		fmt.Println("opening config file", err.Error())
 	}
 
-	objects := []model.Index{}
+	objects := []model.Metadata{}
 	jsonParser := json.NewDecoder(file)
 	if err = jsonParser.Decode(&objects); err != nil {
 		fmt.Println("Error reading metadata ", err.Error())

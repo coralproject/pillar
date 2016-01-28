@@ -2,8 +2,8 @@ package handler
 
 import (
 	"encoding/json"
-	"github.com/coralproject/pillar/server/model"
-	"github.com/coralproject/pillar/server/service"
+	"github.com/coralproject/pillar/pkg/model"
+	"github.com/coralproject/pillar/pkg/service"
 	"net/http"
 )
 
