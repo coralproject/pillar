@@ -17,6 +17,7 @@ const (
 	dataActions  = "fixtures/actions.json"
 	dataIndexes  = "fixtures/indexes.json"
 	dataMetadata = "fixtures/metadata.json"
+	dataTags     = "fixtures/tags.json"
 )
 
 func TestCreateAsset(t *testing.T) {
@@ -133,6 +134,27 @@ func TestUpdateMetadata(t *testing.T) {
 
 	for _, one := range objects {
 		_, err := service.UpdateMetadata(&one)
+		if err != nil {
+			t.Fail()
+		}
+	}
+}
+
+func TestUpsertTag(t *testing.T) {
+	file, err := os.Open(dataTags)
+	if err != nil {
+		fmt.Println("opening config file", err.Error())
+	}
+
+	objects := []model.Tag{}
+	jsonParser := json.NewDecoder(file)
+	if err = jsonParser.Decode(&objects); err != nil {
+		fmt.Println("Error reading tags ", err.Error())
+	}
+
+	for _, one := range objects {
+		t.Logf("Tag: %+v\n\n", one)
+		_, err := service.UpsertTag(&one)
 		if err != nil {
 			t.Fail()
 		}

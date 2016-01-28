@@ -10,6 +10,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 )
 
 // AppError encapsulates application specific error
@@ -30,6 +31,8 @@ type MongoManager struct {
 	Users    *mgo.Collection
 	Actions  *mgo.Collection
 	Comments *mgo.Collection
+	Tags     *mgo.Collection
+	TagStats *mgo.Collection
 }
 
 //Close closes the mongodb session; must be called, else the session remain open
@@ -46,18 +49,21 @@ func init() {
 
 	mgoSession = session
 
-//	//url and source.id on Asset
-//	mgoSession.DB("").C(model.CollectionAction).EnsureIndexKey("source.id")
-//
-//	//url and source.id on Asset
-//	mgoSession.DB("").C(model.CollectionAsset).EnsureIndexKey("source.id")
-//	mgoSession.DB("").C(model.CollectionAsset).EnsureIndexKey("url")
-//
-//	//source.id on User
-//	mgoSession.DB("").C(model.CollectionUser).EnsureIndexKey("source.id")
-//
-//	//source.id on Comment
-//	mgoSession.DB("").C(model.CollectionComment).EnsureIndexKey("source.id")
+	//url and source.id on Asset
+	mgoSession.DB("").C(model.CollectionAction).EnsureIndexKey("source.id")
+
+	//url and source.id on Asset
+	mgoSession.DB("").C(model.CollectionAsset).EnsureIndexKey("source.id")
+	mgoSession.DB("").C(model.CollectionAsset).EnsureIndexKey("url")
+
+	//source.id on User
+	mgoSession.DB("").C(model.CollectionUser).EnsureIndexKey("source.id")
+
+	//source.id on Comment
+	mgoSession.DB("").C(model.CollectionComment).EnsureIndexKey("source.id")
+
+	//name on Tag
+	mgoSession.DB("").C(model.CollectionTag).EnsureIndexKey("name")
 }
 
 func initDB() {
@@ -88,6 +94,8 @@ func GetMongoManager() *MongoManager {
 	manager.Assets = manager.Session.DB("").C(model.CollectionAsset)
 	manager.Actions = manager.Session.DB("").C(model.CollectionAction)
 	manager.Comments = manager.Session.DB("").C(model.CollectionComment)
+	manager.Tags = manager.Session.DB("").C(model.CollectionTag)
+	manager.TagStats = manager.Session.DB("").C(model.CollectionTagStat)
 
 	return &manager
 }
@@ -130,4 +138,26 @@ func CreateIndex(object *model.Index) *AppError {
 	}
 
 	return nil;
+}
+
+// UpsertTag adds/updates tags to the master list
+func UpsertTag(object *model.Tag) (*model.Tag, *AppError) {
+	manager := GetMongoManager()
+	defer manager.Close()
+
+	//set created-date for the new ones
+	var dbEntity model.Tag
+	if manager.Tags.FindId(object.Name).One(&dbEntity); dbEntity.Name == "" {
+		object.DateCreated = time.Now()
+	}
+
+	object.DateUpdated = time.Now()
+	_, err := manager.Tags.UpsertId(object.Name, object)
+	if err != nil {
+		message := fmt.Sprintf("Error creating tag [%+v]", object)
+		return nil, &AppError{err, message, http.StatusInternalServerError}
+	}
+	fmt.Printf("Tag: %+v\n\n", object)
+
+	return object, nil
 }

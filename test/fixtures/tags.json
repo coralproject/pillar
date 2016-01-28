@@ -1,0 +1,26 @@
+[
+    {
+        "name": "troll",
+        "description": "A troll"
+    },
+    {
+        "name": "whiny",
+        "description": "User who keeps complaining all the time"
+    },
+    {
+        "name": "top_commenter",
+        "description": "We recognize this user as a top commenter in our system"
+    },
+    {
+        "name": "derogatory",
+        "description": "A derogatory comment"
+    },
+    {
+        "name": "offensive",
+        "description": "An offensive comment"
+    },
+    {
+        "name": "off-topic",
+        "description": "An off-topic comment"
+    }
+]

@@ -97,6 +97,12 @@ var routes = Routes{
 		"/api/import/index",
 		handler.CreateIndex,
 	},
+	Route{
+		"Tag",
+		"POST",
+		"/api/tag",
+		handler.CreateTag,
+	},
 }
 
 func getRoutes() Routes {
