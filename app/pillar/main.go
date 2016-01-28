@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/coralproject/pillar/web/route"
+	"github.com/coralproject/pillar/app/pillar/route"
 	"github.com/gorilla/handlers"
 	"log"
 	"net/http"

@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/coralproject/pillar/web/handler"
+	"github.com/coralproject/pillar/app/pillar/handler"
 	"github.com/gorilla/mux"
 )
 
