@@ -38,6 +38,12 @@ func CreateUser(object *model.User) (*model.User, *AppError) {
 		return nil, &AppError{err, message, http.StatusInternalServerError}
 	}
 
+	err = CreateTagStats(manager, object.Tags, &model.TagStat{Target:model.CollectionUser, TargetID:object.ID})
+	if err != nil {
+		message := fmt.Sprintf("Error creating TagStat [%s]", err)
+		return nil, &AppError{nil, message, http.StatusInternalServerError}
+	}
+
 	return object, nil
 }
 

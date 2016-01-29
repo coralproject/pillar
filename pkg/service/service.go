@@ -161,3 +161,18 @@ func UpsertTag(object *model.Tag) (*model.Tag, *AppError) {
 
 	return object, nil
 }
+
+// CreateTagStats creates TagStat entries for an entity
+func CreateTagStats(manager *MongoManager, tags []string, stat *model.TagStat) error {
+
+	for _, tag := range tags {
+		stat.ID = bson.NewObjectId()
+		stat.Tag = tag
+		stat.DateCreated = time.Now()
+		if err := manager.TagStats.Insert(stat); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
