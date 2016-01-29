@@ -36,10 +36,12 @@ const (
 	StatsComments string = "comments"
 
 	// Various Collections
-	CollectionUser    string = "user"
-	CollectionAsset   string = "asset"
-	CollectionAction  string = "action"
-	CollectionComment string = "comment"
+	CollectionUser      string = "user"
+	CollectionAsset     string = "asset"
+	CollectionAction    string = "action"
+	CollectionComment   string = "comment"
+	CollectionTag       string = "tag"
+	CollectionTagTarget string = "tag_target"
 )
 
 // ImportSource encapsulates all original id from the source system
@@ -71,6 +73,7 @@ type Note struct {
 type Asset struct {
 	ID         bson.ObjectId `json:"id" bson:"_id"`
 	URL        string        `json:"url" bson:"url" validate:"required"`
+	Tags       []string      `json:"tags,omitempty" bson:"tags,omitempty"`
 	Taxonomies []Taxonomy    `json:"taxonomies,omitempty" bson:"taxonomies,omitempty"`
 	Source     ImportSource  `json:"source" bson:"source"`
 	Metadata   bson.M        `json:"metadata,omitempty" bson:"metadata,omitempty"`
@@ -125,6 +128,7 @@ type User struct {
 	MemberSince time.Time       `json:"member_since,omitempty" bson:"member_since,omitempty"`
 	Actions     []bson.ObjectId `json:"actions,omitempty" bson:"actions,omitempty"`
 	Notes       []Note          `json:"notes,omitempty" bson:"notes,omitempty"`
+	Tags        []string        `json:"tags,omitempty" bson:"tags,omitempty"`
 	Source      ImportSource    `json:"source" bson:"source"`
 	Stats       bson.M          `json:"stats,omitempty" bson:"stats,omitempty"`
 	Metadata    bson.M          `json:"metadata,omitempty" bson:"metadata,omitempty"`
@@ -160,6 +164,7 @@ type Comment struct {
 	DateApproved time.Time       `json:"date_approved,omitempty" bson:"date_approved,omitempty"`
 	Actions      []bson.ObjectId `json:"actions,omitempty" bson:"actions,omitempty"`
 	Notes        []Note          `json:"notes,omitempty" bson:"notes,omitempty"`
+	Tags         []string        `json:"tags,omitempty" bson:"tags,omitempty"`
 	Source       ImportSource    `json:"source" bson:"source"`
 	Stats        bson.M          `json:"stats,omitempty" bson:"stats,omitempty"`
 	Metadata     bson.M          `json:"metadata,omitempty" bson:"metadata,omitempty"`
@@ -195,4 +200,23 @@ type Metadata struct {
 type Index struct {
 	Target string    `json:"target" bson:"target" validate:"required"`
 	Index  mgo.Index `json:"index" bson:"index" validate:"required"`
+}
+
+//==============================================================================
+
+// Tag denotes a unique tag in the system
+type Tag struct {
+	Name        string    `json:"name" bson:"_id" validate:"required"`
+	Description string    `json:"description" bson:"description" validate:"required"`
+	DateCreated time.Time `json:"date_created" bson:"date_created"`
+	DateUpdated time.Time `json:"date_updated" bson:"date_updated"`
+}
+
+// TagTarget denotes relationship between an entity and its tags
+type TagTarget struct {
+	ID          bson.ObjectId `json:"id" bson:"_id"`
+	Target      string        `json:"target" bson:"target" validate:"required"`
+	TargetID    bson.ObjectId `json:"target_id" bson:"target_id" validate:"required"`
+	Name        string        `json:"name" bson:"name" validate:"required"`
+	DateCreated time.Time     `json:"date_created" bson:"date_created"`
 }

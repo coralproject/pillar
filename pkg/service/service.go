@@ -10,6 +10,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 )
 
 // AppError encapsulates application specific error
@@ -25,11 +26,13 @@ var (
 
 // MongoManager encapsulates a mongo session with all relevant collections
 type MongoManager struct {
-	Session  *mgo.Session
-	Assets   *mgo.Collection
-	Users    *mgo.Collection
-	Actions  *mgo.Collection
-	Comments *mgo.Collection
+	Session   *mgo.Session
+	Assets    *mgo.Collection
+	Users     *mgo.Collection
+	Actions   *mgo.Collection
+	Comments  *mgo.Collection
+	Tags      *mgo.Collection
+	TagTarget *mgo.Collection
 }
 
 //Close closes the mongodb session; must be called, else the session remain open
@@ -46,18 +49,24 @@ func init() {
 
 	mgoSession = session
 
-//	//url and source.id on Asset
-//	mgoSession.DB("").C(model.CollectionAction).EnsureIndexKey("source.id")
-//
-//	//url and source.id on Asset
-//	mgoSession.DB("").C(model.CollectionAsset).EnsureIndexKey("source.id")
-//	mgoSession.DB("").C(model.CollectionAsset).EnsureIndexKey("url")
-//
-//	//source.id on User
-//	mgoSession.DB("").C(model.CollectionUser).EnsureIndexKey("source.id")
-//
-//	//source.id on Comment
-//	mgoSession.DB("").C(model.CollectionComment).EnsureIndexKey("source.id")
+	//url and source.id on Asset
+	mgoSession.DB("").C(model.CollectionAction).EnsureIndexKey("source.id")
+
+	//url and source.id on Asset
+	mgoSession.DB("").C(model.CollectionAsset).EnsureIndexKey("source.id")
+	mgoSession.DB("").C(model.CollectionAsset).EnsureIndexKey("url")
+
+	//source.id on User
+	mgoSession.DB("").C(model.CollectionUser).EnsureIndexKey("source.id")
+
+	//source.id on Comment
+	mgoSession.DB("").C(model.CollectionComment).EnsureIndexKey("source.id")
+
+	//name on Tag
+	mgoSession.DB("").C(model.CollectionTag).EnsureIndexKey("name")
+
+	//target_id, name and target,
+	mgoSession.DB("").C(model.CollectionTag).EnsureIndexKey("target_id", "name", "target")
 }
 
 func initDB() {
@@ -88,6 +97,8 @@ func GetMongoManager() *MongoManager {
 	manager.Assets = manager.Session.DB("").C(model.CollectionAsset)
 	manager.Actions = manager.Session.DB("").C(model.CollectionAction)
 	manager.Comments = manager.Session.DB("").C(model.CollectionComment)
+	manager.Tags = manager.Session.DB("").C(model.CollectionTag)
+	manager.TagTarget = manager.Session.DB("").C(model.CollectionTagTarget)
 
 	return &manager
 }
@@ -129,5 +140,51 @@ func CreateIndex(object *model.Index) *AppError {
 		return &AppError{err, message, http.StatusInternalServerError}
 	}
 
-	return nil;
+	return nil
+}
+
+// UpsertTag adds/updates tags to the master list
+func UpsertTag(object *model.Tag) (*model.Tag, *AppError) {
+	manager := GetMongoManager()
+	defer manager.Close()
+
+	//set created-date for the new ones
+	var dbEntity model.Tag
+	if manager.Tags.FindId(object.Name).One(&dbEntity); dbEntity.Name == "" {
+		object.DateCreated = time.Now()
+	}
+
+	object.DateUpdated = time.Now()
+	_, err := manager.Tags.UpsertId(object.Name, object)
+	if err != nil {
+		message := fmt.Sprintf("Error creating tag [%+v]", object)
+		return nil, &AppError{err, message, http.StatusInternalServerError}
+	}
+	fmt.Printf("Tag: %+v\n\n", object)
+
+	return object, nil
+}
+
+// CreateTagStats creates TagStat entries for an entity
+func CreateTagStats(manager *MongoManager, tags []string, tt *model.TagTarget) error {
+
+	for _, name := range tags {
+
+		tt.ID = bson.NewObjectId()
+		tt.Name = name
+		tt.DateCreated = time.Now()
+
+		//skip the same entry, if exists
+		dbEntity := model.TagTarget{}
+		manager.TagTarget.Find(bson.M{"target_id": tt.TargetID, "name": name, "target": tt.Target}).One(&dbEntity)
+		if dbEntity.ID != "" {
+			continue
+		}
+
+		if err := manager.TagTarget.Insert(tt); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
