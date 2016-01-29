@@ -59,7 +59,7 @@ func CreateComment(object *model.Comment) (*model.Comment, *AppError) {
 
 	updateUserOnComment(&commenter, manager)
 
-	err := CreateTagStats(manager, object.Tags, &model.TagStat{Target:model.CollectionComment, TargetID:object.ID})
+	err := CreateTagStats(manager, object.Tags, &model.TagTarget{Target:model.CollectionComment, TargetID:object.ID})
 	if err != nil {
 		message := fmt.Sprintf("Error creating TagStat [%s]", err)
 		return nil, &AppError{nil, message, http.StatusInternalServerError}

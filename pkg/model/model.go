@@ -212,11 +212,11 @@ type Tag struct {
 	DateUpdated time.Time `json:"date_updated" bson:"date_updated"`
 }
 
-// TagStat denotes relationship between an entity and tags
-type TagStat struct {
+// TagTarget denotes relationship between an entity and its tags
+type TagTarget struct {
 	ID          bson.ObjectId `json:"id" bson:"_id"`
 	Target      string        `json:"target" bson:"target" validate:"required"`
 	TargetID    bson.ObjectId `json:"target_id" bson:"target_id" validate:"required"`
-	Tag         string        `json:"tag" bson:"tag" validate:"required"`
+	Name        string        `json:"name" bson:"name" validate:"required"`
 	DateCreated time.Time     `json:"date_created" bson:"date_created"`
 }
