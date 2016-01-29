@@ -26,13 +26,13 @@ var (
 
 // MongoManager encapsulates a mongo session with all relevant collections
 type MongoManager struct {
-	Session  *mgo.Session
-	Assets   *mgo.Collection
-	Users    *mgo.Collection
-	Actions  *mgo.Collection
-	Comments *mgo.Collection
-	Tags     *mgo.Collection
-	TagStats *mgo.Collection
+	Session   *mgo.Session
+	Assets    *mgo.Collection
+	Users     *mgo.Collection
+	Actions   *mgo.Collection
+	Comments  *mgo.Collection
+	Tags      *mgo.Collection
+	TagTarget *mgo.Collection
 }
 
 //Close closes the mongodb session; must be called, else the session remain open
@@ -64,6 +64,9 @@ func init() {
 
 	//name on Tag
 	mgoSession.DB("").C(model.CollectionTag).EnsureIndexKey("name")
+
+	//target_id, name and target,
+	mgoSession.DB("").C(model.CollectionTag).EnsureIndexKey("target_id", "name", "target")
 }
 
 func initDB() {
@@ -95,7 +98,7 @@ func GetMongoManager() *MongoManager {
 	manager.Actions = manager.Session.DB("").C(model.CollectionAction)
 	manager.Comments = manager.Session.DB("").C(model.CollectionComment)
 	manager.Tags = manager.Session.DB("").C(model.CollectionTag)
-	manager.TagStats = manager.Session.DB("").C(model.CollectionTagStat)
+	manager.TagTarget = manager.Session.DB("").C(model.CollectionTagTarget)
 
 	return &manager
 }
@@ -137,7 +140,7 @@ func CreateIndex(object *model.Index) *AppError {
 		return &AppError{err, message, http.StatusInternalServerError}
 	}
 
-	return nil;
+	return nil
 }
 
 // UpsertTag adds/updates tags to the master list
@@ -165,11 +168,20 @@ func UpsertTag(object *model.Tag) (*model.Tag, *AppError) {
 // CreateTagStats creates TagStat entries for an entity
 func CreateTagStats(manager *MongoManager, tags []string, tt *model.TagTarget) error {
 
-	for _, tag := range tags {
+	for _, name := range tags {
+
 		tt.ID = bson.NewObjectId()
-		tt.Name = tag
+		tt.Name = name
 		tt.DateCreated = time.Now()
-		if err := manager.TagStats.Insert(tt); err != nil {
+
+		//skip the same entry, if exists
+		dbEntity := model.TagTarget{}
+		manager.TagTarget.Find(bson.M{"target_id": tt.TargetID, "name": name, "target": tt.Target}).One(&dbEntity)
+		if dbEntity.ID != "" {
+			continue
+		}
+
+		if err := manager.TagTarget.Insert(tt); err != nil {
 			return err
 		}
 	}
