@@ -24,6 +24,7 @@ func init() {
 	mm.Actions.RemoveAll(nil)
 	mm.Comments.RemoveAll(nil)
 	mm.Users.RemoveAll(nil)
+	mm.Assets.RemoveAll(nil)
 }
 
 func TestCreateAsset(t *testing.T) {
