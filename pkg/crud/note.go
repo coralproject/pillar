@@ -26,11 +26,11 @@ func CreateNote(object *Note) (*Note, *AppError) {
 
 	//find target and set the reference
 	switch object.Target {
-	case CollectionUser:
+	case Users:
 		addNoteToUser(object, manager)
 		break
 
-	case CollectionComment:
+	case Comments:
 		addNoteToComment(object, manager)
 		break
 	}

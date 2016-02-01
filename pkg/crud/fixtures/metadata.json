@@ -1,6 +1,6 @@
 [
     {
-        "target": "asset",
+        "target": "assets",
         "source": {
             "id": "http://washingtonpost.com/world/national-security/some-nsa-surveillance-powers-set-to-expire-sunday-unless-senate-acts/2015/05/31/42f215a2-066c-11e5-a428-c984eb077d4e_story.html"
         },

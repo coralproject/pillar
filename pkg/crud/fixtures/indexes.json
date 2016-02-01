@@ -1,6 +1,6 @@
 [
     {
-        "target": "asset",
+        "target": "assets",
         "index": {
             "name": "asset-url",
             "key": ["url"],
@@ -9,7 +9,7 @@
         }
     },
     {
-        "target": "asset",
+        "target": "assets",
         "index": {
             "name": "asset-source-id",
             "key": ["source.id"],
@@ -18,7 +18,7 @@
         }
     },
     {
-        "target": "action",
+        "target": "actions",
         "index": {
             "name": "action-source-id",
             "key": ["source.id"],
@@ -27,7 +27,7 @@
         }
     },
     {
-        "target": "user",
+        "target": "users",
         "index": {
             "name": "user-source-id",
             "key": ["source.id"],
@@ -36,7 +36,7 @@
         }
     },
     {
-        "target": "comment",
+        "target": "comments",
         "index": {
             "name": "comment-source-id",
             "key": ["source.id"],

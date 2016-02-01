@@ -25,13 +25,13 @@ var (
 
 // MongoManager encapsulates a mongo session with all relevant collections
 type MongoManager struct {
-	Session   *mgo.Session
-	Assets    *mgo.Collection
-	Users     *mgo.Collection
-	Actions   *mgo.Collection
-	Comments  *mgo.Collection
-	Tags      *mgo.Collection
-	TagTarget *mgo.Collection
+	Session    *mgo.Session
+	Assets     *mgo.Collection
+	Users      *mgo.Collection
+	Actions    *mgo.Collection
+	Comments   *mgo.Collection
+	Tags       *mgo.Collection
+	TagTargets *mgo.Collection
 }
 
 //Close closes the mongodb session; must be called, else the session remain open
@@ -49,23 +49,23 @@ func init() {
 	mgoSession = session
 
 	//url and source.id on Asset
-	mgoSession.DB("").C(CollectionAction).EnsureIndexKey("source.id")
+	mgoSession.DB("").C(Actions).EnsureIndexKey("source.id")
 
 	//url and source.id on Asset
-	mgoSession.DB("").C(CollectionAsset).EnsureIndexKey("source.id")
-	mgoSession.DB("").C(CollectionAsset).EnsureIndexKey("url")
+	mgoSession.DB("").C(Assets).EnsureIndexKey("source.id")
+	mgoSession.DB("").C(Assets).EnsureIndexKey("url")
 
 	//source.id on User
-	mgoSession.DB("").C(CollectionUser).EnsureIndexKey("source.id")
+	mgoSession.DB("").C(Users).EnsureIndexKey("source.id")
 
 	//source.id on Comment
-	mgoSession.DB("").C(CollectionComment).EnsureIndexKey("source.id")
+	mgoSession.DB("").C(Comments).EnsureIndexKey("source.id")
 
 	//name on Tag
-	mgoSession.DB("").C(CollectionTag).EnsureIndexKey("name")
+	mgoSession.DB("").C(Tags).EnsureIndexKey("name")
 
 	//target_id, name and target,
-	mgoSession.DB("").C(CollectionTag).EnsureIndexKey("target_id", "name", "target")
+	mgoSession.DB("").C(Tags).EnsureIndexKey("target_id", "name", "target")
 }
 
 func initDB() {
@@ -92,12 +92,12 @@ func GetMongoManager() *MongoManager {
 
 	manager := MongoManager{}
 	manager.Session = mgoSession.Clone()
-	manager.Users = manager.Session.DB("").C(CollectionUser)
-	manager.Assets = manager.Session.DB("").C(CollectionAsset)
-	manager.Actions = manager.Session.DB("").C(CollectionAction)
-	manager.Comments = manager.Session.DB("").C(CollectionComment)
-	manager.Tags = manager.Session.DB("").C(CollectionTag)
-	manager.TagTarget = manager.Session.DB("").C(CollectionTagTarget)
+	manager.Users = manager.Session.DB("").C(Users)
+	manager.Assets = manager.Session.DB("").C(Assets)
+	manager.Actions = manager.Session.DB("").C(Actions)
+	manager.Comments = manager.Session.DB("").C(Comments)
+	manager.Tags = manager.Session.DB("").C(Tags)
+	manager.TagTargets = manager.Session.DB("").C(TagTargets)
 
 	return &manager
 }
@@ -164,8 +164,8 @@ func UpsertTag(object *Tag) (*Tag, *AppError) {
 	return object, nil
 }
 
-// CreateTagStats creates TagStat entries for an entity
-func CreateTagStats(manager *MongoManager, tags []string, tt *TagTarget) error {
+// CreateTagTargets creates TagTarget entries for various tags on an entity
+func CreateTagTargets(manager *MongoManager, tags []string, tt *TagTarget) error {
 
 	for _, name := range tags {
 
@@ -175,12 +175,12 @@ func CreateTagStats(manager *MongoManager, tags []string, tt *TagTarget) error {
 
 		//skip the same entry, if exists
 		dbEntity := TagTarget{}
-		manager.TagTarget.Find(bson.M{"target_id": tt.TargetID, "name": name, "target": tt.Target}).One(&dbEntity)
+		manager.TagTargets.Find(bson.M{"target_id": tt.TargetID, "name": name, "target": tt.Target}).One(&dbEntity)
 		if dbEntity.ID != "" {
 			continue
 		}
 
-		if err := manager.TagTarget.Insert(tt); err != nil {
+		if err := manager.TagTargets.Insert(tt); err != nil {
 			return err
 		}
 	}

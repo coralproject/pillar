@@ -17,6 +17,15 @@ const (
 	dataTags     = "fixtures/tags.json"
 )
 
+func init() {
+	mm := GetMongoManager()
+	mm.TagTargets.RemoveAll(nil)
+	mm.Tags.RemoveAll(nil)
+	mm.Actions.RemoveAll(nil)
+	mm.Comments.RemoveAll(nil)
+	mm.Users.RemoveAll(nil)
+}
+
 func TestCreateAsset(t *testing.T) {
 	file, err := os.Open(dataAssets)
 	if err != nil {
