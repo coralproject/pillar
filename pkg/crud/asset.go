@@ -44,7 +44,7 @@ func CreateAsset(object *Asset) (*Asset, *AppError) {
 		return nil, &AppError{err, message, http.StatusInternalServerError}
 	}
 
-	err = CreateTagStats(manager, object.Tags, &TagTarget{Target: CollectionAsset, TargetID: object.ID})
+	err = CreateTagTargets(manager, object.Tags, &TagTarget{Target: Assets, TargetID: object.ID})
 	if err != nil {
 		message := fmt.Sprintf("Error creating TagStat [%s]", err)
 		return nil, &AppError{nil, message, http.StatusInternalServerError}

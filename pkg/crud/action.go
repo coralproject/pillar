@@ -60,7 +60,7 @@ func setActionReferences(object *Action, manager *MongoManager) error {
 
 	//find target and set the reference
 	switch object.Target {
-	case CollectionUser:
+	case Users:
 		var user User
 		manager.Users.Find(bson.M{"source.id": object.Source.TargetID}).One(&user)
 		if user.ID == "" {
@@ -74,7 +74,7 @@ func setActionReferences(object *Action, manager *MongoManager) error {
 		updateUserOnAction(&user, object, manager)
 		break
 
-	case CollectionComment:
+	case Comments:
 		var comment Comment
 		manager.Comments.Find(bson.M{"source.id": object.Source.TargetID}).One(&comment)
 		if comment.ID == "" {

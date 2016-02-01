@@ -58,7 +58,7 @@ func CreateComment(object *Comment) (*Comment, *AppError) {
 
 	updateUserOnComment(&commenter, manager)
 
-	err := CreateTagStats(manager, object.Tags, &TagTarget{Target:CollectionComment, TargetID:object.ID})
+	err := CreateTagTargets(manager, object.Tags, &TagTarget{Target:Comments, TargetID:object.ID})
 	if err != nil {
 		message := fmt.Sprintf("Error creating TagStat [%s]", err)
 		return nil, &AppError{nil, message, http.StatusInternalServerError}

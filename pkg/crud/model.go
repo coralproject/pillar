@@ -36,12 +36,12 @@ const (
 	StatsComments string = "comments"
 
 	// Various Collections
-	CollectionUser      string = "user"
-	CollectionAsset     string = "asset"
-	CollectionAction    string = "action"
-	CollectionComment   string = "comment"
-	CollectionTag       string = "tag"
-	CollectionTagTarget string = "tag_target"
+	Users      string = "users"
+	Assets     string = "assets"
+	Actions    string = "actions"
+	Comments   string = "comments"
+	Tags       string = "tags"
+	TagTargets string = "tag_targets"
 )
 
 // ImportSource encapsulates all original id from the source system

@@ -37,7 +37,7 @@ func CreateUser(object *User) (*User, *AppError) {
 		return nil, &AppError{err, message, http.StatusInternalServerError}
 	}
 
-	err = CreateTagStats(manager, object.Tags, &TagTarget{Target:CollectionUser, TargetID:object.ID})
+	err = CreateTagTargets(manager, object.Tags, &TagTarget{Target:Users, TargetID:object.ID})
 	if err != nil {
 		message := fmt.Sprintf("Error creating TagStat [%s]", err)
 		return nil, &AppError{nil, message, http.StatusInternalServerError}
