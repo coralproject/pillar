@@ -1,10 +1,9 @@
-package service
+package crud
 
 import (
 	"encoding/json"
 	"fmt"
 	"github.com/coralproject/pillar/config"
-	"github.com/coralproject/pillar/pkg/model"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 	"log"
@@ -50,23 +49,23 @@ func init() {
 	mgoSession = session
 
 	//url and source.id on Asset
-	mgoSession.DB("").C(model.CollectionAction).EnsureIndexKey("source.id")
+	mgoSession.DB("").C(CollectionAction).EnsureIndexKey("source.id")
 
 	//url and source.id on Asset
-	mgoSession.DB("").C(model.CollectionAsset).EnsureIndexKey("source.id")
-	mgoSession.DB("").C(model.CollectionAsset).EnsureIndexKey("url")
+	mgoSession.DB("").C(CollectionAsset).EnsureIndexKey("source.id")
+	mgoSession.DB("").C(CollectionAsset).EnsureIndexKey("url")
 
 	//source.id on User
-	mgoSession.DB("").C(model.CollectionUser).EnsureIndexKey("source.id")
+	mgoSession.DB("").C(CollectionUser).EnsureIndexKey("source.id")
 
 	//source.id on Comment
-	mgoSession.DB("").C(model.CollectionComment).EnsureIndexKey("source.id")
+	mgoSession.DB("").C(CollectionComment).EnsureIndexKey("source.id")
 
 	//name on Tag
-	mgoSession.DB("").C(model.CollectionTag).EnsureIndexKey("name")
+	mgoSession.DB("").C(CollectionTag).EnsureIndexKey("name")
 
 	//target_id, name and target,
-	mgoSession.DB("").C(model.CollectionTag).EnsureIndexKey("target_id", "name", "target")
+	mgoSession.DB("").C(CollectionTag).EnsureIndexKey("target_id", "name", "target")
 }
 
 func initDB() {
@@ -75,7 +74,7 @@ func initDB() {
 		log.Fatalf("Error opening file %s\n", err.Error())
 	}
 
-	objects := []model.Index{}
+	objects := []Index{}
 	jsonParser := json.NewDecoder(file)
 	if err = jsonParser.Decode(&objects); err != nil {
 		log.Fatalf("Error reading index information %v\n", err)
@@ -93,18 +92,18 @@ func GetMongoManager() *MongoManager {
 
 	manager := MongoManager{}
 	manager.Session = mgoSession.Clone()
-	manager.Users = manager.Session.DB("").C(model.CollectionUser)
-	manager.Assets = manager.Session.DB("").C(model.CollectionAsset)
-	manager.Actions = manager.Session.DB("").C(model.CollectionAction)
-	manager.Comments = manager.Session.DB("").C(model.CollectionComment)
-	manager.Tags = manager.Session.DB("").C(model.CollectionTag)
-	manager.TagTarget = manager.Session.DB("").C(model.CollectionTagTarget)
+	manager.Users = manager.Session.DB("").C(CollectionUser)
+	manager.Assets = manager.Session.DB("").C(CollectionAsset)
+	manager.Actions = manager.Session.DB("").C(CollectionAction)
+	manager.Comments = manager.Session.DB("").C(CollectionComment)
+	manager.Tags = manager.Session.DB("").C(CollectionTag)
+	manager.TagTarget = manager.Session.DB("").C(CollectionTagTarget)
 
 	return &manager
 }
 
 // UpdateMetadata updates metadata for an entity
-func UpdateMetadata(object *model.Metadata) (interface{}, *AppError) {
+func UpdateMetadata(object *Metadata) (interface{}, *AppError) {
 
 	manager := GetMongoManager()
 	defer manager.Close()
@@ -130,7 +129,7 @@ func UpdateMetadata(object *model.Metadata) (interface{}, *AppError) {
 }
 
 // CreateIndex creates indexes to various entities
-func CreateIndex(object *model.Index) *AppError {
+func CreateIndex(object *Index) *AppError {
 	manager := GetMongoManager()
 	defer manager.Close()
 
@@ -144,12 +143,12 @@ func CreateIndex(object *model.Index) *AppError {
 }
 
 // UpsertTag adds/updates tags to the master list
-func UpsertTag(object *model.Tag) (*model.Tag, *AppError) {
+func UpsertTag(object *Tag) (*Tag, *AppError) {
 	manager := GetMongoManager()
 	defer manager.Close()
 
 	//set created-date for the new ones
-	var dbEntity model.Tag
+	var dbEntity Tag
 	if manager.Tags.FindId(object.Name).One(&dbEntity); dbEntity.Name == "" {
 		object.DateCreated = time.Now()
 	}
@@ -166,7 +165,7 @@ func UpsertTag(object *model.Tag) (*model.Tag, *AppError) {
 }
 
 // CreateTagStats creates TagStat entries for an entity
-func CreateTagStats(manager *MongoManager, tags []string, tt *model.TagTarget) error {
+func CreateTagStats(manager *MongoManager, tags []string, tt *TagTarget) error {
 
 	for _, name := range tags {
 
@@ -175,7 +174,7 @@ func CreateTagStats(manager *MongoManager, tags []string, tt *model.TagTarget) e
 		tt.DateCreated = time.Now()
 
 		//skip the same entry, if exists
-		dbEntity := model.TagTarget{}
+		dbEntity := TagTarget{}
 		manager.TagTarget.Find(bson.M{"target_id": tt.TargetID, "name": name, "target": tt.Target}).One(&dbEntity)
 		if dbEntity.ID != "" {
 			continue

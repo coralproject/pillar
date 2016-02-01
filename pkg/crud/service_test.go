@@ -1,13 +1,10 @@
-package test
+package crud
 
 import (
 	"encoding/json"
 	"fmt"
 	"os"
 	"testing"
-
-	"github.com/coralproject/pillar/pkg/model"
-	"github.com/coralproject/pillar/pkg/service"
 )
 
 const (
@@ -26,14 +23,14 @@ func TestCreateAsset(t *testing.T) {
 		fmt.Println("opening config file", err.Error())
 	}
 
-	objects := []model.Asset{}
+	objects := []Asset{}
 	jsonParser := json.NewDecoder(file)
 	if err = jsonParser.Decode(&objects); err != nil {
 		fmt.Println("Error reading asset data", err.Error())
 	}
 
 	for _, one := range objects {
-		_, err := service.CreateAsset(&one)
+		_, err := CreateAsset(&one)
 		if err != nil {
 			t.Fail()
 		}
@@ -46,14 +43,14 @@ func TestCreateUser(t *testing.T) {
 		fmt.Println("opening config file", err.Error())
 	}
 
-	objects := []model.User{}
+	objects := []User{}
 	jsonParser := json.NewDecoder(file)
 	if err = jsonParser.Decode(&objects); err != nil {
 		fmt.Println("Error reading user data", err.Error())
 	}
 
 	for _, one := range objects {
-		_, err := service.CreateUser(&one)
+		_, err := CreateUser(&one)
 		if err != nil {
 			t.Fail()
 		}
@@ -66,14 +63,14 @@ func TestCreateComments(t *testing.T) {
 		fmt.Println("opening config file", err.Error())
 	}
 
-	objects := []model.Comment{}
+	objects := []Comment{}
 	jsonParser := json.NewDecoder(file)
 	if err = jsonParser.Decode(&objects); err != nil {
 		fmt.Println("Error reading user data", err.Error())
 	}
 
 	for _, one := range objects {
-		_, err := service.CreateComment(&one)
+		_, err := CreateComment(&one)
 		if err != nil {
 			t.Fail()
 		}
@@ -86,14 +83,14 @@ func TestCreateActions(t *testing.T) {
 		fmt.Println("opening config file", err.Error())
 	}
 
-	objects := []model.Action{}
+	objects := []Action{}
 	jsonParser := json.NewDecoder(file)
 	if err = jsonParser.Decode(&objects); err != nil {
 		fmt.Println("Error reading user data", err.Error())
 	}
 
 	for _, one := range objects {
-		_, err := service.CreateAction(&one)
+		_, err := CreateAction(&one)
 		if err != nil {
 			t.Fail()
 		}
@@ -106,14 +103,14 @@ func TestCreateIndexes(t *testing.T) {
 		fmt.Println("opening config file", err.Error())
 	}
 
-	objects := []model.Index{}
+	objects := []Index{}
 	jsonParser := json.NewDecoder(file)
 	if err = jsonParser.Decode(&objects); err != nil {
 		fmt.Println("Error reading index data", err.Error())
 	}
 
 	for _, one := range objects {
-		err := service.CreateIndex(&one)
+		err := CreateIndex(&one)
 		if err != nil {
 			t.Fail()
 		}
@@ -126,14 +123,14 @@ func TestUpdateMetadata(t *testing.T) {
 		fmt.Println("opening config file", err.Error())
 	}
 
-	objects := []model.Metadata{}
+	objects := []Metadata{}
 	jsonParser := json.NewDecoder(file)
 	if err = jsonParser.Decode(&objects); err != nil {
 		fmt.Println("Error reading metadata ", err.Error())
 	}
 
 	for _, one := range objects {
-		_, err := service.UpdateMetadata(&one)
+		_, err := UpdateMetadata(&one)
 		if err != nil {
 			t.Fail()
 		}
@@ -146,7 +143,7 @@ func TestUpsertTag(t *testing.T) {
 		fmt.Println("opening config file", err.Error())
 	}
 
-	objects := []model.Tag{}
+	objects := []Tag{}
 	jsonParser := json.NewDecoder(file)
 	if err = jsonParser.Decode(&objects); err != nil {
 		fmt.Println("Error reading tags ", err.Error())
@@ -154,7 +151,7 @@ func TestUpsertTag(t *testing.T) {
 
 	for _, one := range objects {
 		t.Logf("Tag: %+v\n\n", one)
-		_, err := service.UpsertTag(&one)
+		_, err := UpsertTag(&one)
 		if err != nil {
 			t.Fail()
 		}

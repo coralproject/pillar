@@ -3,12 +3,11 @@ package handler
 import (
 	"encoding/json"
 	"github.com/coralproject/pillar/config"
-	"github.com/coralproject/pillar/pkg/model"
-	"github.com/coralproject/pillar/pkg/service"
+	"github.com/coralproject/pillar/pkg/crud"
 	"net/http"
 )
 
-func doRespond(w http.ResponseWriter, object interface{}, appErr *service.AppError) {
+func doRespond(w http.ResponseWriter, object interface{}, appErr *crud.AppError) {
 	if appErr != nil {
 		config.Logger.Printf("Call failed [%s]", appErr.Message)
 		http.Error(w, appErr.Message, appErr.Code)
@@ -28,22 +27,22 @@ func doRespond(w http.ResponseWriter, object interface{}, appErr *service.AppErr
 
 func CreateIndex(w http.ResponseWriter, r *http.Request) {
 	//Get the user from request
-	jsonObject := model.Index{}
+	jsonObject := crud.Index{}
 	json.NewDecoder(r.Body).Decode(&jsonObject)
 
 	// Write content-type, status code and payload
 	w.Header().Set("Content-Type", "application/json")
-	err := service.CreateIndex(&jsonObject)
+	err := crud.CreateIndex(&jsonObject)
 	doRespond(w, nil, err)
 }
 
 func CreateTag(w http.ResponseWriter, r *http.Request) {
 	//Get the user from request
-	jsonObject := model.Tag{}
+	jsonObject := crud.Tag{}
 	json.NewDecoder(r.Body).Decode(&jsonObject)
 
 	// Write content-type, status code and payload
 	w.Header().Set("Content-Type", "application/json")
-	dbObject, err := service.UpsertTag(&jsonObject)
+	dbObject, err := crud.UpsertTag(&jsonObject)
 	doRespond(w, dbObject, err)
 }

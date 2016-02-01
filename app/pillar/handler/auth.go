@@ -3,7 +3,7 @@ package handler
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/coralproject/pillar/pkg/model"
+	"github.com/coralproject/pillar/pkg/crud"
 	"net/http"
 )
 
@@ -33,7 +33,7 @@ func Logout(w http.ResponseWriter, r *http.Request) {
 func Login(w http.ResponseWriter, r *http.Request) {
 
 	//Get the user from request
-	user := model.User{}
+	user := crud.User{}
 	json.NewDecoder(r.Body).Decode(&user)
 	fmt.Println("User: ", user)
 

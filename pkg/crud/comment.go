@@ -1,24 +1,23 @@
-package service
+package crud
 
 import (
 	"errors"
 	"fmt"
-	"github.com/coralproject/pillar/pkg/model"
 	"gopkg.in/mgo.v2/bson"
 	"net/http"
 	"reflect"
 )
 
-var commenter model.User
+var commenter User
 
 // CreateComment creates a new comment resource
-func CreateComment(object *model.Comment) (*model.Comment, *AppError) {
+func CreateComment(object *Comment) (*Comment, *AppError) {
 
 	// Insert Comment
 	manager := GetMongoManager()
 	defer manager.Close()
 
-	var dbEntity model.Comment
+	var dbEntity Comment
 
 	//return, if exists
 	if manager.Comments.FindId(object.ID).One(&dbEntity); dbEntity.ID != "" {
@@ -59,7 +58,7 @@ func CreateComment(object *model.Comment) (*model.Comment, *AppError) {
 
 	updateUserOnComment(&commenter, manager)
 
-	err := CreateTagStats(manager, object.Tags, &model.TagTarget{Target:model.CollectionComment, TargetID:object.ID})
+	err := CreateTagStats(manager, object.Tags, &TagTarget{Target:CollectionComment, TargetID:object.ID})
 	if err != nil {
 		message := fmt.Sprintf("Error creating TagStat [%s]", err)
 		return nil, &AppError{nil, message, http.StatusInternalServerError}
@@ -68,9 +67,9 @@ func CreateComment(object *model.Comment) (*model.Comment, *AppError) {
 	return object, nil
 }
 
-func setCommentReferences(object *model.Comment, manager *MongoManager) error {
+func setCommentReferences(object *Comment, manager *MongoManager) error {
 	//find asset and add the reference to it
-	var asset model.Asset
+	var asset Asset
 	manager.Assets.Find(bson.M{"source.id": object.Source.AssetID}).One(&asset)
 	if asset.ID == "" {
 		manager.Assets.Find(bson.M{"url": object.Source.AssetID}).One(&asset)
@@ -90,7 +89,7 @@ func setCommentReferences(object *model.Comment, manager *MongoManager) error {
 
 	//find parent and add the reference to it
 	if object.Source.ID != object.Source.ParentID {
-		var parent model.Comment
+		var parent Comment
 		manager.Comments.Find(bson.M{"source.parent_id": object.Source.ParentID}).One(&parent)
 		if parent.ID != "" {
 			object.ParentID = parent.ID
@@ -105,7 +104,7 @@ func setCommentReferences(object *model.Comment, manager *MongoManager) error {
 }
 
 //append action to comment's actions array and update stats
-func updateCommentOnAction(comment *model.Comment, object *model.Action, manager *MongoManager) {
+func updateCommentOnAction(comment *Comment, object *Action, manager *MongoManager) {
 	actions := append(comment.Actions, object.ID)
 
 	if comment.Stats == nil {
@@ -123,8 +122,8 @@ func updateCommentOnAction(comment *model.Comment, object *model.Action, manager
 	)
 }
 
-//func setActions(object *model.Comment, manager *MongoManager) error {
-//	var user model.User
+//func setActions(object *Comment, manager *MongoManager) error {
+//	var user User
 //	var invalidUsers []string
 //
 //	for i := 0; i < len(object.Actions); i++ {
@@ -145,8 +144,8 @@ func updateCommentOnAction(comment *model.Comment, object *model.Action, manager
 //	return nil
 //}
 
-//func setNotes(object *model.Comment, manager *MongoManager) error {
-//	var user model.User
+//func setNotes(object *Comment, manager *MongoManager) error {
+//	var user User
 //	var invalidUsers []string
 //
 //	for i := 0; i < len(object.Notes); i++ {

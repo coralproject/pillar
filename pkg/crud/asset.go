@@ -1,21 +1,20 @@
-package service
+package crud
 
 import (
 	"fmt"
-	"github.com/coralproject/pillar/pkg/model"
 	"gopkg.in/mgo.v2/bson"
 	"net/http"
 	"reflect"
 )
 
 // CreateAsset creates a new asset resource
-func CreateAsset(object *model.Asset) (*model.Asset, *AppError) {
+func CreateAsset(object *Asset) (*Asset, *AppError) {
 
 	// Insert Asset
 	manager := GetMongoManager()
 	defer manager.Close()
 
-	dbEntity := model.Asset{}
+	dbEntity := Asset{}
 
 	//return, if exists
 	manager.Assets.FindId(object.ID).One(&dbEntity)
@@ -45,7 +44,7 @@ func CreateAsset(object *model.Asset) (*model.Asset, *AppError) {
 		return nil, &AppError{err, message, http.StatusInternalServerError}
 	}
 
-	err = CreateTagStats(manager, object.Tags, &model.TagTarget{Target: model.CollectionAsset, TargetID: object.ID})
+	err = CreateTagStats(manager, object.Tags, &TagTarget{Target: CollectionAsset, TargetID: object.ID})
 	if err != nil {
 		message := fmt.Sprintf("Error creating TagStat [%s]", err)
 		return nil, &AppError{nil, message, http.StatusInternalServerError}

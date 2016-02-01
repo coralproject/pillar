@@ -1,4 +1,4 @@
-package model
+package crud
 
 import (
 	"fmt"
