@@ -2,20 +2,21 @@ package handler
 
 import (
 	"encoding/json"
+	"github.com/coralproject/pillar/app/pillar/config"
 	"github.com/coralproject/pillar/pkg/crud"
 	"net/http"
 )
 
 func doRespond(w http.ResponseWriter, object interface{}, appErr *crud.AppError) {
 	if appErr != nil {
-		Logger.Printf("Call failed [%s]", appErr.Message)
+		config.Logger.Printf("Call failed [%s]", appErr.Message)
 		http.Error(w, appErr.Message, appErr.Code)
 		return
 	}
 
 	payload, err := json.Marshal(object)
 	if err != nil {
-		Logger.Printf("Call failed [%s]", err.Error())
+		config.Logger.Printf("Call failed [%s]", err.Error())
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}

@@ -12,9 +12,8 @@ import (
 )
 
 const (
-	DefaultMongoUrl    string = "mongodb://localhost:27017/coral"
+	DefaultMongoUrl string = "mongodb://localhost:27017/coral"
 )
-
 
 // AppError encapsulates application specific error
 type AppError struct {

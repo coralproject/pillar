@@ -1,4 +1,4 @@
-package handler
+package config
 
 import (
 	"fmt"
@@ -8,18 +8,31 @@ import (
 )
 
 const (
-	LogFile    string = "pillar.log"
+	LogFile string = "pillar.log"
 )
 
-//Single logger for the application
 var (
 	Logger *log.Logger
+	config *Config
 )
 
+type Config struct {
+	Home     string
+	LogFile  string
+	MongoURL string
+	Address  string
+}
+
 func init() {
+
 	home := os.Getenv("PILLAR_HOME")
 	if home == "" {
 		log.Fatal("Error initializing Pillar: PILLAR_HOME not found.")
+	}
+
+	address := os.Getenv("PILLAR_ADDRESS")
+	if address == "" {
+		log.Fatal("Error initializing Pillar: PILLAR_ADDRESS not found.")
 	}
 
 	url := os.Getenv("MONGODB_URL")
@@ -35,6 +48,7 @@ func init() {
 	fmt.Printf("Pillar log file: %s\n\n", logFile)
 
 	Logger = log.New(file, "Pillar: ", log.LstdFlags|log.Llongfile|log.Ldate|log.Ltime)
+	config = &Config{Home: home, Address: address, MongoURL: url, LogFile: logFile}
 }
 
 func getLogFile(pillarHome string) string {
