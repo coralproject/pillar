@@ -3,13 +3,16 @@ package crud
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/coralproject/pillar/config"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 	"log"
 	"net/http"
 	"os"
 	"time"
+)
+
+const (
+	DefaultMongoUrl string = "mongodb://localhost:27017/coral"
 )
 
 // AppError encapsulates application specific error
@@ -39,9 +42,13 @@ func (manager *MongoManager) Close() {
 	manager.Session.Close()
 }
 
-//export MONGODB_URL=mongodb://localhost:27017/coral
 func init() {
-	session, err := mgo.Dial(config.GetContext().MongoURL)
+	url := os.Getenv("MONGODB_URL")
+	if url == "" {
+		log.Fatal("Error initializing Service: MONGODB_URL not found.")
+	}
+
+	session, err := mgo.Dial(url)
 	if err != nil {
 		log.Fatalf("Error connecting to mongo database: %s", err)
 	}
