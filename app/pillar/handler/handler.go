@@ -36,13 +36,3 @@ func CreateIndex(w http.ResponseWriter, r *http.Request) {
 	doRespond(w, nil, err)
 }
 
-func CreateTag(w http.ResponseWriter, r *http.Request) {
-	//Get the user from request
-	jsonObject := crud.Tag{}
-	json.NewDecoder(r.Body).Decode(&jsonObject)
-
-	// Write content-type, status code and payload
-	w.Header().Set("Content-Type", "application/json")
-	dbObject, err := crud.UpsertTag(&jsonObject)
-	doRespond(w, dbObject, err)
-}

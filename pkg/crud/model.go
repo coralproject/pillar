@@ -35,7 +35,7 @@ const (
 	StatsFlags    string = "flags"
 	StatsComments string = "comments"
 
-	// Various Collections
+	//Various Collections
 	Users      string = "users"
 	Assets     string = "assets"
 	Actions    string = "actions"

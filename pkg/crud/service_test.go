@@ -160,10 +160,30 @@ func TestUpsertTag(t *testing.T) {
 	}
 
 	for _, one := range objects {
-		t.Logf("Tag: %+v\n\n", one)
+		//t.Logf("Tag: %+v\n\n", one)
 		_, err := UpsertTag(&one)
 		if err != nil {
 			t.Fail()
 		}
 	}
 }
+
+func TestDeleteAllTag(t *testing.T) {
+	tags, err := GetTags()
+	if err != nil || len(tags) == 0 {
+		t.Fail()
+	}
+
+	for _, one := range tags {
+		err := DeleteTag(&one)
+		if err != nil {
+			t.Fail()
+		}
+	}
+
+	objects, err := GetTags()
+	if err != nil || len(objects) != 0 {
+		t.Fail()
+	}
+}
+

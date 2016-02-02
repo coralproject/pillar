@@ -8,7 +8,6 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"time"
 )
 
 const (
@@ -144,52 +143,6 @@ func CreateIndex(object *Index) *AppError {
 	if err != nil {
 		message := fmt.Sprintf("Error creating index [%+v]", object)
 		return &AppError{err, message, http.StatusInternalServerError}
-	}
-
-	return nil
-}
-
-// UpsertTag adds/updates tags to the master list
-func UpsertTag(object *Tag) (*Tag, *AppError) {
-	manager := GetMongoManager()
-	defer manager.Close()
-
-	//set created-date for the new ones
-	var dbEntity Tag
-	if manager.Tags.FindId(object.Name).One(&dbEntity); dbEntity.Name == "" {
-		object.DateCreated = time.Now()
-	}
-
-	object.DateUpdated = time.Now()
-	_, err := manager.Tags.UpsertId(object.Name, object)
-	if err != nil {
-		message := fmt.Sprintf("Error creating tag [%+v]", object)
-		return nil, &AppError{err, message, http.StatusInternalServerError}
-	}
-	fmt.Printf("Tag: %+v\n\n", object)
-
-	return object, nil
-}
-
-// CreateTagTargets creates TagTarget entries for various tags on an entity
-func CreateTagTargets(manager *MongoManager, tags []string, tt *TagTarget) error {
-
-	for _, name := range tags {
-
-		tt.ID = bson.NewObjectId()
-		tt.Name = name
-		tt.DateCreated = time.Now()
-
-		//skip the same entry, if exists
-		dbEntity := TagTarget{}
-		manager.TagTargets.Find(bson.M{"target_id": tt.TargetID, "name": name, "target": tt.Target}).One(&dbEntity)
-		if dbEntity.ID != "" {
-			continue
-		}
-
-		if err := manager.TagTargets.Insert(tt); err != nil {
-			return err
-		}
 	}
 
 	return nil
