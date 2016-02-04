@@ -8,6 +8,11 @@
 			"revisionTime": "2015-08-19T22:12:45-07:00"
 		},
 		{
+			"path": "github.com/gorilla/handlers",
+			"revision": "8f2758070a82adb7a3ad6b223a0b91878f32d400",
+			"revisionTime": "2016-01-15T11:23:37-08:00"
+		},
+		{
 			"path": "github.com/gorilla/mux",
 			"revision": "9c068cf16d982f8bd444b8c352acbeec34c4fe5b",
 			"revisionTime": "2015-11-11T18:35:30+08:00"
