@@ -11,5 +11,5 @@ func main() {
 
 	router := route.NewRouter()
 
-	log.Printf(http.ListenAndServe(":8080", handlers.CORS()(router)).Error())
+	log.Fatalf(http.ListenAndServe(":8080", handlers.CORS()(router)).Error())
 }
