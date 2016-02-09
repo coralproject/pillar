@@ -45,6 +45,14 @@ func TestCreateAsset(t *testing.T) {
 			t.Fail()
 		}
 	}
+
+	//try the same set again and it shouldn't fail
+	for _, one := range objects {
+		_, err := CreateAsset(&one)
+		if err != nil {
+			t.Fail()
+		}
+	}
 }
 
 func TestCreateUser(t *testing.T) {
@@ -65,6 +73,13 @@ func TestCreateUser(t *testing.T) {
 			t.Fail()
 		}
 	}
+	//try the same set again and it shouldn't fail
+	for _, one := range objects {
+		_, err := CreateUser(&one)
+		if err != nil {
+			t.Fail()
+		}
+	}
 }
 
 func TestCreateComments(t *testing.T) {
@@ -79,6 +94,13 @@ func TestCreateComments(t *testing.T) {
 		fmt.Println("Error reading user data", err.Error())
 	}
 
+	for _, one := range objects {
+		_, err := CreateComment(&one)
+		if err != nil {
+			t.Fail()
+		}
+	}
+	//try the same set again and it shouldn't fail
 	for _, one := range objects {
 		_, err := CreateComment(&one)
 		if err != nil {
