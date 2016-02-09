@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"gopkg.in/mgo.v2/bson"
 	"net/http"
-	"reflect"
 )
 
 // CreateUser creates a new user resource
@@ -19,15 +18,15 @@ func CreateUser(object *User) (*User, *AppError) {
 	//return, if exists
 	manager.Users.FindId(object.ID).One(&dbEntity)
 	if dbEntity.ID != "" {
-		message := fmt.Sprintf("%s exists with ID [%s]\n", reflect.TypeOf(object).Name(), object.ID)
-		return nil, &AppError{nil, message, http.StatusInternalServerError}
+		message := fmt.Sprintf("User exists with ID [%s]\n", object.ID)
+		return nil, &AppError{nil, message, http.StatusConflict}
 	}
 
 	//return, if exists
 	manager.Users.Find(bson.M{"source.id": object.Source.ID}).One(&dbEntity)
 	if dbEntity.ID != "" {
-		message := fmt.Sprintf("%s exists with source [%s]\n", reflect.TypeOf(object).Name(), object.Source.ID)
-		return nil, &AppError{nil, message, http.StatusInternalServerError}
+		message := fmt.Sprintf("User exists with Source.ID [%s]\n", object.Source.ID)
+		return nil, &AppError{nil, message, http.StatusConflict}
 	}
 
 	object.ID = bson.NewObjectId()
