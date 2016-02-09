@@ -25,32 +25,25 @@ func CreateComment(object *Comment) (*Comment, *AppError) {
 		return nil, &AppError{nil, message, http.StatusInternalServerError}
 	}
 
-	//find & return if one exist with the same source.id
-	manager.Comments.Find(bson.M{"source.id": object.Source.ID}).One(&dbEntity)
-	if dbEntity.ID != "" {
-		message := fmt.Sprintf("%s exists with source [%s]\n", reflect.TypeOf(object).Name(), object.Source.ID)
-		return nil, &AppError{nil, message, http.StatusInternalServerError}
-	}
-
-	//fix all references with ObjectId
-	object.ID = bson.NewObjectId()
 	if err := setCommentReferences(object, manager); err != nil {
 		message := fmt.Sprintf("Error setting comment references [%s]", err)
 		return nil, &AppError{nil, message, http.StatusInternalServerError}
 	}
 
-	//	//add actions
-	//	if err := setActions(&object, manager); err != nil {
-	//		message := fmt.Sprintf("Error setting comment actions [%s]", err)
-	//		return nil, &AppError{nil, message, http.StatusInternalServerError}
-	//	}
+	//upsert if entity exists with same source.id
+	manager.Comments.Find(bson.M{"source.id": object.Source.ID}).One(&dbEntity)
+	if dbEntity.ID != "" {
+		object.ID = dbEntity.ID
+		_, err := manager.Users.UpsertId(dbEntity.ID, object)
+		if err != nil {
+			message := fmt.Sprintf("Error updating existing Comment [%s], %s", object.Source.ID, err)
+			return nil, &AppError{err, message, http.StatusInternalServerError}
+		}
+		return object, nil
+	}
 
-	//	//add notes
-	//	if err := setNotes(&object, manager); err != nil {
-	//		message := fmt.Sprintf("Error setting comment notes [%s]", err)
-	//		return nil, &AppError{nil, message, http.StatusInternalServerError}
-	//	}
-
+	//Insert new comment
+	object.ID = bson.NewObjectId()
 	if err := manager.Comments.Insert(object); err != nil {
 		message := fmt.Sprintf("Error creating comments [%s]", err)
 		return nil, &AppError{nil, message, http.StatusInternalServerError}

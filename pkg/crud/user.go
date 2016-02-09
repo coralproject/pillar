@@ -23,11 +23,16 @@ func CreateUser(object *User) (*User, *AppError) {
 		return nil, &AppError{nil, message, http.StatusInternalServerError}
 	}
 
-	//return, if exists
+	//upsert if entity exists with same source.id
 	manager.Users.Find(bson.M{"source.id": object.Source.ID}).One(&dbEntity)
 	if dbEntity.ID != "" {
-		message := fmt.Sprintf("%s exists with source [%s]\n", reflect.TypeOf(object).Name(), object.Source.ID)
-		return nil, &AppError{nil, message, http.StatusInternalServerError}
+		object.ID = dbEntity.ID
+		_, err := manager.Users.UpsertId(dbEntity.ID, object)
+		if err != nil {
+			message := fmt.Sprintf("Error updating existing User [%s], %s", object.Source.ID, err)
+			return nil, &AppError{err, message, http.StatusInternalServerError}
+		}
+		return object, nil
 	}
 
 	object.ID = bson.NewObjectId()
