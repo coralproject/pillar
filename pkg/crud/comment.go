@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"gopkg.in/mgo.v2/bson"
 	"net/http"
-	"reflect"
 )
 
 var commenter User
@@ -21,15 +20,15 @@ func CreateComment(object *Comment) (*Comment, *AppError) {
 
 	//return, if exists
 	if manager.Comments.FindId(object.ID).One(&dbEntity); dbEntity.ID != "" {
-		message := fmt.Sprintf("%s exists with ID [%s]\n", reflect.TypeOf(object).Name(), object.ID)
-		return nil, &AppError{nil, message, http.StatusInternalServerError}
+		message := fmt.Sprintf("Comment exists with ID [%s]\n", object.ID)
+		return nil, &AppError{nil, message, http.StatusConflict}
 	}
 
 	//find & return if one exist with the same source.id
 	manager.Comments.Find(bson.M{"source.id": object.Source.ID}).One(&dbEntity)
 	if dbEntity.ID != "" {
-		message := fmt.Sprintf("%s exists with source [%s]\n", reflect.TypeOf(object).Name(), object.Source.ID)
-		return nil, &AppError{nil, message, http.StatusInternalServerError}
+		message := fmt.Sprintf("Comment exists with Source.ID [%s]\n", object.Source.ID)
+		return nil, &AppError{nil, message, http.StatusConflict}
 	}
 
 	//fix all references with ObjectId

@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"gopkg.in/mgo.v2/bson"
 	"net/http"
-	"reflect"
 )
 
 // CreateAsset creates a new asset resource
@@ -19,22 +18,22 @@ func CreateAsset(object *Asset) (*Asset, *AppError) {
 	//return, if exists
 	manager.Assets.FindId(object.ID).One(&dbEntity)
 	if dbEntity.ID != "" {
-		message := fmt.Sprintf("%s exists with ID [%s]\n", reflect.TypeOf(object).Name(), object.ID)
-		return nil, &AppError{nil, message, http.StatusInternalServerError}
+		message := fmt.Sprintf("Asset exists with ID [%s]\n", object.ID)
+		return nil, &AppError{nil, message, http.StatusConflict}
 	}
 
 	//return, if entity exists with same source.id
 	manager.Assets.Find(bson.M{"source.id": object.Source.ID}).One(&dbEntity)
 	if dbEntity.ID != "" {
-		message := fmt.Sprintf("%s exists with source [%s]\n", reflect.TypeOf(object).Name(), object.Source.ID)
-		return nil, &AppError{nil, message, http.StatusInternalServerError}
+		message := fmt.Sprintf("Asset exists with Source.ID [%s]\n", object.Source.ID)
+		return nil, &AppError{nil, message, http.StatusConflict}
 	}
 
 	//return, if entity exists with same url
 	manager.Assets.Find(bson.M{"url": object.URL}).One(&dbEntity)
 	if dbEntity.ID != "" {
-		message := fmt.Sprintf("%s exists with url [%s]\n", reflect.TypeOf(object).Name(), object.URL)
-		return nil, &AppError{nil, message, http.StatusInternalServerError}
+		message := fmt.Sprintf("Asset exists with URL [%s]\n", object.URL)
+		return nil, &AppError{nil, message, http.StatusConflict}
 	}
 
 	object.ID = bson.NewObjectId()

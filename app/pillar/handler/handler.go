@@ -9,14 +9,20 @@ import (
 
 func doRespond(w http.ResponseWriter, object interface{}, appErr *crud.AppError) {
 	if appErr != nil {
-		config.Logger.Printf("Call failed [%s]", appErr.Message)
-		http.Error(w, appErr.Message, appErr.Code)
-		return
+		config.Logger.Printf("Call failed [%+v]", appErr)
+		payload, err := json.Marshal(appErr)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		w.WriteHeader(appErr.Code)
+		w.Write(payload)
 	}
 
 	payload, err := json.Marshal(object)
 	if err != nil {
-		config.Logger.Printf("Call failed [%s]", err.Error())
+		config.Logger.Printf("Call failed [%+v]", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}

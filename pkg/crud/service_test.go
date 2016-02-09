@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"testing"
+	"net/http"
 )
 
 const (
@@ -45,6 +46,13 @@ func TestCreateAsset(t *testing.T) {
 			t.Fail()
 		}
 	}
+
+	for _, one := range objects {
+		_, err := CreateAsset(&one)
+		if err == nil || err.Code != http.StatusConflict {
+			t.Fail()
+		}
+	}
 }
 
 func TestCreateUser(t *testing.T) {
@@ -65,6 +73,14 @@ func TestCreateUser(t *testing.T) {
 			t.Fail()
 		}
 	}
+
+	for _, one := range objects {
+		_, err := CreateUser(&one)
+		if err == nil || err.Code != http.StatusConflict {
+			t.Fail()
+		}
+	}
+
 }
 
 func TestCreateComments(t *testing.T) {
@@ -82,6 +98,13 @@ func TestCreateComments(t *testing.T) {
 	for _, one := range objects {
 		_, err := CreateComment(&one)
 		if err != nil {
+			t.Fail()
+		}
+	}
+
+	for _, one := range objects {
+		_, err := CreateComment(&one)
+		if err == nil || err.Code != http.StatusConflict {
 			t.Fail()
 		}
 	}
