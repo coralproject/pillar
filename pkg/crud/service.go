@@ -96,7 +96,6 @@ func initIndex() {
 //GetMongoManager returns a cloned MongoManager
 func GetMongoManager() *MongoManager {
 	if mgoSession == nil {
-		fmt.Printf("Initializing Mongo Once and for all!!!")
 		initDB()
 	}
 
