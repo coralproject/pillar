@@ -23,6 +23,10 @@ type Config struct {
 	Address  string
 }
 
+func GetAddress() string {
+	return config.Address
+}
+
 func init() {
 
 	home := os.Getenv("PILLAR_HOME")
