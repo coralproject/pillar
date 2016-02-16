@@ -41,10 +41,10 @@ func (manager *MongoManager) Close() {
 	manager.Session.Close()
 }
 
-func init() {
+func initDB() {
 	url := os.Getenv("MONGODB_URL")
 	if url == "" {
-		log.Fatal("Error initializing Service: MONGODB_URL not found.")
+		log.Printf("$MONGODB_URL not found, trying to connect locally [%s]", DefaultMongoUrl)
 	}
 
 	session, err := mgo.Dial(url)
@@ -74,7 +74,7 @@ func init() {
 	mgoSession.DB("").C(Tags).EnsureIndexKey("target_id", "name", "target")
 }
 
-func initDB() {
+func initIndex() {
 	file, err := os.Open("dbindex.json")
 	if err != nil {
 		log.Fatalf("Error opening file %s\n", err.Error())
@@ -95,6 +95,9 @@ func initDB() {
 
 //GetMongoManager returns a cloned MongoManager
 func GetMongoManager() *MongoManager {
+	if mgoSession == nil {
+		initDB()
+	}
 
 	manager := MongoManager{}
 	manager.Session = mgoSession.Clone()

@@ -2,14 +2,10 @@
 # and a workspace (GOPATH) configured at /go.
 FROM golang:1.5.3
 
-# Copy the local package files to the container's workspace.
-COPY . /go/src/github.com/coralproject/pillar/app/pillar
+ENV GO15VENDOREXPERIMENT="1"
 
-# Go get all necessary packages
-RUN go get github.com/gorilla/mux
-RUN go get gopkg.in/mgo.v2
-RUN go get gopkg.in/mgo.v2/bson
-RUN go get gopkg.in/bluesuncorp/validator.v6
+# Copy the local package files to the container's workspace.
+COPY . /go/src/github.com/coralproject/pillar
 
 # Build & Install
 RUN cd /go/src && go install github.com/coralproject/pillar/app/pillar
