@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"gopkg.in/mgo.v2/bson"
 	"net/http"
-	"reflect"
 )
 
 // CreateAction creates a new action resource
@@ -19,7 +18,7 @@ func CreateAction(object *Action) (*Action, *AppError) {
 	//return, if exists
 	manager.Actions.FindId(object.ID).One(&dbEntity)
 	if dbEntity.ID != "" {
-		message := fmt.Sprintf("%s exists with ID [%s]\n", reflect.TypeOf(object).Name(), object.ID)
+		message := fmt.Sprintf("Action exists with source ID [%s]\n", object.ID)
 		return nil, &AppError{nil, message, http.StatusInternalServerError}
 	}
 
@@ -27,13 +26,22 @@ func CreateAction(object *Action) (*Action, *AppError) {
 	if object.Source.ID != "" {
 		manager.Actions.Find(bson.M{"source.id": object.Source.ID}).One(&dbEntity)
 		if dbEntity.ID != "" {
-			message := fmt.Sprintf("%s exists with source [%s]\n", reflect.TypeOf(object).Name(), object.Source.ID)
+			message := fmt.Sprintf("Action exists with source [%s]\n", object.Source.ID)
 			return nil, &AppError{nil, message, http.StatusInternalServerError}
 		}
 	}
 
+	//do not allow duplicate action from this user
+	user := findUser(object, manager)
+	manager.Actions.Find(bson.M{"target": object.Target, "type": object.Type, "user_id": user.ID}).One(&dbEntity)
+	if dbEntity.ID != "" {
+		message := fmt.Sprintf("Action exists with user [%s], target [%s] and type [%s]\n",
+			user.ID, object.Target, object.Type)
+		return nil, &AppError{nil, message, http.StatusInternalServerError}
+	}
+
 	object.ID = bson.NewObjectId()
-	if err := setActionReferences(object, manager); err != nil {
+	if err := setActionReferences(object, user, manager); err != nil {
 		message := fmt.Sprintf("Error setting action references [%s]", err)
 		return nil, &AppError{nil, message, http.StatusInternalServerError}
 	}
@@ -47,15 +55,8 @@ func CreateAction(object *Action) (*Action, *AppError) {
 	return object, nil
 }
 
-func setActionReferences(object *Action, manager *MongoManager) error {
+func setActionReferences(object *Action, user *User, manager *MongoManager) error {
 
-	//find user and set the reference
-	var user User
-	manager.Users.Find(bson.M{"source.id": object.Source.UserID}).One(&user)
-	if user.ID == "" {
-		err := errors.New("Cannot find user from source: " + object.Source.UserID)
-		return err
-	}
 	object.UserID = user.ID
 
 	//find target and set the reference
@@ -87,6 +88,24 @@ func setActionReferences(object *Action, manager *MongoManager) error {
 		//update comment with this action
 		updateCommentOnAction(&comment, object, manager)
 		break
+	}
+
+	return nil
+}
+
+func findUser(object *Action, manager *MongoManager) *User {
+	var user User
+
+	if object.UserID != "" {
+		manager.Users.FindId(object.UserID).One(&user)
+		if user.ID != "" {
+			return &user;
+		}
+	}
+
+	manager.Users.Find(bson.M{"source.id": object.Source.UserID}).One(&user)
+	if user.ID != "" {
+		return &user
 	}
 
 	return nil

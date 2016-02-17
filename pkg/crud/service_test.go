@@ -127,6 +127,14 @@ func TestCreateActions(t *testing.T) {
 			t.Fail()
 		}
 	}
+	//Try again with the same data and it should all fail
+	for _, one := range objects {
+		_, err := CreateAction(&one)
+		fmt.Printf("Error: %s", err.Message)
+		if err == nil {
+			t.Fail()
+		}
+	}
 }
 
 func TestCreateIndexes(t *testing.T) {
