@@ -59,7 +59,7 @@ func GetTags() ([]Tag, *AppError) {
 	defer manager.Close()
 
 	//set created-date for the new ones
-	var all []Tag
+	all := make([]Tag, 0)
 	if err := manager.Tags.Find(nil).All(&all); err != nil {
 		message := fmt.Sprintf("Error fetching tags")
 		return nil, &AppError{err, message, http.StatusInternalServerError}
