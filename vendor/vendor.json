@@ -3,6 +3,11 @@
 	"ignore": "test",
 	"package": [
 		{
+			"path": "github.com/codegangsta/negroni",
+			"revision": "c7477ad8e330bef55bf1ebe300cf8aa67c492d1b",
+			"revisionTime": "2015-03-19T10:13:04-07:00"
+		},
+		{
 			"path": "github.com/gorilla/context",
 			"revision": "1c83b3eabd45b6d76072b66b746c20815fb2872d",
 			"revisionTime": "2015-08-19T22:12:45-07:00"
@@ -16,6 +21,11 @@
 			"path": "github.com/gorilla/mux",
 			"revision": "9c068cf16d982f8bd444b8c352acbeec34c4fe5b",
 			"revisionTime": "2015-11-11T18:35:30+08:00"
+		},
+		{
+			"path": "github.com/rs/cors",
+			"revision": "5950cf11d77f8a61b432a25dd4d444b4ced01379",
+			"revisionTime": "2016-02-11T13:46:49-08:00"
 		},
 		{
 			"path": "gopkg.in/bluesuncorp/validator.v6",

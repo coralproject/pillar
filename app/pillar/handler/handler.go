@@ -35,4 +35,3 @@ func CreateIndex(w http.ResponseWriter, r *http.Request) {
 	err := crud.CreateIndex(&jsonObject)
 	doRespond(w, nil, err)
 }
-

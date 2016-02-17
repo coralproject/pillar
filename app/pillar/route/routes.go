@@ -25,13 +25,8 @@ var routes = []Route{
 	Route{"POST", "/api/import/metadata", handler.ImportMetadata},
 	Route{"POST", "/api/import/index", handler.CreateIndex},
 
-
 	//Manage Tags
 	Route{"GET",    "/api/tags", handler.GetTags},
 	Route{"POST",   "/api/tag", handler.UpsertTag},
 	Route{"DELETE", "/api/tag", handler.DeleteTag},
-	
-	Route{"OPTIONS",  "/api/tag", handler.TagsPreflight},
-	Route{"OPTIONS",  "/api/tags", handler.TagsPreflight},
-
 }
