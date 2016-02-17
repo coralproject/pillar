@@ -28,6 +28,16 @@
 			"revisionTime": "2016-02-11T13:46:49-08:00"
 		},
 		{
+			"path": "github.com/rs/xhandler",
+			"revision": "d9d9599b6aaf6a058cb7b1f48291ded2cbd13390",
+			"revisionTime": "2015-12-23T17:29:56-08:00"
+		},
+		{
+			"path": "golang.org/x/net/context",
+			"revision": "b6d7b1396ec874c3b00f6c84cd4301a17c56c8ed",
+			"revisionTime": "2016-02-16T22:16:06+09:00"
+		},
+		{
 			"path": "gopkg.in/bluesuncorp/validator.v6",
 			"revision": "15e8444e515459e82ef3c33c8cd2dc68b2031e5b",
 			"revisionTime": "2015-09-24T07:48:25-04:00"
