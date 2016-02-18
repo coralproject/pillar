@@ -31,33 +31,60 @@ func CreateAction(object *Action) (*Action, *AppError) {
 		}
 	}
 
-	//do not allow duplicate action from this user
-	user := findUser(object, manager)
-	manager.Actions.Find(bson.M{"user_id": user.ID, "target": object.Target, "type": object.Type}).One(&dbEntity)
-	if dbEntity.ID != "" {
-		message := fmt.Sprintf("Action exists with user [%s], target [%s] and type [%s]\n",
-			user.ID, object.Target, object.Type)
-		return nil, &AppError{nil, message, http.StatusInternalServerError}
-	}
-
-	object.ID = bson.NewObjectId()
-	if err := setActionReferences(object, user, manager); err != nil {
+	if err := setReferences(object, manager); err != nil {
 		message := fmt.Sprintf("Error setting action references [%s]", err)
 		return nil, &AppError{nil, message, http.StatusInternalServerError}
 	}
 
-	err := manager.Actions.Insert(object)
-	if err != nil {
+	//do not allow duplicate action from this user on the same target
+	manager.Actions.Find(bson.M{"user_id": object.UserID, "target_id": object.TargetID,
+		"target": object.Target, "type": object.Type}).One(&dbEntity)
+	if dbEntity.ID != "" {
+		message := fmt.Sprintf("Duplicate %s action detected by user [%s] on target [%s: %s]\n",
+			object.Type, object.UserID, object.Target, object.TargetID)
+		return nil, &AppError{nil, message, http.StatusInternalServerError}
+	}
+
+	if err := manager.Actions.Insert(object); err != nil {
 		message := fmt.Sprintf("Error creating action [%s]", err)
+		return nil, &AppError{err, message, http.StatusInternalServerError}
+	}
+
+	if err := updateTargetOnAction(object, manager); err != nil {
+		message := fmt.Sprintf("Error updating stats on target [%s]", err)
 		return nil, &AppError{err, message, http.StatusInternalServerError}
 	}
 
 	return object, nil
 }
 
-func setActionReferences(object *Action, user *User, manager *MongoManager) error {
+func setReferences(object *Action, manager *MongoManager) error {
 
-	object.UserID = user.ID
+	//set _id
+	object.ID = bson.NewObjectId()
+
+	//set user_id
+	if object.UserID == "" {
+		var user User
+		manager.Users.Find(bson.M{"source.id": object.Source.UserID}).One(&user)
+		if user.ID == "" {
+			err := errors.New("Cannot find user from source: " + object.Source.UserID)
+			return err
+		}
+		object.UserID = user.ID
+	}
+
+	//set target_id
+	if object.TargetID == "" {
+		if err := setTarget(object, manager); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func setTarget(object *Action, manager *MongoManager) error {
 
 	//find target and set the reference
 	switch object.Target {
@@ -65,47 +92,37 @@ func setActionReferences(object *Action, user *User, manager *MongoManager) erro
 		var user User
 		manager.Users.Find(bson.M{"source.id": object.Source.TargetID}).One(&user)
 		if user.ID == "" {
-			err := errors.New("Cannot find user from source: " + object.Source.TargetID)
-			return err
+			return errors.New("Cannot find user from source: " + object.Source.TargetID)
 		}
 		//set the reference
 		object.TargetID = user.ID
-
-		//update comment with this action
-		updateUserOnAction(&user, object, manager)
 		break
 
 	case Comments:
 		var comment Comment
 		manager.Comments.Find(bson.M{"source.id": object.Source.TargetID}).One(&comment)
 		if comment.ID == "" {
-			err := errors.New("Cannot find comment from source: " + object.Source.TargetID)
-			return err
+			return errors.New("Cannot find comment from source: " + object.Source.TargetID)
 		}
 		//set the reference
 		object.TargetID = comment.ID
-
-		//update comment with this action
-		updateCommentOnAction(&comment, object, manager)
 		break
 	}
 
 	return nil
 }
 
-func findUser(object *Action, manager *MongoManager) *User {
-	var user User
+func updateTargetOnAction(object *Action, manager *MongoManager) error {
 
-	if object.UserID != "" {
-		manager.Users.FindId(object.UserID).One(&user)
-		if user.ID != "" {
-			return &user;
-		}
-	}
+	//find target and set the reference
+	switch object.Target {
+	case Users:
+		//update comment with this action
+		return updateUserOnAction(object, manager)
 
-	manager.Users.Find(bson.M{"source.id": object.Source.UserID}).One(&user)
-	if user.ID != "" {
-		return &user
+	case Comments:
+		//update comment with this action
+		return updateCommentOnAction(object, manager)
 	}
 
 	return nil
