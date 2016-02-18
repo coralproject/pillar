@@ -33,7 +33,7 @@ func CreateAction(object *Action) (*Action, *AppError) {
 
 	//do not allow duplicate action from this user
 	user := findUser(object, manager)
-	manager.Actions.Find(bson.M{"target": object.Target, "type": object.Type, "user_id": user.ID}).One(&dbEntity)
+	manager.Actions.Find(bson.M{"user_id": user.ID, "target": object.Target, "type": object.Type}).One(&dbEntity)
 	if dbEntity.ID != "" {
 		message := fmt.Sprintf("Action exists with user [%s], target [%s] and type [%s]\n",
 			user.ID, object.Target, object.Type)
