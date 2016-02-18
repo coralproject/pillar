@@ -1,20 +1,21 @@
-package crud
+package service
 
 import (
 	"fmt"
 	"gopkg.in/mgo.v2/bson"
 	"net/http"
 	"reflect"
+	"github.com/coralproject/pillar/pkg/model"
 )
 
 // CreateUser creates a new user resource
-func CreateUser(object *User) (*User, *AppError) {
+func CreateUser(object *model.User) (*model.User, *AppError) {
 
 	// get a mongo connection
 	manager := GetMongoManager()
 	defer manager.Close()
 
-	dbEntity := User{}
+	dbEntity := model.User{}
 
 	//return, if exists
 	manager.Users.FindId(object.ID).One(&dbEntity)
@@ -42,7 +43,7 @@ func CreateUser(object *User) (*User, *AppError) {
 		return nil, &AppError{err, message, http.StatusInternalServerError}
 	}
 
-	err = CreateTagTargets(manager, object.Tags, &TagTarget{Target:Users, TargetID:object.ID})
+	err = CreateTagTargets(manager, object.Tags, &model.TagTarget{Target:model.Users, TargetID:object.ID})
 	if err != nil {
 		message := fmt.Sprintf("Error creating TagStat [%s]", err)
 		return nil, &AppError{nil, message, http.StatusInternalServerError}
@@ -52,7 +53,7 @@ func CreateUser(object *User) (*User, *AppError) {
 }
 
 //append action to user's actions array and update stats
-func updateUserOnAction(user *User, object *Action, manager *MongoManager) {
+func updateUserOnAction(user *model.User, object *model.Action, manager *MongoManager) {
 	actions := append(user.Actions, object.ID)
 	if user.Stats[object.Type] == nil {
 		user.Stats[object.Type] = 0
@@ -66,16 +67,16 @@ func updateUserOnAction(user *User, object *Action, manager *MongoManager) {
 }
 
 //update stats on this user for #comments
-func updateUserOnComment(user *User, manager *MongoManager) {
+func updateUserOnComment(user *model.User, manager *MongoManager) {
 	if user.Stats == nil {
 		user.Stats = make(map[string]interface{})
 	}
 
-	if user.Stats[StatsComments] == nil {
-		user.Stats[StatsComments] = 0
+	if user.Stats[model.StatsComments] == nil {
+		user.Stats[model.StatsComments] = 0
 	}
 
-	user.Stats[StatsComments] = user.Stats[StatsComments].(int) + 1
+	user.Stats[model.StatsComments] = user.Stats[model.StatsComments].(int) + 1
 	manager.Users.Update(
 		bson.M{"_id": user.ID},
 		bson.M{"$set": bson.M{"stats": user.Stats}},

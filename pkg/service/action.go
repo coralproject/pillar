@@ -1,4 +1,4 @@
-package crud
+package service
 
 import (
 	"errors"
@@ -6,15 +6,16 @@ import (
 	"gopkg.in/mgo.v2/bson"
 	"net/http"
 	"reflect"
+	"github.com/coralproject/pillar/pkg/model"
 )
 
 // CreateAction creates a new action resource
-func CreateAction(object *Action) (*Action, *AppError) {
+func CreateAction(object *model.Action) (*model.Action, *AppError) {
 
 	manager := GetMongoManager()
 	defer manager.Close()
 
-	dbEntity := Action{}
+	dbEntity := model.Action{}
 
 	//return, if exists
 	manager.Actions.FindId(object.ID).One(&dbEntity)
@@ -47,10 +48,10 @@ func CreateAction(object *Action) (*Action, *AppError) {
 	return object, nil
 }
 
-func setActionReferences(object *Action, manager *MongoManager) error {
+func setActionReferences(object *model.Action, manager *MongoManager) error {
 
 	//find user and set the reference
-	var user User
+	var user model.User
 	manager.Users.Find(bson.M{"source.id": object.Source.UserID}).One(&user)
 	if user.ID == "" {
 		err := errors.New("Cannot find user from source: " + object.Source.UserID)
@@ -60,8 +61,8 @@ func setActionReferences(object *Action, manager *MongoManager) error {
 
 	//find target and set the reference
 	switch object.Target {
-	case Users:
-		var user User
+	case model.Users:
+		var user model.User
 		manager.Users.Find(bson.M{"source.id": object.Source.TargetID}).One(&user)
 		if user.ID == "" {
 			err := errors.New("Cannot find user from source: " + object.Source.TargetID)
@@ -74,8 +75,8 @@ func setActionReferences(object *Action, manager *MongoManager) error {
 		updateUserOnAction(&user, object, manager)
 		break
 
-	case Comments:
-		var comment Comment
+	case model.Comments:
+		var comment model.Comment
 		manager.Comments.Find(bson.M{"source.id": object.Source.TargetID}).One(&comment)
 		if comment.ID == "" {
 			err := errors.New("Cannot find comment from source: " + object.Source.TargetID)
