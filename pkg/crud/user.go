@@ -5,6 +5,7 @@ import (
 	"gopkg.in/mgo.v2/bson"
 	"net/http"
 	"reflect"
+	"errors"
 )
 
 // CreateUser creates a new user resource
@@ -52,7 +53,13 @@ func CreateUser(object *User) (*User, *AppError) {
 }
 
 //append action to user's actions array and update stats
-func updateUserOnAction(user *User, object *Action, manager *MongoManager) {
+func updateUserOnAction(object *Action, manager *MongoManager) error {
+
+	var user User
+	if manager.Users.FindId(object.TargetID).One(&user); user.ID == "" {
+		return errors.New("Cannot update user stats, invalid user " + object.TargetID.String())
+	}
+
 	actions := append(user.Actions, object.ID)
 	if user.Stats[object.Type] == nil {
 		user.Stats[object.Type] = 0
@@ -63,6 +70,8 @@ func updateUserOnAction(user *User, object *Action, manager *MongoManager) {
 		bson.M{"_id": user.ID},
 		bson.M{"$set": bson.M{"actions": actions, "stats": user.Stats}},
 	)
+
+	return nil
 }
 
 //update stats on this user for #comments

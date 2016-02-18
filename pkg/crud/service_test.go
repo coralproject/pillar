@@ -127,10 +127,10 @@ func TestCreateActions(t *testing.T) {
 			t.Fail()
 		}
 	}
+
 	//Try again with the same data and it should all fail
 	for _, one := range objects {
 		_, err := CreateAction(&one)
-		fmt.Printf("Error: %s", err.Message)
 		if err == nil {
 			t.Fail()
 		}
@@ -190,7 +190,6 @@ func TestUpsertTag(t *testing.T) {
 	}
 
 	for _, one := range objects {
-		//t.Logf("Tag: %+v\n\n", one)
 		_, err := UpsertTag(&one)
 		if err != nil {
 			t.Fail()
