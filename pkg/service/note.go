@@ -1,13 +1,14 @@
-package crud
+package service
 
 import (
 	"fmt"
+	"github.com/coralproject/pillar/pkg/model"
 	"gopkg.in/mgo.v2/bson"
 	"net/http"
 )
 
 // CreateNote creates a new note resource
-func CreateNote(object *Note) (*Note, *AppError) {
+func CreateNote(object *model.Note) (*model.Note, *AppError) {
 
 	// Insert Comment
 	manager := GetMongoManager()
@@ -15,7 +16,7 @@ func CreateNote(object *Note) (*Note, *AppError) {
 
 	if object.UserID == "" {
 		//find user using source information and set the reference
-		var user User
+		var user model.User
 		manager.Users.Find(bson.M{"source.id": object.Source.UserID}).One(&user)
 		if user.ID == "" {
 			message := fmt.Sprintf("Invalid user with source ID [%s]\n", object.Source.UserID)
@@ -26,11 +27,11 @@ func CreateNote(object *Note) (*Note, *AppError) {
 
 	//find target and set the reference
 	switch object.Target {
-	case Users:
+	case model.Users:
 		addNoteToUser(object, manager)
 		break
 
-	case Comments:
+	case model.Comments:
 		addNoteToComment(object, manager)
 		break
 	}
@@ -38,8 +39,8 @@ func CreateNote(object *Note) (*Note, *AppError) {
 	return object, nil
 }
 
-func addNoteToComment(object *Note, manager *MongoManager) (*Note, *AppError) {
-	var dbEntity Comment
+func addNoteToComment(object *model.Note, manager *MongoManager) (*model.Note, *AppError) {
+	var dbEntity model.Comment
 
 	if object.TargetID != "" {
 		if manager.Comments.FindId(object.TargetID).One(&dbEntity); dbEntity.ID == "" {
@@ -61,8 +62,8 @@ func addNoteToComment(object *Note, manager *MongoManager) (*Note, *AppError) {
 	return object, nil
 }
 
-func addNoteToUser(object *Note, manager *MongoManager) (*Note, *AppError) {
-	var dbEntity User
+func addNoteToUser(object *model.Note, manager *MongoManager) (*model.Note, *AppError) {
+	var dbEntity model.User
 
 	if object.TargetID != "" {
 		if manager.Users.FindId(object.TargetID).One(&dbEntity); dbEntity.ID == "" {

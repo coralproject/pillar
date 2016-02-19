@@ -1,19 +1,20 @@
-package crud
+package service
 
 import (
 	"errors"
 	"fmt"
+	"github.com/coralproject/pillar/pkg/model"
 	"gopkg.in/mgo.v2/bson"
 	"net/http"
 )
 
 // CreateAction creates a new action resource
-func CreateAction(object *Action) (*Action, *AppError) {
+func CreateAction(object *model.Action) (*model.Action, *AppError) {
 
 	manager := GetMongoManager()
 	defer manager.Close()
 
-	dbEntity := Action{}
+	dbEntity := model.Action{}
 
 	//return, if exists
 	manager.Actions.FindId(object.ID).One(&dbEntity)
@@ -58,14 +59,14 @@ func CreateAction(object *Action) (*Action, *AppError) {
 	return object, nil
 }
 
-func setReferences(object *Action, manager *MongoManager) error {
+func setReferences(object *model.Action, manager *MongoManager) error {
 
 	//set _id
 	object.ID = bson.NewObjectId()
 
 	//set user_id
 	if object.UserID == "" {
-		var user User
+		var user model.User
 		manager.Users.Find(bson.M{"source.id": object.Source.UserID}).One(&user)
 		if user.ID == "" {
 			err := errors.New("Cannot find user from source: " + object.Source.UserID)
@@ -84,12 +85,12 @@ func setReferences(object *Action, manager *MongoManager) error {
 	return nil
 }
 
-func setTarget(object *Action, manager *MongoManager) error {
+func setTarget(object *model.Action, manager *MongoManager) error {
 
 	//find target and set the reference
 	switch object.Target {
-	case Users:
-		var user User
+	case model.Users:
+		var user model.User
 		manager.Users.Find(bson.M{"source.id": object.Source.TargetID}).One(&user)
 		if user.ID == "" {
 			return errors.New("Cannot find user from source: " + object.Source.TargetID)
@@ -98,8 +99,8 @@ func setTarget(object *Action, manager *MongoManager) error {
 		object.TargetID = user.ID
 		break
 
-	case Comments:
-		var comment Comment
+	case model.Comments:
+		var comment model.Comment
 		manager.Comments.Find(bson.M{"source.id": object.Source.TargetID}).One(&comment)
 		if comment.ID == "" {
 			return errors.New("Cannot find comment from source: " + object.Source.TargetID)
@@ -112,15 +113,15 @@ func setTarget(object *Action, manager *MongoManager) error {
 	return nil
 }
 
-func updateTargetOnAction(object *Action, manager *MongoManager) error {
+func updateTargetOnAction(object *model.Action, manager *MongoManager) error {
 
 	//find target and set the reference
 	switch object.Target {
-	case Users:
+	case model.Users:
 		//update comment with this action
 		return updateUserOnAction(object, manager)
 
-	case Comments:
+	case model.Comments:
 		//update comment with this action
 		return updateCommentOnAction(object, manager)
 	}
