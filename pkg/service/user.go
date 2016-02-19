@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"reflect"
 	"github.com/coralproject/pillar/pkg/model"
+	"errors"
 )
 
 // CreateUser creates a new user resource
@@ -53,7 +54,13 @@ func CreateUser(object *model.User) (*model.User, *AppError) {
 }
 
 //append action to user's actions array and update stats
-func updateUserOnAction(user *model.User, object *model.Action, manager *MongoManager) {
+func updateUserOnAction(object *model.Action, manager *MongoManager) error {
+
+	var user model.User
+	if manager.Users.FindId(object.TargetID).One(&user); user.ID == "" {
+		return errors.New("Cannot update user stats, invalid user " + object.TargetID.String())
+	}
+
 	actions := append(user.Actions, object.ID)
 	if user.Stats[object.Type] == nil {
 		user.Stats[object.Type] = 0
@@ -64,6 +71,8 @@ func updateUserOnAction(user *model.User, object *model.Action, manager *MongoMa
 		bson.M{"_id": user.ID},
 		bson.M{"$set": bson.M{"actions": actions, "stats": user.Stats}},
 	)
+
+	return nil
 }
 
 //update stats on this user for #comments

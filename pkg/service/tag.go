@@ -49,7 +49,6 @@ func UpsertTag(object *model.Tag) (*model.Tag, *AppError) {
 		message := fmt.Sprintf("Error creating tag [%+v]", object)
 		return nil, &AppError{err, message, http.StatusInternalServerError}
 	}
-	fmt.Printf("Tag: %+v\n\n", object)
 
 	return object, nil
 }

@@ -98,7 +98,13 @@ func setCommentReferences(object *model.Comment, manager *MongoManager) error {
 }
 
 //append action to comment's actions array and update stats
-func updateCommentOnAction(comment *model.Comment, object *model.Action, manager *MongoManager) {
+func updateCommentOnAction(object *model.Action, manager *MongoManager) error {
+
+	var comment model.Comment
+	if manager.Comments.FindId(object.TargetID).One(&comment); comment.ID == "" {
+		return errors.New("Cannot update comment stats, invalid comment " + object.TargetID.String())
+	}
+
 	actions := append(comment.Actions, object.ID)
 
 	if comment.Stats == nil {
@@ -114,6 +120,8 @@ func updateCommentOnAction(comment *model.Comment, object *model.Action, manager
 		bson.M{"_id": comment.ID},
 		bson.M{"$set": bson.M{"actions": actions, "stats": comment.Stats}},
 	)
+
+	return nil
 }
 
 //func setActions(object *Comment, manager *MongoManager) error {

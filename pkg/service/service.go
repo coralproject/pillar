@@ -55,8 +55,9 @@ func initDB() {
 
 	mgoSession = session
 
-	//url and source.id on Asset
+	//source.id and target+type+user_id
 	mgoSession.DB("").C(model.Actions).EnsureIndexKey("source.id")
+	mgoSession.DB("").C(model.Actions).EnsureIndexKey("user_id", "target_id", "target", "type")
 
 	//url and source.id on Asset
 	mgoSession.DB("").C(model.Assets).EnsureIndexKey("source.id")
