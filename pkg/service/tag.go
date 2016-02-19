@@ -1,14 +1,15 @@
-package crud
+package service
 
 import (
-	"gopkg.in/mgo.v2/bson"
-	"time"
 	"fmt"
+	"github.com/coralproject/pillar/pkg/model"
+	"gopkg.in/mgo.v2/bson"
 	"net/http"
+	"time"
 )
 
 // CreateTagTargets creates TagTarget entries for various tags on an entity
-func CreateTagTargets(manager *MongoManager, tags []string, tt *TagTarget) error {
+func CreateTagTargets(manager *MongoManager, tags []string, tt *model.TagTarget) error {
 
 	for _, name := range tags {
 
@@ -17,7 +18,7 @@ func CreateTagTargets(manager *MongoManager, tags []string, tt *TagTarget) error
 		tt.DateCreated = time.Now()
 
 		//skip the same entry, if exists
-		dbEntity := TagTarget{}
+		dbEntity := model.TagTarget{}
 		manager.TagTargets.Find(bson.M{"target_id": tt.TargetID, "name": name, "target": tt.Target}).One(&dbEntity)
 		if dbEntity.ID != "" {
 			continue
@@ -32,12 +33,12 @@ func CreateTagTargets(manager *MongoManager, tags []string, tt *TagTarget) error
 }
 
 // UpsertTag adds/updates tags to the master list
-func UpsertTag(object *Tag) (*Tag, *AppError) {
+func UpsertTag(object *model.Tag) (*model.Tag, *AppError) {
 	manager := GetMongoManager()
 	defer manager.Close()
 
 	//set created-date for the new ones
-	var dbEntity Tag
+	var dbEntity model.Tag
 	if manager.Tags.FindId(object.Name).One(&dbEntity); dbEntity.Name == "" {
 		object.DateCreated = time.Now()
 	}
@@ -53,12 +54,12 @@ func UpsertTag(object *Tag) (*Tag, *AppError) {
 }
 
 // GetTags returns an array of tags
-func GetTags() ([]Tag, *AppError) {
+func GetTags() ([]model.Tag, *AppError) {
 	manager := GetMongoManager()
 	defer manager.Close()
 
 	//set created-date for the new ones
-	all := make([]Tag, 0)
+	all := make([]model.Tag, 0)
 	if err := manager.Tags.Find(nil).All(&all); err != nil {
 		message := fmt.Sprintf("Error fetching tags")
 		return nil, &AppError{err, message, http.StatusInternalServerError}
@@ -68,7 +69,7 @@ func GetTags() ([]Tag, *AppError) {
 }
 
 // DeleteTag deletes a tag
-func DeleteTag(object *Tag) *AppError {
+func DeleteTag(object *model.Tag) *AppError {
 	manager := GetMongoManager()
 	defer manager.Close()
 
@@ -86,4 +87,3 @@ func DeleteTag(object *Tag) *AppError {
 
 	return nil
 }
-

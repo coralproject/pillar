@@ -1,8 +1,9 @@
-package crud
+package service
 
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/coralproject/pillar/pkg/model"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 	"log"
@@ -54,25 +55,25 @@ func initDB() {
 
 	mgoSession = session
 
-	//source.id and target+type+user_id
-	mgoSession.DB("").C(Actions).EnsureIndexKey("source.id")
-	mgoSession.DB("").C(Actions).EnsureIndexKey("user_id", "target_id", "target", "type")
+	//source.id and target+type+user_id+target_id
+	mgoSession.DB("").C(model.Actions).EnsureIndexKey("source.id")
+	mgoSession.DB("").C(model.Actions).EnsureIndexKey("user_id", "target_id", "target", "type")
 
 	//url and source.id on Asset
-	mgoSession.DB("").C(Assets).EnsureIndexKey("source.id")
-	mgoSession.DB("").C(Assets).EnsureIndexKey("url")
+	mgoSession.DB("").C(model.Assets).EnsureIndexKey("source.id")
+	mgoSession.DB("").C(model.Assets).EnsureIndexKey("url")
 
 	//source.id on User
-	mgoSession.DB("").C(Users).EnsureIndexKey("source.id")
+	mgoSession.DB("").C(model.Users).EnsureIndexKey("source.id")
 
 	//source.id on Comment
-	mgoSession.DB("").C(Comments).EnsureIndexKey("source.id")
+	mgoSession.DB("").C(model.Comments).EnsureIndexKey("source.id")
 
 	//name on Tag
-	mgoSession.DB("").C(Tags).EnsureIndexKey("name")
+	mgoSession.DB("").C(model.Tags).EnsureIndexKey("name")
 
 	//target_id, name and target,
-	mgoSession.DB("").C(Tags).EnsureIndexKey("target_id", "name", "target")
+	mgoSession.DB("").C(model.Tags).EnsureIndexKey("target_id", "name", "target")
 }
 
 func initIndex() {
@@ -81,7 +82,7 @@ func initIndex() {
 		log.Fatalf("Error opening file %s\n", err.Error())
 	}
 
-	objects := []Index{}
+	objects := []model.Index{}
 	jsonParser := json.NewDecoder(file)
 	if err = jsonParser.Decode(&objects); err != nil {
 		log.Fatalf("Error reading index information %v\n", err)
@@ -102,18 +103,18 @@ func GetMongoManager() *MongoManager {
 
 	manager := MongoManager{}
 	manager.Session = mgoSession.Clone()
-	manager.Users = manager.Session.DB("").C(Users)
-	manager.Assets = manager.Session.DB("").C(Assets)
-	manager.Actions = manager.Session.DB("").C(Actions)
-	manager.Comments = manager.Session.DB("").C(Comments)
-	manager.Tags = manager.Session.DB("").C(Tags)
-	manager.TagTargets = manager.Session.DB("").C(TagTargets)
+	manager.Users = manager.Session.DB("").C(model.Users)
+	manager.Assets = manager.Session.DB("").C(model.Assets)
+	manager.Actions = manager.Session.DB("").C(model.Actions)
+	manager.Comments = manager.Session.DB("").C(model.Comments)
+	manager.Tags = manager.Session.DB("").C(model.Tags)
+	manager.TagTargets = manager.Session.DB("").C(model.TagTargets)
 
 	return &manager
 }
 
 // UpdateMetadata updates metadata for an entity
-func UpdateMetadata(object *Metadata) (interface{}, *AppError) {
+func UpdateMetadata(object *model.Metadata) (interface{}, *AppError) {
 
 	manager := GetMongoManager()
 	defer manager.Close()
@@ -139,7 +140,7 @@ func UpdateMetadata(object *Metadata) (interface{}, *AppError) {
 }
 
 // CreateIndex creates indexes to various entities
-func CreateIndex(object *Index) *AppError {
+func CreateIndex(object *model.Index) *AppError {
 	manager := GetMongoManager()
 	defer manager.Close()
 

@@ -1,8 +1,9 @@
-package crud
+package service
 
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/coralproject/pillar/pkg/model"
 	"os"
 	"testing"
 )
@@ -33,7 +34,7 @@ func TestCreateAsset(t *testing.T) {
 		fmt.Println("opening config file", err.Error())
 	}
 
-	objects := []Asset{}
+	objects := []model.Asset{}
 	jsonParser := json.NewDecoder(file)
 	if err = jsonParser.Decode(&objects); err != nil {
 		fmt.Println("Error reading asset data", err.Error())
@@ -61,7 +62,7 @@ func TestCreateUser(t *testing.T) {
 		fmt.Println("opening config file", err.Error())
 	}
 
-	objects := []User{}
+	objects := []model.User{}
 	jsonParser := json.NewDecoder(file)
 	if err = jsonParser.Decode(&objects); err != nil {
 		fmt.Println("Error reading user data", err.Error())
@@ -88,7 +89,7 @@ func TestCreateComments(t *testing.T) {
 		fmt.Println("opening config file", err.Error())
 	}
 
-	objects := []Comment{}
+	objects := []model.Comment{}
 	jsonParser := json.NewDecoder(file)
 	if err = jsonParser.Decode(&objects); err != nil {
 		fmt.Println("Error reading user data", err.Error())
@@ -115,7 +116,7 @@ func TestCreateActions(t *testing.T) {
 		fmt.Println("opening config file", err.Error())
 	}
 
-	objects := []Action{}
+	objects := []model.Action{}
 	jsonParser := json.NewDecoder(file)
 	if err = jsonParser.Decode(&objects); err != nil {
 		fmt.Println("Error reading user data", err.Error())
@@ -143,7 +144,7 @@ func TestCreateIndexes(t *testing.T) {
 		fmt.Println("opening config file", err.Error())
 	}
 
-	objects := []Index{}
+	objects := []model.Index{}
 	jsonParser := json.NewDecoder(file)
 	if err = jsonParser.Decode(&objects); err != nil {
 		fmt.Println("Error reading index data", err.Error())
@@ -163,7 +164,7 @@ func TestUpdateMetadata(t *testing.T) {
 		fmt.Println("opening config file", err.Error())
 	}
 
-	objects := []Metadata{}
+	objects := []model.Metadata{}
 	jsonParser := json.NewDecoder(file)
 	if err = jsonParser.Decode(&objects); err != nil {
 		fmt.Println("Error reading metadata ", err.Error())
@@ -183,7 +184,7 @@ func TestUpsertTag(t *testing.T) {
 		fmt.Println("opening config file", err.Error())
 	}
 
-	objects := []Tag{}
+	objects := []model.Tag{}
 	jsonParser := json.NewDecoder(file)
 	if err = jsonParser.Decode(&objects); err != nil {
 		fmt.Println("Error reading tags ", err.Error())
@@ -215,4 +216,3 @@ func TestDeleteAllTag(t *testing.T) {
 		t.Fail()
 	}
 }
-

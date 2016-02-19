@@ -1,23 +1,24 @@
-package crud
+package service
 
 import (
 	"errors"
 	"fmt"
+	"github.com/coralproject/pillar/pkg/model"
 	"gopkg.in/mgo.v2/bson"
 	"net/http"
 	"reflect"
 )
 
-var commenter User
+var commenter model.User
 
 // CreateComment creates a new comment resource
-func CreateComment(object *Comment) (*Comment, *AppError) {
+func CreateComment(object *model.Comment) (*model.Comment, *AppError) {
 
 	// Insert Comment
 	manager := GetMongoManager()
 	defer manager.Close()
 
-	var dbEntity Comment
+	var dbEntity model.Comment
 
 	//return, if exists
 	if manager.Comments.FindId(object.ID).One(&dbEntity); dbEntity.ID != "" {
@@ -51,7 +52,7 @@ func CreateComment(object *Comment) (*Comment, *AppError) {
 
 	updateUserOnComment(&commenter, manager)
 
-	err := CreateTagTargets(manager, object.Tags, &TagTarget{Target:Comments, TargetID:object.ID})
+	err := CreateTagTargets(manager, object.Tags, &model.TagTarget{Target: model.Comments, TargetID: object.ID})
 	if err != nil {
 		message := fmt.Sprintf("Error creating TagStat [%s]", err)
 		return nil, &AppError{nil, message, http.StatusInternalServerError}
@@ -60,9 +61,9 @@ func CreateComment(object *Comment) (*Comment, *AppError) {
 	return object, nil
 }
 
-func setCommentReferences(object *Comment, manager *MongoManager) error {
+func setCommentReferences(object *model.Comment, manager *MongoManager) error {
 	//find asset and add the reference to it
-	var asset Asset
+	var asset model.Asset
 	manager.Assets.Find(bson.M{"source.id": object.Source.AssetID}).One(&asset)
 	if asset.ID == "" {
 		manager.Assets.Find(bson.M{"url": object.Source.AssetID}).One(&asset)
@@ -82,7 +83,7 @@ func setCommentReferences(object *Comment, manager *MongoManager) error {
 
 	//find parent and add the reference to it
 	if object.Source.ID != object.Source.ParentID {
-		var parent Comment
+		var parent model.Comment
 		manager.Comments.Find(bson.M{"source.parent_id": object.Source.ParentID}).One(&parent)
 		if parent.ID != "" {
 			object.ParentID = parent.ID
@@ -97,9 +98,9 @@ func setCommentReferences(object *Comment, manager *MongoManager) error {
 }
 
 //append action to comment's actions array and update stats
-func updateCommentOnAction(object *Action, manager *MongoManager) error {
+func updateCommentOnAction(object *model.Action, manager *MongoManager) error {
 
-	var comment Comment
+	var comment model.Comment
 	if manager.Comments.FindId(object.TargetID).One(&comment); comment.ID == "" {
 		return errors.New("Cannot update comment stats, invalid comment " + object.TargetID.String())
 	}

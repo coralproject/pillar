@@ -3,11 +3,12 @@ package handler
 import (
 	"encoding/json"
 	"github.com/coralproject/pillar/app/pillar/config"
-	"github.com/coralproject/pillar/pkg/crud"
+	"github.com/coralproject/pillar/pkg/service"
+	"github.com/coralproject/pillar/pkg/model"
 	"net/http"
 )
 
-func doRespond(w http.ResponseWriter, object interface{}, appErr *crud.AppError) {
+func doRespond(w http.ResponseWriter, object interface{}, appErr *service.AppError) {
 	if appErr != nil {
 		config.Logger.Printf("Call failed [%s]", appErr.Message)
 		http.Error(w, appErr.Message, appErr.Code)
@@ -27,11 +28,11 @@ func doRespond(w http.ResponseWriter, object interface{}, appErr *crud.AppError)
 
 func CreateIndex(w http.ResponseWriter, r *http.Request) {
 	//Get the user from request
-	jsonObject := crud.Index{}
+	jsonObject := model.Index{}
 	json.NewDecoder(r.Body).Decode(&jsonObject)
 
 	// Write content-type, status code and payload
 	w.Header().Set("Content-Type", "application/json")
-	err := crud.CreateIndex(&jsonObject)
+	err := service.CreateIndex(&jsonObject)
 	doRespond(w, nil, err)
 }
