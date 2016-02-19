@@ -1,15 +1,15 @@
 # Pillar Server
-The backend service layer is a REST based web-service module written in golang. It provides the following services:
+Pillar is a REST based web-service module written in golang. It provides the following services:
 
 * Imports external data into the coral data model
 * Allows CRUD operation on coral data model
 * Provides simple queries on coral data model
 
 **Important**
-The Server interacts with a Mongo DB instance and this information must be provided through an environment variable. Use the following format:
+You can configure the server using three environment variables. See ```config/dev.cfg``` file as an example. Make changes to the config file as needed and source it as follows
 
 ~~~
-ENV MONGODB_URL mongodb://<user>:<password>@<host>:<port>/coral
+> source config/dev.cfg
 ~~~
 
 
@@ -74,24 +74,25 @@ Imports a ```Comment``` from an external system and the caller must pass a json 
 
 
 ## Pillar Server as a Docker Container
-You may want to skip this if you're not comfortable with Docker. This section helps you build and run a docker image of the Pillar Server.
+Skip this section if you're not familiar or comfortable with Docker. This section helps you build and run a docker image of the Pillar Server.
 
 
 ### Create a Server Docker Image (Optional)
 
 ~~~
-> cd $GOPATH/src/github.com/coralproject/pillar/app/pillar
+> cd $GOPATH/src/github.com/coralproject/pillar
 > docker build -t pillar-server:1.0 .
 ~~~
 
 ### Run Server Container
 Find the Docker Image with tag pillar-server:0.1 and run the IMAGE_ID.
 
-You must pass the environment variables needed to run Pillar, using the env.list file
+You must pass the environment variables needed to run Pillar, using the env.list file. See ```config/dev.cfg``` file as an example. 
 
 ~~~
-PILLAR_HOME=/opt/pillar
-MONGODB_URL=mongodb://192.xxx.xxx.xxx:27017/coral
+export PILLAR_ADDRESS=:8080
+export PILLAR_HOME=/opt/pillar
+export MONGODB_URL=mongodb://user:password@host:port/coral
 ~~~
 
 Find the image id for ```pillar-server``` and run using the command below:
