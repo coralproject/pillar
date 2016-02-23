@@ -9,13 +9,14 @@ import (
 )
 
 const (
-	dataUsers    = "fixtures/users.json"
-	dataAssets   = "fixtures/assets.json"
-	dataComments = "fixtures/comments.json"
-	dataActions  = "fixtures/actions.json"
-	dataIndexes  = "fixtures/indexes.json"
-	dataMetadata = "fixtures/metadata.json"
-	dataTags     = "fixtures/tags.json"
+	dataUsers       = "fixtures/users.json"
+	dataAssets      = "fixtures/assets.json"
+	dataComments    = "fixtures/comments.json"
+	dataActions     = "fixtures/actions.json"
+	dataIndexes     = "fixtures/indexes.json"
+	dataMetadata    = "fixtures/metadata.json"
+	dataTags        = "fixtures/tags.json"
+	dataUserActions = "fixtures/user-actions.json"
 )
 
 func init() {
@@ -26,6 +27,7 @@ func init() {
 	mm.Comments.RemoveAll(nil)
 	mm.Users.RemoveAll(nil)
 	mm.Assets.RemoveAll(nil)
+	mm.UserActions.RemoveAll(nil)
 }
 
 func TestCreateAsset(t *testing.T) {
@@ -214,5 +216,26 @@ func TestDeleteAllTag(t *testing.T) {
 	objects, err := GetTags()
 	if err != nil || len(objects) != 0 {
 		t.Fail()
+	}
+}
+
+func TestUserActions(t *testing.T) {
+	file, err := os.Open(dataUserActions)
+	if err != nil {
+		fmt.Println("opening config file", err.Error())
+	}
+
+	objects := []model.UserAction{}
+	jsonParser := json.NewDecoder(file)
+	if err = jsonParser.Decode(&objects); err != nil {
+		fmt.Println("Error reading user-actions ", err.Error())
+	}
+
+	for _, one := range objects {
+		err := CreateUserAction(&one)
+		if err != nil {
+			fmt.Printf("%+v", err)
+			t.Fail()
+		}
 	}
 }

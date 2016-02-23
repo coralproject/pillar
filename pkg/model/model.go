@@ -4,6 +4,7 @@ import (
 	"gopkg.in/bluesuncorp/validator.v6"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
+	"time"
 )
 
 // validate is used to perform model field validation.
@@ -27,12 +28,13 @@ const (
 	StatsComments string = "comments"
 
 	//Various Collections
-	Users      string = "users"
-	Assets     string = "assets"
-	Actions    string = "actions"
-	Comments   string = "comments"
-	Tags       string = "tags"
-	TagTargets string = "tag_targets"
+	Users       string = "users"
+	Assets      string = "assets"
+	Actions     string = "actions"
+	Comments    string = "comments"
+	Tags        string = "tags"
+	TagTargets  string = "tag_targets"
+	UserActions string = "cay_user_actions"
 )
 
 // ImportSource encapsulates all original id from the source system
@@ -58,4 +60,11 @@ type Metadata struct {
 type Index struct {
 	Target string    `json:"target" bson:"target" validate:"required"`
 	Index  mgo.Index `json:"index" bson:"index" validate:"required"`
+}
+
+type UserAction struct {
+	ID      bson.ObjectId `json:"id" bson:"_id"`
+	Date    time.Time     `json:"date" bson:"date" validate:"required"`
+	Data    bson.M        `json:"data" bson:"data" validate:"required"`
+	Release string        `json:"release" bson:"release" validate:"required"`
 }
