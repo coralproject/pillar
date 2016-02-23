@@ -27,12 +27,23 @@ func doRespond(w http.ResponseWriter, object interface{}, appErr *service.AppErr
 }
 
 func CreateIndex(w http.ResponseWriter, r *http.Request) {
-	//Get the user from request
+	//Get the Index from request
 	jsonObject := model.Index{}
 	json.NewDecoder(r.Body).Decode(&jsonObject)
 
 	// Write content-type, status code and payload
 	w.Header().Set("Content-Type", "application/json")
 	err := service.CreateIndex(&jsonObject)
+	doRespond(w, nil, err)
+}
+
+func HandleUserAction(w http.ResponseWriter, r *http.Request) {
+	//Get the UserAction from request
+	jsonObject := model.UserAction{}
+	json.NewDecoder(r.Body).Decode(&jsonObject)
+
+	// Write content-type, status code and payload
+	w.Header().Set("Content-Type", "application/json")
+	err := service.CreateUserAction(&jsonObject)
 	doRespond(w, nil, err)
 }
