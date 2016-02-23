@@ -29,4 +29,7 @@ var routes = []Route{
 	Route{"GET",    "/api/tags", handler.GetTags},
 	Route{"POST",   "/api/tag", handler.UpsertTag},
 	Route{"DELETE", "/api/tag", handler.DeleteTag},
+
+	//Manage User Activities
+	Route{"POST",   "/api/cay/useraction", handler.HandleUserAction},
 }

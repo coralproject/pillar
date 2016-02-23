@@ -1,0 +1,15 @@
+[
+    {
+        "data": {
+            "cookie": "aejfkjefljef",
+            "user": "f2582294-a4c1-461a-982f-9e63dffbae6a",
+            "url" : "http://a.b.c"
+        }
+    },
+    {
+        "data": {
+            "foo": "aejfkjefljef",
+            "bar": "f2582294-a4c1-461a-982f-9e63dffbae6a"
+        }
+    }
+]
