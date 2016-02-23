@@ -39,7 +39,7 @@ func CreateIndex(w http.ResponseWriter, r *http.Request) {
 
 func HandleUserAction(w http.ResponseWriter, r *http.Request) {
 	//Get the UserAction from request
-	jsonObject := model.UserAction{}
+	jsonObject := model.CayUserAction{}
 	json.NewDecoder(r.Body).Decode(&jsonObject)
 
 	// Write content-type, status code and payload
