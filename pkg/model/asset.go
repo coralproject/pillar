@@ -10,7 +10,9 @@ type Asset struct {
 	ID         bson.ObjectId `json:"id" bson:"_id"`
 	URL        string        `json:"url" bson:"url" validate:"required"`
 	Tags       []string      `json:"tags,omitempty" bson:"tags,omitempty"`
-	Taxonomies []Taxonomy    `json:"taxonomies,omitempty" bson:"taxonomies,omitempty"`
+	Authors    []Author      `json:"authors,omitempty" bson:"authors,omitempty"`
+	Section    string        `json:"section,omitempty" bson:"section,omitempty"`
+	Subsection string        `json:"subsection,omitempty" bson:"subsection,omitempty"`
 	Source     ImportSource  `json:"source" bson:"source"`
 	Metadata   bson.M        `json:"metadata,omitempty" bson:"metadata,omitempty"`
 }
