@@ -29,14 +29,14 @@ var (
 
 // MongoManager encapsulates a mongo session with all relevant collections
 type MongoManager struct {
-	Session    *mgo.Session
-	Assets     *mgo.Collection
-	Users      *mgo.Collection
-	Actions    *mgo.Collection
-	Comments   *mgo.Collection
-	Tags       *mgo.Collection
-	TagTargets *mgo.Collection
-	UserActions *mgo.Collection
+	Session        *mgo.Session
+	Assets         *mgo.Collection
+	Users          *mgo.Collection
+	Actions        *mgo.Collection
+	Comments       *mgo.Collection
+	Tags           *mgo.Collection
+	TagTargets     *mgo.Collection
+	CayUserActions *mgo.Collection
 }
 
 //Close closes the mongodb session; must be called, else the session remain open
@@ -111,7 +111,7 @@ func GetMongoManager() *MongoManager {
 	manager.Comments = manager.Session.DB("").C(model.Comments)
 	manager.Tags = manager.Session.DB("").C(model.Tags)
 	manager.TagTargets = manager.Session.DB("").C(model.TagTargets)
-	manager.UserActions = manager.Session.DB("").C(model.UserActions)
+	manager.CayUserActions = manager.Session.DB("").C(model.CayUserActions)
 
 	return &manager
 }
@@ -157,7 +157,7 @@ func CreateIndex(object *model.Index) *AppError {
 }
 
 // CreateUserAction inserts an activity by the user
-func CreateUserAction(object *model.UserAction) *AppError {
+func CreateUserAction(object *model.CayUserAction) *AppError {
 	manager := GetMongoManager()
 	defer manager.Close()
 
@@ -166,7 +166,7 @@ func CreateUserAction(object *model.UserAction) *AppError {
 	if object.Release == "" {
 		object.Release = "0.1.0"
 	}
-	err := manager.UserActions.Insert(object)
+	err := manager.CayUserActions.Insert(object)
 	if err != nil {
 		message := fmt.Sprintf("Error creating user-action [%s]", err)
 		return &AppError{err, message, http.StatusInternalServerError}

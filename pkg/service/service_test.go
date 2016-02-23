@@ -27,7 +27,7 @@ func init() {
 	mm.Comments.RemoveAll(nil)
 	mm.Users.RemoveAll(nil)
 	mm.Assets.RemoveAll(nil)
-	mm.UserActions.RemoveAll(nil)
+	mm.CayUserActions.RemoveAll(nil)
 }
 
 func TestCreateAsset(t *testing.T) {
@@ -225,7 +225,7 @@ func TestUserActions(t *testing.T) {
 		fmt.Println("opening config file", err.Error())
 	}
 
-	objects := []model.UserAction{}
+	objects := []model.CayUserAction{}
 	jsonParser := json.NewDecoder(file)
 	if err = jsonParser.Decode(&objects); err != nil {
 		fmt.Println("Error reading user-actions ", err.Error())
