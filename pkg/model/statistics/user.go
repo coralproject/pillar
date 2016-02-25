@@ -2,7 +2,11 @@ package statistics
 
 import (
 	"golang.org/x/net/context"
+	"log"
 
+	"github.com/coralproject/pillar/pkg/aggregate"
+	"github.com/coralproject/pillar/pkg/backend"
+	"github.com/coralproject/pillar/pkg/backend/iterator"
 	"github.com/coralproject/pillar/pkg/model"
 )
 
@@ -19,10 +23,10 @@ type UserStatistics struct {
 }
 
 type UserStatisticsAccumulator struct {
-	Comments *CommentDimensionsAccumulator
+	Comments aggregate.Accumulator
 }
 
-func NewUserStatisticsAccumulator() *UserStatisticsAccumulator {
+func NewUserStatisticsAccumulator() aggregate.Accumulator {
 	return &UserStatisticsAccumulator{
 		Comments: NewCommentDimensionsAccumulator(),
 	}
@@ -36,7 +40,68 @@ func (a *UserStatisticsAccumulator) Combine(object interface{}) {
 	a.Comments.Combine(object)
 }
 
+func (a *UserStatisticsAccumulator) UserStatistics() *UserStatistics {
+	//
+	return &UserStatistics{}
+}
+
 type User struct {
 	*model.User `bson:",inline"`
 	Statistics  *UserStatistics `json:"stats" bson:"stats"`
+}
+
+type UserAccumulator struct {
+}
+
+func NewUserAccumulator() aggregate.Accumulator {
+	return &UserAccumulator{}
+}
+
+func (a *UserAccumulator) Accumulate(ctx context.Context, object interface{}) {
+
+	user_id, ok := object.(string)
+	if !ok {
+		return
+	}
+
+	b, ok := ctx.Value("backend").(backend.Backend)
+	if !ok {
+		return
+	}
+
+	iter, err := b.Find("comments", map[string]interface{}{"user_id": user_id})
+	if err != nil {
+		return
+	}
+
+	comments := make(chan interface{})
+
+	go func() {
+		defer close(comments)
+		if err := iterator.Each(iter, func(doc interface{}) error {
+
+			// Assert that the document is the type we expect.
+			comment, ok := doc.(*model.Comment)
+			if !ok {
+				return backend.BackendTypeError
+			}
+
+			comments <- comment
+			return nil
+		}); err != nil {
+			return
+		}
+	}()
+
+	accumulator := aggregate.Pipeline(ctx, comments, NewUserStatisticsAccumulator)
+	UserStatisticsAccumulator, ok := accumulator.(*UserStatisticsAccumulator)
+	if !ok {
+		return
+	}
+
+	log.Println(UserStatisticsAccumulator.UserStatistics())
+}
+
+func (a *UserAccumulator) Combine(object interface{}) {
+	// Noop.
 }
