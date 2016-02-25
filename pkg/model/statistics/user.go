@@ -4,9 +4,12 @@ import (
 	"github.com/coralproject/pillar/pkg/model"
 )
 
-type UserActions struct{}
+type UserActions struct {
+	Performed *ActionDimensions "json:performed bson:performed"
+	Received  *ActionDimensions "json:received bson:received"
+}
 
-type UserComments struct{}
+type UserComments CommentDimensions
 
 type UserStatistics struct {
 	Actions  *UserActions  `json:"actions" bson:"actions"`
