@@ -26,7 +26,7 @@ type CommentStatisticsAccumulator struct {
 	Counts, RepliedComments, RepliedUsers, ReplyComments, ReplyUsers aggregate.Int
 }
 
-func NewCommentStatisticsAccumulator(ctx context.Context) *CommentStatisticsAccumulator {
+func NewCommentStatisticsAccumulator() *CommentStatisticsAccumulator {
 	return &CommentStatisticsAccumulator{
 		Counts:          aggregate.NewInt(),
 		RepliedComments: aggregate.NewInt(),
@@ -34,6 +34,10 @@ func NewCommentStatisticsAccumulator(ctx context.Context) *CommentStatisticsAccu
 		ReplyComments:   aggregate.NewInt(),
 		ReplyUsers:      aggregate.NewInt(),
 	}
+}
+
+func (a *CommentStatisticsAccumulator) Accumulate(ctx context.Context, object interface{}) {
+
 }
 
 type CommentDimensions struct {

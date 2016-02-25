@@ -17,13 +17,17 @@ type ActionStatisticsAccumulator struct {
 	Counts, Comments, Assets, Users aggregate.Int
 }
 
-func NewActionStatisticsAccumulator(ctx context.Context) *ActionStatisticsAccumulator {
+func NewActionStatisticsAccumulator() *ActionStatisticsAccumulator {
 	return &ActionStatisticsAccumulator{
 		Counts:   aggregate.NewInt(),
 		Comments: aggregate.NewInt(),
 		Assets:   aggregate.NewInt(),
 		Users:    aggregate.NewInt(),
 	}
+}
+
+func (a *ActionStatisticsAccumulator) Accumulate(ctx context.Context, object interface{}) {
+
 }
 
 type ActionDimensions struct {
