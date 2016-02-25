@@ -91,3 +91,25 @@ func updateUserOnComment(user *model.User, manager *MongoManager) {
 		bson.M{"$set": bson.M{"stats": user.Stats}},
 	)
 }
+
+// CreateUpdateUser creates/updates a user
+func CreateUpdateUser(object *model.User) (*model.User, *AppError) {
+	manager := GetMongoManager()
+	defer manager.Close()
+
+	dbEntity := model.User{}
+	//entity not found, return
+	manager.Users.FindId(object.ID).One(&dbEntity)
+	if dbEntity.ID == "" {
+		message := fmt.Sprintf("User not found [%+v]\n", object)
+		return nil, &AppError{nil, message, http.StatusInternalServerError}
+	}
+
+	if err := manager.Users.UpdateId(dbEntity.ID, bson.M{"$set": bson.M{"tags": object.Tags}}); err != nil {
+		message := fmt.Sprintf("Error updating user [%+v]\n", object)
+		return nil, &AppError{nil, message, http.StatusInternalServerError}
+	}
+
+	return object, nil
+}
+

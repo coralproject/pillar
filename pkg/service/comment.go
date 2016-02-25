@@ -132,46 +132,23 @@ func updateCommentOnAction(object *model.Action, manager *MongoManager) error {
 	return nil
 }
 
-//func setActions(object *Comment, manager *MongoManager) error {
-//	var user User
-//	var invalidUsers []string
-//
-//	for i := 0; i < len(object.Actions); i++ {
-//		one := &object.Actions[i]
-//		manager.Users.Find(bson.M{"source.id": one.Source.UserID}).One(&user)
-//		if user.ID == "" {
-//			invalidUsers = append(invalidUsers, one.Source.UserID)
-//			continue
-//		}
-//
-//		one.UserID = user.ID
-//	}
-//
-//	if len(invalidUsers) > 0 {
-//		return errors.New("Error setting comment actions - Cannot find users")
-//	}
-//
-//	return nil
-//}
+// CreateUpdateComment creates/updates a comment
+func CreateUpdateComment(object *model.Comment) (*model.Comment, *AppError) {
+	manager := GetMongoManager()
+	defer manager.Close()
 
-//func setNotes(object *Comment, manager *MongoManager) error {
-//	var user User
-//	var invalidUsers []string
-//
-//	for i := 0; i < len(object.Notes); i++ {
-//		one := &object.Notes[i]
-//		manager.Users.Find(bson.M{"source.id": one.SourceUserID}).One(&user)
-//		if user.ID == "" {
-//			invalidUsers = append(invalidUsers, one.SourceUserID)
-//			continue
-//		}
-//
-//		one.UserID = user.ID
-//	}
-//
-//	if len(invalidUsers) > 0 {
-//		return errors.New("Error setting comment notes - Cannot find users")
-//	}
-//
-//	return nil
-//}
+	dbEntity := model.Comment{}
+	//entity not found, return
+	manager.Comments.FindId(object.ID).One(&dbEntity)
+	if dbEntity.ID == "" {
+		message := fmt.Sprintf("Comment not found [%+v]\n", object)
+		return nil, &AppError{nil, message, http.StatusInternalServerError}
+	}
+
+	if err := manager.Comments.UpdateId(dbEntity.ID, bson.M{"$set": bson.M{"tags": object.Tags}}); err != nil {
+		message := fmt.Sprintf("Error updating comment [%+v]\n", object)
+		return nil, &AppError{nil, message, http.StatusInternalServerError}
+	}
+
+	return object, nil
+}
