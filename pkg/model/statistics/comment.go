@@ -87,3 +87,33 @@ type CommentDimensions struct {
 	All   *CommentStatistics
 	Types map[string]*CommentStatistics `json:"types" bson:",inline"`
 }
+
+type CommentDimensionsAccumulator struct {
+	All   *CommentStatisticsAccumulator
+	Types map[string]*CommentStatisticsAccumulator
+}
+
+func NewCommentDimensionsAccumulator() *CommentDimensionsAccumulator {
+	return &CommentDimensionsAccumulator{
+		All:   NewCommentStatisticsAccumulator(),
+		Types: make(map[string]*CommentStatisticsAccumulator),
+	}
+}
+
+func (a *CommentDimensionsAccumulator) Accumulate(ctx context.Context, object interface{}) {
+	a.All.Accumulate(ctx, object)
+
+	// Handle types
+}
+
+func (a *CommentDimensionsAccumulator) Combine(object interface{}) {
+	switch typedObject := object.(type) {
+	default:
+		// May want to log here to indicate an unhandleable object.
+	case *CommentDimensionsAccumulator:
+		a.All.Combine(object)
+		for key, value := range typedObject.Types {
+			a.Types[key].Combine(value)
+		}
+	}
+}
