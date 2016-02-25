@@ -27,7 +27,7 @@ type CommentStatisticsAccumulator struct {
 	Counts, RepliedComments, RepliedUsers, ReplyComments, ReplyUsers aggregate.Int
 }
 
-func NewCommentStatisticsAccumulator() aggregate.Accumulator {
+func NewCommentStatisticsAccumulator() *CommentStatisticsAccumulator {
 	return &CommentStatisticsAccumulator{
 		Counts:          aggregate.NewInt(),
 		RepliedComments: aggregate.NewInt(),
@@ -89,14 +89,14 @@ type CommentDimensions struct {
 }
 
 type CommentDimensionsAccumulator struct {
-	All   aggregate.Accumulator
-	Types map[string]aggregate.Accumulator
+	All   *CommentStatisticsAccumulator
+	Types map[string]*CommentStatisticsAccumulator
 }
 
-func NewCommentDimensionsAccumulator() aggregate.Accumulator {
+func NewCommentDimensionsAccumulator() *CommentDimensionsAccumulator {
 	return &CommentDimensionsAccumulator{
 		All:   NewCommentStatisticsAccumulator(),
-		Types: make(map[string]aggregate.Accumulator),
+		Types: make(map[string]*CommentStatisticsAccumulator),
 	}
 }
 
@@ -115,5 +115,17 @@ func (a *CommentDimensionsAccumulator) Combine(object interface{}) {
 		for key, value := range typedObject.Types {
 			a.Types[key].Combine(value)
 		}
+	}
+}
+
+func (a *CommentDimensionsAccumulator) CommentDimensions() *CommentDimensions {
+	types := make(map[string]*CommentStatistics)
+	for key, value := range a.Types {
+		types[key] = value.CommentStatistics()
+	}
+
+	return &CommentDimensions{
+		All:   a.All.CommentStatistics(),
+		Types: types,
 	}
 }

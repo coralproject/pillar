@@ -15,18 +15,16 @@ type UserActions struct {
 	Received  *ActionDimensions `json:"received" bson:"received"`
 }
 
-type UserComments CommentDimensions
-
 type UserStatistics struct {
-	Actions  *UserActions  `json:"actions" bson:"actions"`
-	Comments *UserComments `json:"comments" bson:"comments"`
+	Actions  *UserActions       `json:"actions" bson:"actions"`
+	Comments *CommentDimensions `json:"comments" bson:"comments"`
 }
 
 type UserStatisticsAccumulator struct {
-	Comments aggregate.Accumulator
+	Comments *CommentDimensionsAccumulator
 }
 
-func NewUserStatisticsAccumulator() aggregate.Accumulator {
+func NewUserStatisticsAccumulator() *UserStatisticsAccumulator {
 	return &UserStatisticsAccumulator{
 		Comments: NewCommentDimensionsAccumulator(),
 	}
@@ -41,8 +39,9 @@ func (a *UserStatisticsAccumulator) Combine(object interface{}) {
 }
 
 func (a *UserStatisticsAccumulator) UserStatistics() *UserStatistics {
-	//
-	return &UserStatistics{}
+	return &UserStatistics{
+		Comments: a.Comments.CommentDimensions(),
+	}
 }
 
 type User struct {
@@ -53,7 +52,7 @@ type User struct {
 type UserAccumulator struct {
 }
 
-func NewUserAccumulator() aggregate.Accumulator {
+func NewUserAccumulator() *UserAccumulator {
 	return &UserAccumulator{}
 }
 
@@ -93,7 +92,10 @@ func (a *UserAccumulator) Accumulate(ctx context.Context, object interface{}) {
 		}
 	}()
 
-	accumulator := aggregate.Pipeline(ctx, comments, NewUserStatisticsAccumulator)
+	accumulator := aggregate.Pipeline(ctx, comments,
+		func() aggregate.Accumulator { return NewUserStatisticsAccumulator() },
+	)
+
 	UserStatisticsAccumulator, ok := accumulator.(*UserStatisticsAccumulator)
 	if !ok {
 		return
