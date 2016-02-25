@@ -27,7 +27,7 @@ type CommentStatisticsAccumulator struct {
 	Counts, RepliedComments, RepliedUsers, ReplyComments, ReplyUsers aggregate.Int
 }
 
-func NewCommentStatisticsAccumulator() *CommentStatisticsAccumulator {
+func NewCommentStatisticsAccumulator() aggregate.Accumulator {
 	return &CommentStatisticsAccumulator{
 		Counts:          aggregate.NewInt(),
 		RepliedComments: aggregate.NewInt(),
@@ -89,14 +89,14 @@ type CommentDimensions struct {
 }
 
 type CommentDimensionsAccumulator struct {
-	All   *CommentStatisticsAccumulator
-	Types map[string]*CommentStatisticsAccumulator
+	All   aggregate.Accumulator
+	Types map[string]aggregate.Accumulator
 }
 
-func NewCommentDimensionsAccumulator() *CommentDimensionsAccumulator {
+func NewCommentDimensionsAccumulator() aggregate.Accumulator {
 	return &CommentDimensionsAccumulator{
 		All:   NewCommentStatisticsAccumulator(),
-		Types: make(map[string]*CommentStatisticsAccumulator),
+		Types: make(map[string]aggregate.Accumulator),
 	}
 }
 
