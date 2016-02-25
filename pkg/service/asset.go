@@ -58,3 +58,21 @@ func CreateAsset(object *model.Asset) (*model.Asset, *AppError) {
 
 	return object, nil
 }
+
+//update stats on this asset for #comments
+func updateAssetOnComment(asset *model.Asset, manager *MongoManager) {
+	if asset.Stats == nil {
+		asset.Stats = make(map[string]interface{})
+	}
+
+	if asset.Stats[model.StatsComments] == nil {
+		asset.Stats[model.StatsComments] = 0
+	}
+
+	asset.Stats[model.StatsComments] = asset.Stats[model.StatsComments].(int) + 1
+	manager.Assets.Update(
+		bson.M{"_id": asset.ID},
+		bson.M{"$set": bson.M{"stats": asset.Stats}},
+	)
+}
+

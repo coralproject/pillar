@@ -9,7 +9,11 @@ import (
 	"reflect"
 )
 
-var commenter model.User
+type reference struct {
+	asset *model.Asset
+	user  *model.User
+}
+var ref reference
 
 // CreateComment creates a new comment resource
 func CreateComment(object *model.Comment) (*model.Comment, *AppError) {
@@ -26,6 +30,7 @@ func CreateComment(object *model.Comment) (*model.Comment, *AppError) {
 		return nil, &AppError{nil, message, http.StatusInternalServerError}
 	}
 
+	object.ID = bson.NewObjectId()
 	if err := setCommentReferences(object, manager); err != nil {
 		message := fmt.Sprintf("Error setting comment references [%s]", err)
 		return nil, &AppError{nil, message, http.StatusInternalServerError}
@@ -35,7 +40,7 @@ func CreateComment(object *model.Comment) (*model.Comment, *AppError) {
 	manager.Comments.Find(bson.M{"source.id": object.Source.ID}).One(&dbEntity)
 	if dbEntity.ID != "" {
 		object.ID = dbEntity.ID
-		_, err := manager.Users.UpsertId(dbEntity.ID, object)
+		_, err := manager.Comments.UpsertId(dbEntity.ID, object)
 		if err != nil {
 			message := fmt.Sprintf("Error updating existing Comment [%s], %s", object.Source.ID, err)
 			return nil, &AppError{err, message, http.StatusInternalServerError}
@@ -44,13 +49,13 @@ func CreateComment(object *model.Comment) (*model.Comment, *AppError) {
 	}
 
 	//Insert new comment
-	object.ID = bson.NewObjectId()
 	if err := manager.Comments.Insert(object); err != nil {
 		message := fmt.Sprintf("Error creating comments [%s]", err)
 		return nil, &AppError{nil, message, http.StatusInternalServerError}
 	}
 
-	updateUserOnComment(&commenter, manager)
+	updateUserOnComment(ref.user, manager)
+	updateAssetOnComment(ref.asset, manager)
 
 	err := CreateTagTargets(manager, object.Tags, &model.TagTarget{Target: model.Comments, TargetID: object.ID})
 	if err != nil {
@@ -72,14 +77,17 @@ func setCommentReferences(object *model.Comment, manager *MongoManager) error {
 		return errors.New("Cannot find asset from source: " + object.Source.AssetID)
 	}
 	object.AssetID = asset.ID
+	ref.asset = &asset
 
 	//find user and add the reference to it
-	manager.Users.Find(bson.M{"source.id": object.Source.UserID}).One(&commenter)
-	if commenter.ID == "" {
+	var user model.User
+	manager.Users.Find(bson.M{"source.id": object.Source.UserID}).One(&user)
+	if user.ID == "" {
 		err := errors.New("Cannot find user from source: " + object.Source.UserID)
 		return err
 	}
-	object.UserID = commenter.ID
+	object.UserID = user.ID
+	ref.user = &user
 
 	//find parent and add the reference to it
 	if object.Source.ID != object.Source.ParentID {
