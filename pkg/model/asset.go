@@ -14,6 +14,7 @@ type Asset struct {
 	Section    string        `json:"section,omitempty" bson:"section,omitempty"`
 	Subsection string        `json:"subsection,omitempty" bson:"subsection,omitempty"`
 	Source     ImportSource  `json:"source" bson:"source"`
+	Stats      bson.M        `json:"stats,omitempty" bson:"stats,omitempty"`
 	Metadata   bson.M        `json:"metadata,omitempty" bson:"metadata,omitempty"`
 }
 

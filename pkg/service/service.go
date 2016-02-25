@@ -70,6 +70,7 @@ func initDB() {
 
 	//source.id on Comment
 	mgoSession.DB("").C(model.Comments).EnsureIndexKey("source.id")
+	mgoSession.DB("").C(model.Comments).EnsureIndexKey("source.parent_id")
 
 	//name on Tag
 	mgoSession.DB("").C(model.Tags).EnsureIndexKey("name")
