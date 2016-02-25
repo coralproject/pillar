@@ -8,8 +8,11 @@ import (
 	"golang.org/x/net/context"
 )
 
+// Accumultor is an object that can accumulate statistics based on individual
+// objects within a context.
 type Accumulator interface {
 	Accumulate(context.Context, interface{})
+	Combine(interface{})
 }
 
 // Pipeline runs a concurrent processing pipeline that executes a given
@@ -23,11 +26,11 @@ func Pipeline(
 	// newAccumulator will be used to produce a single accumulator object for
 	// each Go routine withine the pipeline.
 	newAccumulator func() Accumulator,
-) []interface{} {
+) Accumulator {
 
 	// Keep track of GOMAXPROCS accumulators using a slice.
 	gomaxprocs := runtime.GOMAXPROCS(-1)
-	accumulators := make([]interface{}, gomaxprocs)
+	accumulators := make([]Accumulator, gomaxprocs)
 
 	// Start GOMAXPROCS Go routines to read values from the input channel; we'll
 	// track their execution using a sync.WaitGroup instance.
@@ -57,7 +60,15 @@ func Pipeline(
 		}(i)
 	}
 
-	// Wait for the processors to exit, then return the accumulators.œ
+	// Wait for the processors to exit.
 	waitGroup.Wait()
-	return accumulators
+
+	// Combine the accumulators.
+	accumulator := accumulators[0]
+	for i := 1; i < len(accumulators); i++ {
+		accumulator.Combine(accumulators[i])
+	}
+
+	// Return a single accumulator.
+	return accumulator
 }

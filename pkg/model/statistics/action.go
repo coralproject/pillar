@@ -4,6 +4,7 @@ import (
 	"golang.org/x/net/context"
 
 	"github.com/coralproject/pillar/pkg/aggregate"
+	"github.com/coralproject/pillar/pkg/model"
 )
 
 type ActionStatistics struct {
@@ -27,6 +28,13 @@ func NewActionStatisticsAccumulator() *ActionStatisticsAccumulator {
 }
 
 func (a *ActionStatisticsAccumulator) Accumulate(ctx context.Context, object interface{}) {
+
+	switch typedObject := object.(type) {
+	case nil:
+	case *model.Comment:
+		a.Comments.Add(typedObject.ID.Hex(), 1)
+
+	}
 
 }
 
