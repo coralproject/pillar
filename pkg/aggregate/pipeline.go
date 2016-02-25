@@ -8,6 +8,10 @@ import (
 	"golang.org/x/net/context"
 )
 
+type Accumulator interface {
+	Accumulate(context.Context, interface{})
+}
+
 // Pipeline runs a concurrent processing pipeline that executes a given
 // function for every value read off of an input channel. The KeyValue object
 // provided to the processor function is only accessable to one of the go
@@ -18,12 +22,7 @@ func Pipeline(
 
 	// newAccumulator will be used to produce a single accumulator object for
 	// each Go routine withine the pipeline.
-	newAccumulator func(context.Context) interface{},
-
-	// processor is a method that will be called for each object read from the
-	// input channel. An accumulator will be available under the key
-	// "accumulator" in the provided context.Context instance.
-	processor func(context.Context, interface{}),
+	newAccumulator func() Accumulator,
 ) []interface{} {
 
 	// Keep track of GOMAXPROCS accumulators using a slice.
@@ -38,8 +37,8 @@ func Pipeline(
 
 		// Use the provided newAccumulator function to produce an accumulator
 		// value for this Go routine and add it to a new context.Context instance.
-		accumulators[i] = newAccumulator(ctx)
-		accumulatorCtx := context.WithValue(ctx, "accumulator", accumulators[i])
+		accumulator := newAccumulator()
+		accumulators[i] = accumulator
 
 		// Start a new Go routine passing the index value for logging.
 		go func(i int) {
@@ -48,7 +47,7 @@ func Pipeline(
 			// routine has finished processing.
 			total := 0
 			for object := range in {
-				processor(accumulatorCtx, object)
+				accumulator.Accumulate(ctx, object)
 				total++
 				if total%1000 == 0 {
 					log.Printf("routine[%d] processed %d", i, total)
