@@ -5,8 +5,8 @@ import (
 )
 
 type UserActions struct {
-	Performed *ActionDimensions "json:performed bson:performed"
-	Received  *ActionDimensions "json:received bson:received"
+	Performed *ActionDimensions `json:"performed" bson:"performed"`
+	Received  *ActionDimensions `json:"received" bson:"received"`
 }
 
 type UserComments CommentDimensions

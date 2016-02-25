@@ -4,6 +4,7 @@ import (
 	"golang.org/x/net/context"
 
 	"github.com/coralproject/pillar/pkg/aggregate"
+	"github.com/coralproject/pillar/pkg/model"
 )
 
 type CommentStatistics struct {
@@ -37,7 +38,49 @@ func NewCommentStatisticsAccumulator() *CommentStatisticsAccumulator {
 }
 
 func (a *CommentStatisticsAccumulator) Accumulate(ctx context.Context, object interface{}) {
+	switch typedObject := object.(type) {
+	default:
+		// May want to log here to indicate an unhandleable object.
+	case *model.Comment:
+		a.Counts.Add("count", 1)
 
+		// Handle replied.
+		if typedObject.ParentID.String() != "" {
+			a.Counts.Add("replied_count", 1)
+			a.RepliedComments.Add(typedObject.ParentID.String(), 1)
+		}
+
+		// Handle reply.
+		for _, reply := range typedObject.Children {
+			a.Counts.Add("reply_count", 1)
+			a.ReplyComments.Add(reply.String(), 1)
+		}
+	}
+}
+
+func (a *CommentStatisticsAccumulator) Combine(object interface{}) {
+	switch typedObject := object.(type) {
+	default:
+		// May want to log here to indicate an unhandleable object.
+	case *CommentStatisticsAccumulator:
+		a.Counts.Combine(typedObject.Counts)
+		a.RepliedComments.Combine(typedObject.RepliedComments)
+		a.RepliedUsers.Combine(typedObject.RepliedUsers)
+		a.ReplyComments.Combine(typedObject.ReplyComments)
+		a.ReplyUsers.Combine(typedObject.ReplyUsers)
+	}
+}
+
+func (a *CommentStatisticsAccumulator) CommentStatistics() *CommentStatistics {
+	return &CommentStatistics{
+		Count:             a.Counts.Total("count"),
+		RepliedCount:      a.Counts.Total("replied_count"),
+		RepliedToComments: a.RepliedComments.Keys(),
+		RepliedToUsers:    a.RepliedUsers.Keys(),
+		ReplyCount:        a.Counts.Total("reply_count"),
+		ReplyComments:     a.ReplyComments.Keys(),
+		ReplyUsers:        a.ReplyUsers.Keys(),
+	}
 }
 
 type CommentDimensions struct {

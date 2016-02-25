@@ -9,7 +9,7 @@ import (
 
 	"golang.org/x/net/context"
 
-	// "github.com/coralproject/pillar/app/stats/calc"
+	"github.com/coralproject/pillar/app/stats/calc"
 	"github.com/coralproject/pillar/pkg/backend/mongodb"
 )
 
@@ -73,7 +73,7 @@ func main() {
 
 	ctx := context.WithValue(context.Background(), "backend", b)
 
-	log.Fatal(
-		"done", //calc.CalculateCollectionStatistics(ctx, "user", "user_id"),
-	)
+	if err := calc.CalculateCommentStatistics(ctx, "user", "user_id"); err != nil {
+		log.Fatal(err)
+	}
 }
