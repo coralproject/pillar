@@ -1,6 +1,8 @@
 package statistics
 
 import (
+	"log"
+
 	"golang.org/x/net/context"
 
 	"github.com/coralproject/pillar/pkg/aggregate"
@@ -28,14 +30,32 @@ func NewActionStatisticsAccumulator() *ActionStatisticsAccumulator {
 }
 
 func (a *ActionStatisticsAccumulator) Accumulate(ctx context.Context, object interface{}) {
-
-	switch typedObject := object.(type) {
-	case nil:
-	case *model.Comment:
-		a.Comments.Add(typedObject.ID.Hex(), 1)
-
+	if action, ok := object.(*model.Action); ok {
+		a.Counts.Add("count", 1)
+		a.Users.Add(action.UserID.String(), 1)
+		a.Comments.Add(action.TargetID.String(), 1)
 	}
+}
 
+func (a *ActionStatisticsAccumulator) Combine(object interface{}) {
+	switch typedObject := object.(type) {
+	default:
+		log.Println("ActionStatisticsAccumulator error: unexpected combine type")
+	case *ActionStatisticsAccumulator:
+		a.Counts.Combine(typedObject.Counts)
+		a.Comments.Combine(typedObject.Comments)
+		a.Assets.Combine(typedObject.Assets)
+		a.Users.Combine(typedObject.Users)
+	}
+}
+
+func (a *ActionStatisticsAccumulator) ActionStatistics() *ActionStatistics {
+	return &ActionStatistics{
+		Count:    a.Counts.Total("count"),
+		Users:    a.Users,
+		Comments: a.Comments.Keys(),
+		Assets:   a.Assets.Keys(),
+	}
 }
 
 type ActionDimensions struct {
