@@ -58,7 +58,7 @@ func NewUserAccumulator() *UserAccumulator {
 
 func (a *UserAccumulator) Accumulate(ctx context.Context, object interface{}) {
 
-	user_id, ok := object.(string)
+	user, ok := object.(*model.User)
 	if !ok {
 		return
 	}
@@ -68,7 +68,7 @@ func (a *UserAccumulator) Accumulate(ctx context.Context, object interface{}) {
 		return
 	}
 
-	iter, err := b.Find("comments", map[string]interface{}{"user_id": user_id})
+	iter, err := b.Find("comments", map[string]interface{}{"user_id": user.ID})
 	if err != nil {
 		return
 	}
@@ -88,6 +88,7 @@ func (a *UserAccumulator) Accumulate(ctx context.Context, object interface{}) {
 			comments <- comment
 			return nil
 		}); err != nil {
+			log.Println("Comment error:", err)
 			return
 		}
 	}()
@@ -101,7 +102,7 @@ func (a *UserAccumulator) Accumulate(ctx context.Context, object interface{}) {
 		return
 	}
 
-	log.Println(UserStatisticsAccumulator.UserStatistics())
+	log.Printf("%+v", UserStatisticsAccumulator.UserStatistics().Comments.All)
 }
 
 func (a *UserAccumulator) Combine(object interface{}) {
