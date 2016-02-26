@@ -26,10 +26,15 @@ var routes = []Route{
 	Route{"POST", "/api/import/index", handler.CreateIndex},
 
 	//Manage Tags
-	Route{"GET",    "/api/tags", handler.GetTags},
-	Route{"POST",   "/api/tag", handler.UpsertTag},
+	Route{"GET", "/api/tags", handler.GetTags},
+	Route{"POST", "/api/tag", handler.UpsertTag},
 	Route{"DELETE", "/api/tag", handler.DeleteTag},
 
 	//Manage User Activities
-	Route{"POST",   "/api/cay/useraction", handler.HandleUserAction},
+	Route{"POST", "/api/cay/useraction", handler.HandleUserAction},
+
+	//Update various entities
+	Route{"POST", "/api/asset", handler.CreateUpdateAsset},
+	Route{"POST", "/api/user", handler.CreateUpdateUser},
+	Route{"POST", "/api/comment", handler.CreateUpdateComment},
 }

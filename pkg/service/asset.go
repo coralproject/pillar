@@ -6,6 +6,7 @@ import (
 	"gopkg.in/mgo.v2/bson"
 	"net/http"
 	"reflect"
+	"log"
 )
 
 // CreateAsset creates a new asset resource
@@ -74,5 +75,28 @@ func updateAssetOnComment(asset *model.Asset, manager *MongoManager) {
 		bson.M{"_id": asset.ID},
 		bson.M{"$set": bson.M{"stats": asset.Stats}},
 	)
+}
+
+// CreateUpdateAsset creates/updates an asset
+func CreateUpdateAsset(object *model.Asset) (*model.Asset, *AppError) {
+
+	log.Printf("%+v", object)
+	manager := GetMongoManager()
+	defer manager.Close()
+
+	dbEntity := model.Asset{}
+	//entity not found, return
+	manager.Assets.FindId(object.ID).One(&dbEntity)
+	if dbEntity.ID == "" {
+		message := fmt.Sprintf("Asset not found [%+v]\n", object)
+		return nil, &AppError{nil, message, http.StatusInternalServerError}
+	}
+
+	if err := manager.Assets.UpdateId(dbEntity.ID, bson.M{"$set": bson.M{"tags": object.Tags}}); err != nil {
+		message := fmt.Sprintf("Error updating asset [%+v]\n", object)
+		return nil, &AppError{nil, message, http.StatusInternalServerError}
+	}
+
+	return object, nil
 }
 
