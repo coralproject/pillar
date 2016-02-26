@@ -16,11 +16,13 @@ const (
 
 var (
 	indexMap = map[string][]mgo.Index{
-	// mgo.Index{
-	//   Key:      []string{"id"},
-	//   Unique:   true,
-	//   DropDups: true,
-	// },
+		"comments": []mgo.Index{
+			mgo.Index{
+				Key:      []string{"user_id"},
+				Unique:   false,
+				DropDups: false,
+			},
+		},
 	}
 )
 
@@ -62,7 +64,7 @@ func NewMongoDBBackend(addrs []string, database, username, password string, ssl 
 
 	// Ensure indicies are built.
 	for collection, indicies := range indexMap {
-		c := m.db().C(collection)
+		c := session.DB(m.database).C(collection)
 		for _, index := range indicies {
 			if err := c.EnsureIndex(index); err != nil {
 				return nil, err
@@ -73,18 +75,15 @@ func NewMongoDBBackend(addrs []string, database, username, password string, ssl 
 	return m, nil
 }
 
-func (m *MongoDBBackend) db() *mgo.Database {
-	return m.session.DB(m.database)
-}
-
-func (m *MongoDBBackend) c(name string) *mgo.Collection {
-	return m.db().C(name)
+func (m *MongoDBBackend) newSession() *mgo.Session {
+	return m.session.Copy()
 }
 
 type iter struct {
-	done, closed bool
-	iter         *mgo.Iter
-	result       func() interface{}
+	done    bool
+	iter    *mgo.Iter
+	result  func() interface{}
+	session *mgo.Session
 }
 
 func (i *iter) Next() (interface{}, bool, error) {
@@ -94,14 +93,15 @@ func (i *iter) Next() (interface{}, bool, error) {
 		// Get a new instance.
 		r := i.result()
 		i.done = !(i.iter.Next(r))
-		return r, i.done, nil
-	}
 
-	if !i.closed {
-		i.closed = true
-		if err := i.iter.Close(); err != nil {
-			return nil, true, err
+		// If ther iterator is done, we can close it and the underlying session.
+		var err error
+		if i.done {
+			err = i.iter.Close()
+			i.session.Close()
 		}
+
+		return r, i.done, err
 	}
 
 	return nil, true, nil
@@ -112,8 +112,10 @@ func (m *MongoDBBackend) Find(objectType string, query map[string]interface{}) (
 		return nil, err
 	}
 
+	session := m.newSession()
 	return &iter{
-		iter: m.c(objectType).Find(query).Iter(),
+		session: session,
+		iter:    session.DB(m.database).C(objectType).Find(query).Iter(),
 		result: func() interface{} {
 			return model.ObjectTypeInstance(objectType)
 		},
