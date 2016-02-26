@@ -102,6 +102,12 @@ func (i *iter) Next() (interface{}, bool, error) {
 		r := i.result()
 		i.done = !(i.iter.Next(r))
 
+		// Check for a timeout. If one occured, re-run Next (to theoretically
+		// reconnect).
+		if i.done && i.iter.Timeout() {
+			i.done = !(i.iter.Next(r))
+		}
+
 		// If ther iterator is done, we can close it and the underlying session.
 		var err error
 		if i.done {

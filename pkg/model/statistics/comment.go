@@ -1,7 +1,7 @@
 package statistics
 
 import (
-	// "log"
+	"log"
 
 	"golang.org/x/net/context"
 
@@ -40,20 +40,17 @@ func NewCommentStatisticsAccumulator() *CommentStatisticsAccumulator {
 }
 
 func (a *CommentStatisticsAccumulator) Accumulate(ctx context.Context, object interface{}) {
-	switch typedObject := object.(type) {
-	default:
-		// May want to log here to indicate an unhandleable object.
-	case *model.Comment:
+	if comment, ok := object.(*model.Comment); ok {
 		a.Counts.Add("count", 1)
 
 		// Handle replied.
-		if typedObject.ParentID.String() != "" {
+		if comment.ParentID.String() != "" {
 			a.Counts.Add("replied_count", 1)
-			a.RepliedComments.Add(typedObject.ParentID.String(), 1)
+			a.RepliedComments.Add(comment.ParentID.String(), 1)
 		}
 
 		// Handle reply.
-		for _, reply := range typedObject.Children {
+		for _, reply := range comment.Children {
 			a.Counts.Add("reply_count", 1)
 			a.ReplyComments.Add(reply.String(), 1)
 		}
@@ -63,7 +60,7 @@ func (a *CommentStatisticsAccumulator) Accumulate(ctx context.Context, object in
 func (a *CommentStatisticsAccumulator) Combine(object interface{}) {
 	switch typedObject := object.(type) {
 	default:
-		// May want to log here to indicate an unhandleable object.
+		log.Println("CommentStatisticsAccumulator error: unexpected combine type")
 	case *CommentStatisticsAccumulator:
 		a.Counts.Combine(typedObject.Counts)
 		a.RepliedComments.Combine(typedObject.RepliedComments)
@@ -79,9 +76,11 @@ func (a *CommentStatisticsAccumulator) CommentStatistics() *CommentStatistics {
 		RepliedCount:      a.Counts.Total("replied_count"),
 		RepliedToComments: a.RepliedComments.Keys(),
 		RepliedToUsers:    a.RepliedUsers.Keys(),
+		RepliedRatio:      a.Counts.Ratio("replied_count", "count"),
 		ReplyCount:        a.Counts.Total("reply_count"),
 		ReplyComments:     a.ReplyComments.Keys(),
 		ReplyUsers:        a.ReplyUsers.Keys(),
+		ReplyRatio:        a.Counts.Ratio("reply_count", "count"),
 	}
 }
 
@@ -118,10 +117,13 @@ func (a *CommentTypesAccumulator) Accumulate(ctx context.Context, object interfa
 func (a *CommentTypesAccumulator) Combine(object interface{}) {
 	switch typedObject := object.(type) {
 	default:
-		// May want to log here to indicate an unhandleable object.
+		log.Println("CommentTypesAccumulator error: unexpected combine type")
 	case *CommentTypesAccumulator:
-		a.All.Combine(object)
+		a.All.Combine(typedObject.All)
 		for key, value := range typedObject.Types {
+			if _, ok := a.Types[key]; !ok {
+				a.Types[key] = NewCommentStatisticsAccumulator()
+			}
 			a.Types[key].Combine(value)
 		}
 	}
@@ -179,11 +181,17 @@ func (a *CommentDimensionsAccumulator) Accumulate(ctx context.Context, object in
 func (a *CommentDimensionsAccumulator) Combine(object interface{}) {
 	switch typedObject := object.(type) {
 	default:
-		// May want to log here to indicate an unhandleable object.
+		log.Println("CommentDimensionsAccumulator error: unexpected combine type")
 	case *CommentDimensionsAccumulator:
-		a.All.Combine(object)
+		a.All.Combine(typedObject.All)
 		for dimension, commentTypes := range typedObject.Types {
+			if _, ok := a.Types[dimension]; !ok {
+				a.Types[dimension] = make(map[string]*CommentTypesAccumulator)
+			}
 			for key, value := range commentTypes {
+				if _, ok := a.Types[dimension][key]; !ok {
+					a.Types[dimension][key] = NewCommentTypesAccumulator()
+				}
 				a.Types[dimension][key].Combine(value)
 			}
 		}

@@ -35,7 +35,12 @@ func (a *UserStatisticsAccumulator) Accumulate(ctx context.Context, object inter
 }
 
 func (a *UserStatisticsAccumulator) Combine(object interface{}) {
-	a.Comments.Combine(object)
+	switch typedObject := object.(type) {
+	default:
+		log.Println("UserStatisticsAccumulator error: unexpected combine type")
+	case *UserStatisticsAccumulator:
+		a.Comments.Combine(typedObject.Comments)
+	}
 }
 
 func (a *UserStatisticsAccumulator) UserStatistics() *UserStatistics {
@@ -93,9 +98,9 @@ func (a *UserAccumulator) Accumulate(ctx context.Context, object interface{}) {
 		}
 	}()
 
-	accumulator := aggregate.Pipeline(ctx, comments,
-		func() aggregate.Accumulator { return NewUserStatisticsAccumulator() },
-	)
+	accumulator := aggregate.Pipeline(ctx, comments, func() aggregate.Accumulator {
+		return NewUserStatisticsAccumulator()
+	})
 
 	UserStatisticsAccumulator, ok := accumulator.(*UserStatisticsAccumulator)
 	if !ok {
@@ -103,6 +108,10 @@ func (a *UserAccumulator) Accumulate(ctx context.Context, object interface{}) {
 	}
 
 	UserStatistics := UserStatisticsAccumulator.UserStatistics()
+	if count := user.Stats["comments"]; count != nil && UserStatistics.Comments.All.All.Count != count {
+		log.Printf("Comment count didn't match, got %d, expected %d for %s", UserStatistics.Comments.All.All.Count, count, user.ID.String())
+	}
+
 	if UserStatistics.Comments.All.All.Count > 0 {
 		if err := b.Upsert("user_statistics", user.ID, &User{
 			User:       *user,

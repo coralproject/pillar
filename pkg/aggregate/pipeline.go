@@ -4,6 +4,7 @@ import (
 	"log"
 	"runtime"
 	"sync"
+	"time"
 
 	"golang.org/x/net/context"
 )
@@ -27,6 +28,7 @@ func Pipeline(
 	// each Go routine withine the pipeline.
 	newAccumulator func() Accumulator,
 ) Accumulator {
+	uid := time.Now().UnixNano()
 
 	// Keep track of GOMAXPROCS accumulators using a slice.
 	gomaxprocs := runtime.GOMAXPROCS(-1)
@@ -53,7 +55,7 @@ func Pipeline(
 				accumulator.Accumulate(ctx, object)
 				total++
 				if total%1000 == 0 {
-					log.Printf("routine[%d] processed %d", i, total)
+					log.Printf("%d[%d] processed %d", uid, i, total)
 				}
 			}
 			waitGroup.Done()
