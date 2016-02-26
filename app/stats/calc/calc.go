@@ -12,24 +12,26 @@ import (
 	"github.com/coralproject/pillar/pkg/model/statistics"
 )
 
-func CalculateCommentStatistics(ctx context.Context, collection, foreignKeyField string) error {
+func CalculateUserStatistics(ctx context.Context) error {
 
+	// Look for a backen in the context and return an error if one is not
+	// present.
 	b, ok := ctx.Value("backend").(backend.Backend)
 	if !ok {
 		return backend.BackendNotInitializedError
 	}
 
-	iter, err := b.Find(collection, nil)
+	// Get the users iterator.
+	iter, err := b.Find("users", nil)
 	if err != nil {
 		return err
 	}
 
+	// Pipeline expects a generic input channel.
 	in := make(chan interface{})
 
 	go func() {
 		defer close(in)
-
-		// Get the unique values of the foreign keys.
 		if err := iterator.Each(iter, func(doc interface{}) error {
 
 			// Assert that the document is the type we expect.
