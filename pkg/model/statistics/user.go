@@ -45,8 +45,8 @@ func (a *UserStatisticsAccumulator) UserStatistics() *UserStatistics {
 }
 
 type User struct {
-	*model.User `bson:",inline"`
-	Statistics  *UserStatistics `json:"stats" bson:"stats"`
+	model.User `bson:",inline"`
+	Statistics *UserStatistics `json:"statstics" bson:"statstics"`
 }
 
 type UserAccumulator struct {
@@ -102,7 +102,15 @@ func (a *UserAccumulator) Accumulate(ctx context.Context, object interface{}) {
 		return
 	}
 
-	log.Printf("%s: %+v", user.ID.Hex(), UserStatisticsAccumulator.UserStatistics().Comments.All)
+	UserStatistics := UserStatisticsAccumulator.UserStatistics()
+	if UserStatistics.Comments.All.All.Count > 0 {
+		if err := b.Upsert("user_statistics", user.ID, &User{
+			User:       *user,
+			Statistics: UserStatisticsAccumulator.UserStatistics(),
+		}); err != nil {
+			log.Println("User statistics error:", err)
+		}
+	}
 }
 
 func (a *UserAccumulator) Combine(object interface{}) {
