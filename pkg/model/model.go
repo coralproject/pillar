@@ -33,6 +33,8 @@ const (
 	Actions        string = "actions"
 	Comments       string = "comments"
 	Tags           string = "tags"
+	Authors        string = "authors"
+	Sections       string = "sections"
 	TagTargets     string = "tag_targets"
 	CayUserActions string = "cay_user_actions"
 )
