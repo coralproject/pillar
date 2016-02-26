@@ -79,6 +79,14 @@ func (m *MongoDBBackend) newSession() *mgo.Session {
 	return m.session.Clone()
 }
 
+func (m *MongoDBBackend) Upsert(objectType string, id, object interface{}) error {
+	session := m.newSession()
+	defer session.Close()
+
+	_, err := session.DB(m.database).C(objectType).UpsertId(id, object)
+	return err
+}
+
 type iter struct {
 	done    bool
 	iter    *mgo.Iter

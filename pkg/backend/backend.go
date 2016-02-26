@@ -14,5 +14,6 @@ var (
 
 type Backend interface {
 	Find(objectType string, query map[string]interface{}) (iterator.Iterator, error)
+	Upsert(objectType string, id, object interface{}) error
 	Close() error
 }
