@@ -35,6 +35,8 @@ type MongoManager struct {
 	Actions        *mgo.Collection
 	Comments       *mgo.Collection
 	Tags           *mgo.Collection
+	Authors        *mgo.Collection
+	Sections       *mgo.Collection
 	TagTargets     *mgo.Collection
 	CayUserActions *mgo.Collection
 }
@@ -110,6 +112,8 @@ func GetMongoManager() *MongoManager {
 	manager.Assets = manager.Session.DB("").C(model.Assets)
 	manager.Actions = manager.Session.DB("").C(model.Actions)
 	manager.Comments = manager.Session.DB("").C(model.Comments)
+	manager.Authors = manager.Session.DB("").C(model.Authors)
+	manager.Sections = manager.Session.DB("").C(model.Sections)
 	manager.Tags = manager.Session.DB("").C(model.Tags)
 	manager.TagTargets = manager.Session.DB("").C(model.TagTargets)
 	manager.CayUserActions = manager.Session.DB("").C(model.CayUserActions)

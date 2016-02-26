@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"reflect"
 	"log"
+	"time"
 )
 
 // CreateAsset creates a new asset resource
