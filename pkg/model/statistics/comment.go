@@ -6,6 +6,7 @@ import (
 	"golang.org/x/net/context"
 
 	"github.com/coralproject/pillar/pkg/aggregate"
+	"github.com/coralproject/pillar/pkg/backend"
 	"github.com/coralproject/pillar/pkg/model"
 )
 
@@ -162,18 +163,65 @@ func (a *CommentDimensionsAccumulator) Accumulate(ctx context.Context, object in
 	a.All.Accumulate(ctx, object)
 
 	if comment, ok := object.(*model.Comment); ok {
+		if assetID := comment.AssetID; assetID != "" {
 
-		if assetID := comment.AssetID.String(); assetID != "" {
+			b, ok := ctx.Value("backend").(backend.Backend)
+			if !ok {
+				log.Println("CommentDimensionsAccumulator accumulate error: backend not found")
+				return
+			}
 
+			assetObject, err := b.FindID("assets", assetID)
+			if err != nil {
+				log.Println("CommentDimensionsAccumulator accumulate error:", err)
+				return
+			}
+
+			asset, ok := assetObject.(*model.Asset)
+			if !ok {
+				log.Println("CommentDimensionsAccumulator accumulate error: find returned wrong type")
+				return
+			}
+
+			// Handle the asset by ID.
 			if _, ok := a.Types["assets"]; !ok {
 				a.Types["assets"] = make(map[string]*CommentTypesAccumulator)
 			}
 
-			if _, ok := a.Types["assets"][assetID]; !ok {
-				a.Types["assets"][assetID] = NewCommentTypesAccumulator()
+			assetIDString := assetID.String()
+			if _, ok := a.Types["assets"][assetIDString]; !ok {
+				a.Types["assets"][assetIDString] = NewCommentTypesAccumulator()
 			}
 
-			a.Types["assets"][assetID].Accumulate(ctx, object)
+			a.Types["assets"][assetIDString].Accumulate(ctx, object)
+
+			// Handle authors.
+			if _, ok := a.Types["author"]; !ok {
+				a.Types["author"] = make(map[string]*CommentTypesAccumulator)
+			}
+
+			for _, author := range asset.Authors {
+				if author.ID != "" {
+					if _, ok := a.Types["assets"][author.ID]; !ok {
+						a.Types["author"][author.ID] = NewCommentTypesAccumulator()
+					}
+
+					a.Types["author"][author.ID].Accumulate(ctx, object)
+				}
+			}
+
+			// Handle the section.
+			if _, ok := a.Types["section"]; !ok {
+				a.Types["section"] = make(map[string]*CommentTypesAccumulator)
+			}
+
+			if asset.Section != "" {
+				if _, ok := a.Types["section"][asset.Section]; !ok {
+					a.Types["section"][asset.Section] = NewCommentTypesAccumulator()
+				}
+
+				a.Types["section"][asset.Section].Accumulate(ctx, object)
+			}
 		}
 	}
 }

@@ -136,6 +136,18 @@ func (m *MongoDBBackend) Find(objectType string, query map[string]interface{}) (
 	}, nil
 }
 
+func (m *MongoDBBackend) FindID(objectType string, id interface{}) (interface{}, error) {
+	if err := model.ValidateObjectType(objectType); err != nil {
+		return nil, err
+	}
+
+	session := m.newSession()
+	defer session.Close()
+	result := model.ObjectTypeInstance(objectType)
+	err := session.DB(m.database).C(objectType).FindId(id).One(result)
+	return result, err
+}
+
 // Close closes the underlying session.
 func (m *MongoDBBackend) Close() error {
 	m.session.Close()
