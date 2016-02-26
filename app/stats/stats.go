@@ -63,8 +63,6 @@ func main() {
 		log.Printf("Using TLS for MongoDB connections")
 	}
 
-	//
-
 	log.Printf("Connecting to MongoDB at %s", addrs)
 	b, err := mongodb.NewMongoDBBackend(addrs, config.mongodb.database, config.mongodb.username, config.mongodb.password, config.mongodb.ssl)
 	if err != nil {
@@ -73,7 +71,7 @@ func main() {
 
 	ctx := context.WithValue(context.Background(), "backend", b)
 
-	if err := calc.CalculateCommentStatistics(ctx, "user", "user_id"); err != nil {
+	if err := calc.CalculateCommentStatistics(ctx, "users", "user_id"); err != nil {
 		log.Fatal(err)
 	}
 }
