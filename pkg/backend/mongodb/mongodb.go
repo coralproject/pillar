@@ -76,7 +76,7 @@ func NewMongoDBBackend(addrs []string, database, username, password string, ssl 
 }
 
 func (m *MongoDBBackend) newSession() *mgo.Session {
-	return m.session.Copy()
+	return m.session.Clone()
 }
 
 type iter struct {
