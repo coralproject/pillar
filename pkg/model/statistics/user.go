@@ -102,7 +102,7 @@ func (a *UserAccumulator) Accumulate(ctx context.Context, object interface{}) {
 		return
 	}
 
-	log.Printf("%+v", UserStatisticsAccumulator.UserStatistics().Comments.All)
+	log.Printf("%s: %+v", user.ID.Hex(), UserStatisticsAccumulator.UserStatistics().Comments.All)
 }
 
 func (a *UserAccumulator) Combine(object interface{}) {
