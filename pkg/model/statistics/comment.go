@@ -1,6 +1,8 @@
 package statistics
 
 import (
+	// "log"
+
 	"golang.org/x/net/context"
 
 	"github.com/coralproject/pillar/pkg/aggregate"
@@ -104,25 +106,11 @@ func (a *CommentTypesAccumulator) Accumulate(ctx context.Context, object interfa
 	a.All.Accumulate(ctx, object)
 
 	if comment, ok := object.(*model.Comment); ok {
-
-		// Switch on the comment status.
-		commentType := ""
-		switch comment.Status {
-		case "1":
-			commentType = "unmoderated"
-		case "2":
-			commentType = "accepted"
-		case "3":
-			commentType = "rejected"
-		case "4":
-			commentType = "escalated"
-		}
-
-		if commentType != "" {
-			if _, ok := a.Types[commentType]; !ok {
-				a.Types[commentType] = NewCommentStatisticsAccumulator()
+		if comment.Status != "" {
+			if _, ok := a.Types[comment.Status]; !ok {
+				a.Types[comment.Status] = NewCommentStatisticsAccumulator()
 			}
-			a.Types[commentType].Accumulate(ctx, comment)
+			a.Types[comment.Status].Accumulate(ctx, comment)
 		}
 	}
 }
