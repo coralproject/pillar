@@ -71,7 +71,7 @@ func main() {
 
 	ctx := context.WithValue(context.Background(), "backend", b)
 
-	if err := calc.CalculateCommentStatistics(ctx, "users", "user_id"); err != nil {
+	if err := calc.CalculateUserStatistics(ctx); err != nil {
 		log.Fatal(err)
 	}
 }
