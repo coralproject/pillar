@@ -1,81 +1,77 @@
 package main
 
 import (
-	"errors"
+	"flag"
+	"io/ioutil"
+	"log"
 	"os"
-	"time"
+	"strings"
 
-	//"github.com/coralproject/pillar/server/pkg/stats"
+	"golang.org/x/net/context"
 
-	"gopkg.in/mgo.v2"
-
-	"github.com/ardanlabs/kit/log"
+	"github.com/coralproject/pillar/app/stats/calc"
+	"github.com/coralproject/pillar/pkg/backend/mongodb"
 )
 
 var (
-	context int32
-	db      *mgo.Database
+	config struct {
+		mongodb struct {
+			addrs, database, username, password, passwordFile string
+			ssl                                               bool
+		}
+	}
 )
-
-//export MONGODB_URL=mongodb://localhost:27017/coral
-func initDb() *mgo.Database {
-	uri := os.Getenv("MONGODB_URL")
-	if uri == "" {
-		log.Error("start", "init", errors.New("Error connecting - MONGODB_URL not found!"), "Getting MONGODB_URL env variable.")
-		os.Exit(1)
-	}
-
-	session, err := mgo.Dial(uri)
-	if err != nil {
-		log.Error("start", "init", err, "Connecting to mongo")
-		panic(err) // no, not really <--- do we really need to panic?
-	}
-
-	return session.DB("coral")
-
-}
 
 func init() {
 
-	logLevel := func() int {
-		return log.DEV
-	}
-
-	log.Init(os.Stdout, logLevel)
-
-	context = int32(time.Now().Unix())
-
-	log.User(context, "init", "Initializing")
-
-	db = initDb()
-
+	// Flag information and defaults.
+	flag.StringVar(&config.mongodb.addrs, "mongodb-address", "127.0.0.1:27017", "comma-seperated list of mongodb host:port pairs")
+	flag.StringVar(&config.mongodb.username, "mongodb-username", "", "mongodb username")
+	flag.StringVar(&config.mongodb.password, "mongodb-password", "", "mongodb password (defaults to MONGODB_PASSWORD)")
+	flag.StringVar(&config.mongodb.passwordFile, "mongodb-password-file", "", "mongodb password file")
+	flag.StringVar(&config.mongodb.database, "mongodb-database", "coral", "mongodb database")
+	flag.BoolVar(&config.mongodb.ssl, "mongodb-ssl", false, "use TLS for mongodb connections")
 }
 
 func main() {
+	flag.Parse()
 
-	log.User(context, "main", "Beginning main %+v", db)
+	// Parse the MongoDB address list.
+	addrs := strings.Split(config.mongodb.addrs, ",")
 
-	// TODO, extract the features of stats into command line argments using Cobra
+	// Check if a password file was provided.
+	if config.mongodb.passwordFile != "" {
+		log.Printf("Reading MongoDB password from %s", config.mongodb.passwordFile)
+		passwordBytes, err := ioutil.ReadFile(config.mongodb.passwordFile)
+		if err != nil {
+			log.Fatal(err.Error())
+		}
 
-	// getAssetMeta()
+		config.mongodb.password = string(passwordBytes)
+	}
 
-	//ds := getDurations()
-	//cs := getCollections()
+	// Set a the environment variable, MONGODB_PASSWORD, as a default value
+	// for password.
+	if config.mongodb.password == "" {
+		config.mongodb.password = os.Getenv("MONGODB_PASSWORD")
+		if config.mongodb.username != "" && config.mongodb.password == "" {
+			log.Printf("Warning: a username is in use without a password")
+		}
+	}
 
-	//buildTimeseries(cs, ds)
+	if config.mongodb.ssl {
+		log.Printf("Using TLS for MongoDB connections")
+	}
 
-	/*
+	log.Printf("Connecting to MongoDB at %s", addrs)
+	b, err := mongodb.NewMongoDBBackend(addrs, config.mongodb.database, config.mongodb.username, config.mongodb.password, config.mongodb.ssl)
+	if err != nil {
+		log.Fatal(err.Error())
+	}
 
-		calcCollectionStats(CollectionStats{
-			"assets",
-			db.C("asset"),
-			"asset_id",
-		})
-	*/
+	ctx := context.WithValue(context.Background(), "backend", b)
 
-	calcCollectionStats(CollectionStats{
-		"users",
-		db.C("user"),
-		"user_id",
-	})
+	if err := calc.CalculateUserStatistics(ctx); err != nil {
+		log.Fatal(err)
+	}
 }
