@@ -55,10 +55,13 @@ type User struct {
 }
 
 type UserAccumulator struct {
+	DimensionAccumulator map[string]aggregate.Int
 }
 
 func NewUserAccumulator() *UserAccumulator {
-	return &UserAccumulator{}
+	return &UserAccumulator{
+		DimensionAccumulator: make(map[string]aggregate.Int),
+	}
 }
 
 func (a *UserAccumulator) Accumulate(ctx context.Context, object interface{}) {
@@ -113,15 +116,50 @@ func (a *UserAccumulator) Accumulate(ctx context.Context, object interface{}) {
 	}
 
 	if UserStatistics.Comments.All.All.Count > 0 {
-		if err := b.Upsert("user_statistics", user.ID, &User{
+		if err := b.UpsertID("user_statistics", user.ID, &User{
 			User:       *user,
 			Statistics: UserStatisticsAccumulator.UserStatistics(),
 		}); err != nil {
 			log.Println("User statistics error:", err)
 		}
 	}
+
+	for dimension, commentTypes := range UserStatistics.Comments.Types {
+		if _, ok := a.DimensionAccumulator[dimension]; !ok {
+			a.DimensionAccumulator[dimension] = aggregate.NewInt()
+		}
+
+		for key, _ := range commentTypes {
+			a.DimensionAccumulator[dimension].Add(key, 1)
+		}
+	}
 }
 
 func (a *UserAccumulator) Combine(object interface{}) {
-	// Noop.
+	switch typedObject := object.(type) {
+	default:
+		log.Println("UserAccumulator error: unexpected combine type")
+	case *UserAccumulator:
+		for key, value := range typedObject.DimensionAccumulator {
+			if _, ok := a.DimensionAccumulator[key]; !ok {
+				a.DimensionAccumulator[key] = aggregate.NewInt()
+			}
+			a.DimensionAccumulator[key].Combine(value)
+		}
+	}
+}
+
+func (a *UserAccumulator) Dimensions() []*model.Dimension {
+
+	dimensions := make([]*model.Dimension, 0, len(a.DimensionAccumulator))
+
+	for key, value := range a.DimensionAccumulator {
+		dimensions = append(dimensions, &model.Dimension{
+			Name:         key,
+			Constituents: value.Keys(),
+		})
+	}
+
+	return dimensions
+
 }

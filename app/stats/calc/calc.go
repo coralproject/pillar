@@ -1,7 +1,7 @@
 package calc
 
 import (
-	"fmt"
+	"log"
 
 	"golang.org/x/net/context"
 
@@ -43,14 +43,22 @@ func CalculateUserStatistics(ctx context.Context) error {
 			in <- user
 			return nil
 		}); err != nil {
-			fmt.Println("User error:", err)
+			log.Println("CalculateUserStatistics error:", err)
 			return
 		}
 	}()
 
-	aggregate.Pipeline(ctx, in, func() aggregate.Accumulator {
+	accumulator := aggregate.Pipeline(ctx, in, func() aggregate.Accumulator {
 		return statistics.NewUserAccumulator()
 	})
+
+	if userAccumulator, ok := accumulator.(*statistics.UserAccumulator); ok {
+		for _, dimension := range userAccumulator.Dimensions() {
+			if err := b.Upsert("dimensions", map[string]interface{}{"name": dimension.Name}, dimension); err != nil {
+				log.Println("CalculateUserStatistics error:", err)
+			}
+		}
+	}
 
 	return nil
 }

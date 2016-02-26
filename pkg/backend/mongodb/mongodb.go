@@ -23,6 +23,13 @@ var (
 				DropDups: false,
 			},
 		},
+		"dimensions": []mgo.Index{
+			mgo.Index{
+				Key:      []string{"name"},
+				Unique:   true,
+				DropDups: true,
+			},
+		},
 	}
 )
 
@@ -79,7 +86,15 @@ func (m *MongoDBBackend) newSession() *mgo.Session {
 	return m.session.Clone()
 }
 
-func (m *MongoDBBackend) Upsert(objectType string, id, object interface{}) error {
+func (m *MongoDBBackend) Upsert(objectType string, query map[string]interface{}, object interface{}) error {
+	session := m.newSession()
+	defer session.Close()
+
+	_, err := session.DB(m.database).C(objectType).Upsert(query, object)
+	return err
+}
+
+func (m *MongoDBBackend) UpsertID(objectType string, id, object interface{}) error {
 	session := m.newSession()
 	defer session.Close()
 
