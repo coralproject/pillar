@@ -5,14 +5,14 @@ import (
 )
 
 const (
-	referenceOnlyKey = "referenceonly"
+	referenceKey = "referenceonly"
 )
 
-func NewReferenceOnlyContext(ctx context.Context) context.Context {
-	return context.WithValue(ctx, referenceOnlyKey, true)
+func NewOmitReferencesContext(ctx context.Context) context.Context {
+	return context.WithValue(ctx, referenceKey, true)
 }
 
-func ReferenceOnlyFromContext(ctx context.Context) bool {
-	value, ok := ctx.Value(referenceOnlyKey).(bool)
+func OmitReferencesFromContext(ctx context.Context) bool {
+	value, ok := ctx.Value(referenceKey).(bool)
 	return ok && value
 }

@@ -52,16 +52,21 @@ func (a *ActionStatisticsAccumulator) Combine(object interface{}) {
 	}
 }
 
-func (a *ActionStatisticsAccumulator) ActionStatistics() *ActionStatistics {
-	return &ActionStatistics{
-		Count:    a.Counts.Total("count"),
-		Users:    a.Users,
-		Comments: a.Comments.Keys(),
-		Assets:   a.Assets.Keys(),
+func (a *ActionStatisticsAccumulator) ActionStatistics(ctx context.Context) *ActionStatistics {
+	actionStatistics := &ActionStatistics{
+		Count: a.Counts.Total("count"),
 	}
+
+	if !OmitReferencesFromContext(ctx) {
+		actionStatistics.Users = a.Users
+		actionStatistics.Comments = a.Comments.Keys()
+		actionStatistics.Assets = a.Assets.Keys()
+	}
+
+	return actionStatistics
 }
 
 type ActionDimensions struct {
-	All   *ActionStatistics
+	All   *ActionStatistics            `json:"all,omitempty" bson:"all,omitempty"`
 	Types map[string]*ActionStatistics `json:"types" bson:",inline"`
 }

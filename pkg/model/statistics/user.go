@@ -111,29 +111,29 @@ func (a *UserAccumulator) Accumulate(ctx context.Context, object interface{}) {
 		return
 	}
 
-	userStatistics := userStatisticsAccumulator.UserStatistics(ctx)
-	if count := user.Stats["comments"]; count != nil && userStatistics.Comments.All.All.Count != count {
-		log.Printf("Comment count didn't match, got %d, expected %d for %s", userStatistics.Comments.All.All.Count, count, user.ID.Hex())
+	userStatisticsReference := userStatisticsAccumulator.UserStatistics(ctx)
+	if count := user.Stats["comments"]; count != nil && userStatisticsReference.Comments.All.All.Count != count {
+		log.Printf("Comment count didn't match, got %d, expected %d for %s", userStatisticsReference.Comments.All.All.Count, count, user.ID.Hex())
 	}
 
-	if userStatistics.Comments.All.All.Count > 0 {
+	if userStatisticsReference.Comments.All.All.Count > 0 {
+		if err := b.UpsertID("user_reference", user.ID, &User{
+			User:      *user,
+			Reference: userStatisticsReference,
+		}); err != nil {
+			log.Println("User statistics error:", err)
+		}
+
+		userStatistics := userStatisticsAccumulator.UserStatistics(NewOmitReferencesContext(ctx))
 		if err := b.UpsertID("user_statistics", user.ID, &User{
 			User:       *user,
 			Statistics: userStatistics,
 		}); err != nil {
 			log.Println("User statistics error:", err)
 		}
-
-		userReference := userStatisticsAccumulator.UserStatistics(NewReferenceOnlyContext(ctx))
-		if err := b.UpsertID("user_reference", user.ID, &User{
-			User:      *user,
-			Reference: userReference,
-		}); err != nil {
-			log.Println("User statistics error:", err)
-		}
 	}
 
-	for dimension, commentTypes := range userStatistics.Comments.Types {
+	for dimension, commentTypes := range userStatisticsReference.Comments.Types {
 		if _, ok := a.DimensionAccumulator[dimension]; !ok {
 			a.DimensionAccumulator[dimension] = aggregate.NewInt()
 		}

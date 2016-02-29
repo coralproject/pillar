@@ -80,8 +80,8 @@ func (a *CommentStatisticsAccumulator) CommentStatistics(ctx context.Context) *C
 		ReplyRatio:   a.Counts.Ratio("reply_count", "count"),
 	}
 
-	// Only add unbound values if this isn't a reference-only request.
-	if !ReferenceOnlyFromContext(ctx) {
+	//  add unbound values if this isn't a reference-only request.
+	if !OmitReferencesFromContext(ctx) {
 		commentStatistics.RepliedToComments = a.RepliedComments.Keys()
 		commentStatistics.RepliedToUsers = a.RepliedUsers.Keys()
 		commentStatistics.ReplyComments = a.ReplyComments.Keys()
