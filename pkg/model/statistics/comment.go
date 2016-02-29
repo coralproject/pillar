@@ -71,18 +71,24 @@ func (a *CommentStatisticsAccumulator) Combine(object interface{}) {
 	}
 }
 
-func (a *CommentStatisticsAccumulator) CommentStatistics() *CommentStatistics {
-	return &CommentStatistics{
-		Count:             a.Counts.Total("count"),
-		RepliedCount:      a.Counts.Total("replied_count"),
-		RepliedToComments: a.RepliedComments.Keys(),
-		RepliedToUsers:    a.RepliedUsers.Keys(),
-		RepliedRatio:      a.Counts.Ratio("replied_count", "count"),
-		ReplyCount:        a.Counts.Total("reply_count"),
-		ReplyComments:     a.ReplyComments.Keys(),
-		ReplyUsers:        a.ReplyUsers.Keys(),
-		ReplyRatio:        a.Counts.Ratio("reply_count", "count"),
+func (a *CommentStatisticsAccumulator) CommentStatistics(ctx context.Context) *CommentStatistics {
+	commentStatistics := &CommentStatistics{
+		Count:        a.Counts.Total("count"),
+		RepliedCount: a.Counts.Total("replied_count"),
+		RepliedRatio: a.Counts.Ratio("replied_count", "count"),
+		ReplyCount:   a.Counts.Total("reply_count"),
+		ReplyRatio:   a.Counts.Ratio("reply_count", "count"),
 	}
+
+	// Only add unbound values if this isn't a reference-only request.
+	if !ReferenceOnlyFromContext(ctx) {
+		commentStatistics.RepliedToComments = a.RepliedComments.Keys()
+		commentStatistics.RepliedToUsers = a.RepliedUsers.Keys()
+		commentStatistics.ReplyComments = a.ReplyComments.Keys()
+		commentStatistics.ReplyUsers = a.ReplyUsers.Keys()
+	}
+
+	return commentStatistics
 }
 
 type CommentTypes struct {
@@ -130,14 +136,14 @@ func (a *CommentTypesAccumulator) Combine(object interface{}) {
 	}
 }
 
-func (a *CommentTypesAccumulator) CommentTypes() *CommentTypes {
+func (a *CommentTypesAccumulator) CommentTypes(ctx context.Context) *CommentTypes {
 	types := make(map[string]*CommentStatistics)
 	for key, value := range a.Types {
-		types[key] = value.CommentStatistics()
+		types[key] = value.CommentStatistics(ctx)
 	}
 
 	return &CommentTypes{
-		All:   a.All.CommentStatistics(),
+		All:   a.All.CommentStatistics(ctx),
 		Types: types,
 	}
 }
@@ -246,7 +252,7 @@ func (a *CommentDimensionsAccumulator) Combine(object interface{}) {
 	}
 }
 
-func (a *CommentDimensionsAccumulator) CommentDimensions() *CommentDimensions {
+func (a *CommentDimensionsAccumulator) CommentDimensions(ctx context.Context) *CommentDimensions {
 	types := make(map[string]map[string]*CommentTypes)
 	for dimension, commentTypes := range a.Types {
 
@@ -255,12 +261,12 @@ func (a *CommentDimensionsAccumulator) CommentDimensions() *CommentDimensions {
 		}
 
 		for key, value := range commentTypes {
-			types[dimension][key] = value.CommentTypes()
+			types[dimension][key] = value.CommentTypes(ctx)
 		}
 	}
 
 	return &CommentDimensions{
-		All:   a.All.CommentTypes(),
+		All:   a.All.CommentTypes(ctx),
 		Types: types,
 	}
 }

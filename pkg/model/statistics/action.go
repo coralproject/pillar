@@ -11,9 +11,10 @@ import (
 
 type ActionStatistics struct {
 	Count    int            `json:"count" bson:"count"`
-	Users    map[string]int `json:"users" bson:"users"`
-	Comments []string       `json:"comments" bson:"comments"`
-	Assets   []string       `json:"assets" bson:"assets"`
+	Users    map[string]int `json:"users,omitempty" bson:"users,omitempty"`
+	Comments []string       `json:"comments,omitempty" bson:"comments,omitempty"`
+	Assets   []string       `json:"assets,omitempty" bson:"assets,omitempty"`
+	Sections []string       `json:"sections,omitempty" bson:"sections,omitempty"`
 }
 
 type ActionStatisticsAccumulator struct {
@@ -32,8 +33,10 @@ func NewActionStatisticsAccumulator() *ActionStatisticsAccumulator {
 func (a *ActionStatisticsAccumulator) Accumulate(ctx context.Context, object interface{}) {
 	if action, ok := object.(*model.Action); ok {
 		a.Counts.Add("count", 1)
-		a.Users.Add(action.UserID.String(), 1)
-		a.Comments.Add(action.TargetID.String(), 1)
+		a.Users.Add(action.UserID.Hex(), 1)
+		if action.Target == "comment" {
+			a.Comments.Add(action.TargetID.Hex(), 1)
+		}
 	}
 }
 

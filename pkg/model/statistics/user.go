@@ -43,15 +43,16 @@ func (a *UserStatisticsAccumulator) Combine(object interface{}) {
 	}
 }
 
-func (a *UserStatisticsAccumulator) UserStatistics() *UserStatistics {
+func (a *UserStatisticsAccumulator) UserStatistics(ctx context.Context) *UserStatistics {
 	return &UserStatistics{
-		Comments: a.Comments.CommentDimensions(),
+		Comments: a.Comments.CommentDimensions(ctx),
 	}
 }
 
 type User struct {
 	model.User `bson:",inline"`
-	Statistics *UserStatistics `json:"statstics" bson:"statstics"`
+	Statistics *UserStatistics `json:"statstics,omitempty" bson:"statstics,omitempty"`
+	Reference  *UserStatistics `json:"reference,omitempty" bson:"reference,omitempty"`
 }
 
 type UserAccumulator struct {
@@ -105,26 +106,34 @@ func (a *UserAccumulator) Accumulate(ctx context.Context, object interface{}) {
 		return NewUserStatisticsAccumulator()
 	})
 
-	UserStatisticsAccumulator, ok := accumulator.(*UserStatisticsAccumulator)
+	userStatisticsAccumulator, ok := accumulator.(*UserStatisticsAccumulator)
 	if !ok {
 		return
 	}
 
-	UserStatistics := UserStatisticsAccumulator.UserStatistics()
-	if count := user.Stats["comments"]; count != nil && UserStatistics.Comments.All.All.Count != count {
-		log.Printf("Comment count didn't match, got %d, expected %d for %s", UserStatistics.Comments.All.All.Count, count, user.ID.Hex())
+	userStatistics := userStatisticsAccumulator.UserStatistics(ctx)
+	if count := user.Stats["comments"]; count != nil && userStatistics.Comments.All.All.Count != count {
+		log.Printf("Comment count didn't match, got %d, expected %d for %s", userStatistics.Comments.All.All.Count, count, user.ID.Hex())
 	}
 
-	if UserStatistics.Comments.All.All.Count > 0 {
+	if userStatistics.Comments.All.All.Count > 0 {
 		if err := b.UpsertID("user_statistics", user.ID, &User{
 			User:       *user,
-			Statistics: UserStatisticsAccumulator.UserStatistics(),
+			Statistics: userStatistics,
+		}); err != nil {
+			log.Println("User statistics error:", err)
+		}
+
+		userReference := userStatisticsAccumulator.UserStatistics(NewReferenceOnlyContext(ctx))
+		if err := b.UpsertID("user_reference", user.ID, &User{
+			User:      *user,
+			Reference: userReference,
 		}); err != nil {
 			log.Println("User statistics error:", err)
 		}
 	}
 
-	for dimension, commentTypes := range UserStatistics.Comments.Types {
+	for dimension, commentTypes := range userStatistics.Comments.Types {
 		if _, ok := a.DimensionAccumulator[dimension]; !ok {
 			a.DimensionAccumulator[dimension] = aggregate.NewInt()
 		}
@@ -161,5 +170,4 @@ func (a *UserAccumulator) Dimensions() []*model.Dimension {
 	}
 
 	return dimensions
-
 }
