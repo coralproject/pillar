@@ -39,24 +39,23 @@ func CreateUpdateTag(object *model.Tag) (*model.Tag, *AppError) {
 
 	//Create a new one, set created-date for the new ones
 	if object.Old_Name == "" {
-		return createTag(object, manager)
+		return upsertTag(object, manager)
 	}
 
-	return updateTag(object, manager)
+	return renameTag(object, manager)
 }
 
 // creates a new Tag
-func createTag(object *model.Tag, manager *MongoManager) (*model.Tag, *AppError) {
+func upsertTag(object *model.Tag, manager *MongoManager) (*model.Tag, *AppError) {
 	var dbEntity model.Tag
 
 	//return, if exists
-	if manager.Tags.FindId(object.Name).One(&dbEntity); dbEntity.Name != "" {
-		message := fmt.Sprintf("Tag exists [%s]\n", object.Name)
-		return nil, &AppError{nil, message, http.StatusInternalServerError}
+	if manager.Tags.FindId(object.Name).One(&dbEntity); dbEntity.Name == "" {
+		object.DateCreated = time.Now()
 	}
 
-	object.DateCreated = time.Now()
-	if err := manager.Tags.Insert(object); err != nil {
+	object.DateUpdated = time.Now()
+	if _, err := manager.Tags.UpsertId(object.Name, object); err != nil {
 		message := fmt.Sprintf("Error creating tag [%+v]", object)
 		return nil, &AppError{err, message, http.StatusInternalServerError}
 	}
@@ -65,7 +64,7 @@ func createTag(object *model.Tag, manager *MongoManager) (*model.Tag, *AppError)
 }
 
 // updates an existing Tag
-func updateTag(object *model.Tag, manager *MongoManager) (*model.Tag, *AppError) {
+func renameTag(object *model.Tag, manager *MongoManager) (*model.Tag, *AppError) {
 
 	var dbEntity model.Tag
 	if manager.Tags.FindId(object.Old_Name).One(&dbEntity); dbEntity.Name == "" {
