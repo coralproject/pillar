@@ -11,8 +11,37 @@ import (
 )
 
 type UserActions struct {
-	Performed *ActionDimensions `json:"performed" bson:"performed"`
-	Received  *ActionDimensions `json:"received" bson:"received"`
+	Performed *ActionTypes `json:"performed" bson:"performed"`
+	Received  *ActionTypes `json:"received" bson:"received"`
+}
+
+type UserActionsAccumulator struct {
+	Performed *ActionTypesAccumulator
+}
+
+func NewUserActionsAccumulator() *UserActionsAccumulator {
+	return &UserActionsAccumulator{
+		Performed: NewActionTypesAccumulator(),
+	}
+}
+
+func (a *UserActionsAccumulator) Accumulate(ctx context.Context, object interface{}) {
+	a.Performed.Accumulate(ctx, object)
+}
+
+func (a *UserActionsAccumulator) Combine(object interface{}) {
+	switch typedObject := object.(type) {
+	default:
+		log.Println("UserActionsAccumulator error: unexpected combine type")
+	case *UserActionsAccumulator:
+		a.Performed.Combine(typedObject.Performed)
+	}
+}
+
+func (a *UserActionsAccumulator) UserActions(ctx context.Context) *UserActions {
+	return &UserActions{
+		Performed: a.Performed.ActionStatistics(ctx),
+	}
 }
 
 type UserStatistics struct {
