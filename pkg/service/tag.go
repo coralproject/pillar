@@ -51,7 +51,7 @@ func createTag(object *model.Tag, manager *MongoManager) (*model.Tag, *AppError)
 
 	//return, if exists
 	if manager.Tags.FindId(object.Name).One(&dbEntity); dbEntity.Name != "" {
-		message := fmt.Sprintf("Tag exists [%+v]\n", object)
+		message := fmt.Sprintf("Tag exists [%s]\n", object.Name)
 		return nil, &AppError{nil, message, http.StatusInternalServerError}
 	}
 
@@ -69,7 +69,7 @@ func updateTag(object *model.Tag, manager *MongoManager) (*model.Tag, *AppError)
 
 	var dbEntity model.Tag
 	if manager.Tags.FindId(object.Old_Name).One(&dbEntity); dbEntity.Name == "" {
-		message := fmt.Sprintf("Cannot update, tag not found: [%+v]", object)
+		message := fmt.Sprintf("Cannot update, tag not found: [%s]", object.Old_Name)
 		return nil, &AppError{nil, message, http.StatusInternalServerError}
 	}
 
@@ -85,7 +85,7 @@ func updateTag(object *model.Tag, manager *MongoManager) (*model.Tag, *AppError)
 
 	//remove the old one
 	if err := manager.Tags.RemoveId(object.Old_Name); err != nil {
-		message := fmt.Sprintf("Error removing old tag [%+v]", object)
+		message := fmt.Sprintf("Error removing old tag [%s]", object.Old_Name)
 		return nil, &AppError{err, message, http.StatusInternalServerError}
 	}
 

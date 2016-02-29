@@ -137,7 +137,7 @@ func CreateUpdateComment(object *model.Comment) (*model.Comment, *AppError) {
 	manager := GetMongoManager()
 	defer manager.Close()
 
-	dbEntity := model.Comment{}
+	var dbEntity *model.Comment
 	//entity not found, return
 	manager.Comments.FindId(object.ID).One(&dbEntity)
 	if dbEntity.ID == "" {
@@ -145,10 +145,11 @@ func CreateUpdateComment(object *model.Comment) (*model.Comment, *AppError) {
 		return nil, &AppError{nil, message, http.StatusInternalServerError}
 	}
 
-	if err := manager.Comments.UpdateId(dbEntity.ID, bson.M{"$set": bson.M{"tags": object.Tags}}); err != nil {
+	dbEntity.Tags = object.Tags
+	if err := manager.Comments.UpdateId(dbEntity.ID, bson.M{"$set": bson.M{"tags": dbEntity.Tags}}); err != nil {
 		message := fmt.Sprintf("Error updating comment [%+v]\n", object)
 		return nil, &AppError{nil, message, http.StatusInternalServerError}
 	}
 
-	return object, nil
+	return dbEntity, nil
 }
