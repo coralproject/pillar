@@ -84,7 +84,7 @@ func CreateUpdateAsset(object *model.Asset) (*model.Asset, *AppError) {
 	manager := GetMongoManager()
 	defer manager.Close()
 
-	dbEntity := model.Asset{}
+	var dbEntity *model.Asset
 	//entity not found, return
 	manager.Assets.FindId(object.ID).One(&dbEntity)
 	if dbEntity.ID == "" {
@@ -92,11 +92,12 @@ func CreateUpdateAsset(object *model.Asset) (*model.Asset, *AppError) {
 		return nil, &AppError{nil, message, http.StatusInternalServerError}
 	}
 
-	if err := manager.Assets.UpdateId(dbEntity.ID, bson.M{"$set": bson.M{"tags": object.Tags}}); err != nil {
+	dbEntity.Tags = object.Tags
+	if err := manager.Assets.UpdateId(dbEntity.ID, bson.M{"$set": bson.M{"tags": dbEntity.Tags}}); err != nil {
 		message := fmt.Sprintf("Error updating asset [%+v]\n", object)
 		return nil, &AppError{nil, message, http.StatusInternalServerError}
 	}
 
-	return object, nil
+	return dbEntity, nil
 }
 
