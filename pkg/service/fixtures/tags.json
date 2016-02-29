@@ -1,5 +1,9 @@
 [
     {
+        "name": "powerball",
+        "description": "Power User"
+    },
+    {
         "name": "troll",
         "description": "A troll"
     },
@@ -8,7 +12,7 @@
         "description": "User who keeps complaining all the time"
     },
     {
-        "name": "top_commenter",
+        "name": "top_commentor",
         "description": "We recognize this user as a top commenter in our system"
     },
     {
