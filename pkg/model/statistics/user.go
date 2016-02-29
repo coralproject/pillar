@@ -51,7 +51,7 @@ func (a *UserStatisticsAccumulator) UserStatistics(ctx context.Context) *UserSta
 
 type User struct {
 	model.User `bson:",inline"`
-	Statistics *UserStatistics `json:"statstics,omitempty" bson:"statstics,omitempty"`
+	Statistics *UserStatistics `json:"statistics,omitempty" bson:"statistics,omitempty"`
 	Reference  *UserStatistics `json:"reference,omitempty" bson:"reference,omitempty"`
 }
 
