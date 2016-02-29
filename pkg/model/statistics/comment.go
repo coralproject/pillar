@@ -45,15 +45,15 @@ func (a *CommentStatisticsAccumulator) Accumulate(ctx context.Context, object in
 		a.Counts.Add("count", 1)
 
 		// Handle replied.
-		if comment.ParentID.String() != "" {
+		if comment.ParentID.Hex() != "" {
 			a.Counts.Add("replied_count", 1)
-			a.RepliedComments.Add(comment.ParentID.String(), 1)
+			a.RepliedComments.Add(comment.ParentID.Hex(), 1)
 		}
 
 		// Handle reply.
 		for _, reply := range comment.Children {
 			a.Counts.Add("reply_count", 1)
-			a.ReplyComments.Add(reply.String(), 1)
+			a.ReplyComments.Add(reply.Hex(), 1)
 		}
 	}
 }
@@ -188,7 +188,7 @@ func (a *CommentDimensionsAccumulator) Accumulate(ctx context.Context, object in
 				a.Types["assets"] = make(map[string]*CommentTypesAccumulator)
 			}
 
-			assetIDString := assetID.String()
+			assetIDString := assetID.Hex()
 			if _, ok := a.Types["assets"][assetIDString]; !ok {
 				a.Types["assets"][assetIDString] = NewCommentTypesAccumulator()
 			}

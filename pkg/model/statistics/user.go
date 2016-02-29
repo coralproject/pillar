@@ -112,7 +112,7 @@ func (a *UserAccumulator) Accumulate(ctx context.Context, object interface{}) {
 
 	UserStatistics := UserStatisticsAccumulator.UserStatistics()
 	if count := user.Stats["comments"]; count != nil && UserStatistics.Comments.All.All.Count != count {
-		log.Printf("Comment count didn't match, got %d, expected %d for %s", UserStatistics.Comments.All.All.Count, count, user.ID.String())
+		log.Printf("Comment count didn't match, got %d, expected %d for %s", UserStatistics.Comments.All.All.Count, count, user.ID.Hex())
 	}
 
 	if UserStatistics.Comments.All.All.Count > 0 {
