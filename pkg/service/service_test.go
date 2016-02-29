@@ -16,6 +16,7 @@ const (
 	dataIndexes     = "fixtures/indexes.json"
 	dataMetadata    = "fixtures/metadata.json"
 	dataTags        = "fixtures/tags.json"
+	dataNewTags     = "fixtures/tags_rename.json"
 	dataUserActions = "fixtures/user-actions.json"
 )
 
@@ -28,6 +29,26 @@ func init() {
 	mm.Users.RemoveAll(nil)
 	mm.Assets.RemoveAll(nil)
 	mm.CayUserActions.RemoveAll(nil)
+}
+
+func TestCreateTag(t *testing.T) {
+	file, err := os.Open(dataTags)
+	if err != nil {
+		fmt.Println("opening config file", err.Error())
+	}
+
+	objects := []model.Tag{}
+	jsonParser := json.NewDecoder(file)
+	if err = jsonParser.Decode(&objects); err != nil {
+		fmt.Println("Error reading tags ", err.Error())
+	}
+
+	for _, one := range objects {
+		_, err := CreateUpdateTag(&one)
+		if err != nil {
+			t.Fail()
+		}
+	}
 }
 
 func TestCreateAsset(t *testing.T) {
@@ -180,45 +201,6 @@ func TestUpdateMetadata(t *testing.T) {
 	}
 }
 
-func TestUpsertTag(t *testing.T) {
-	file, err := os.Open(dataTags)
-	if err != nil {
-		fmt.Println("opening config file", err.Error())
-	}
-
-	objects := []model.Tag{}
-	jsonParser := json.NewDecoder(file)
-	if err = jsonParser.Decode(&objects); err != nil {
-		fmt.Println("Error reading tags ", err.Error())
-	}
-
-	for _, one := range objects {
-		_, err := UpsertTag(&one)
-		if err != nil {
-			t.Fail()
-		}
-	}
-}
-
-func TestDeleteAllTag(t *testing.T) {
-	tags, err := GetTags()
-	if err != nil || len(tags) == 0 {
-		t.Fail()
-	}
-
-	for _, one := range tags {
-		err := DeleteTag(&one)
-		if err != nil {
-			t.Fail()
-		}
-	}
-
-	objects, err := GetTags()
-	if err != nil || len(objects) != 0 {
-		t.Fail()
-	}
-}
-
 func TestUserActions(t *testing.T) {
 	file, err := os.Open(dataUserActions)
 	if err != nil {
@@ -239,3 +221,42 @@ func TestUserActions(t *testing.T) {
 		}
 	}
 }
+
+func TestRenameTags(t *testing.T) {
+	file, err := os.Open(dataNewTags)
+	if err != nil {
+		fmt.Println("opening config file", err.Error())
+	}
+
+	objects := []model.Tag{}
+	jsonParser := json.NewDecoder(file)
+	if err = jsonParser.Decode(&objects); err != nil {
+		fmt.Println("Error reading tags ", err.Error())
+	}
+
+	for _, one := range objects {
+		_, err := CreateUpdateTag(&one)
+		if err != nil {
+			t.Fail()
+		}
+	}
+}
+
+//func TestDeleteAllTag(t *testing.T) {
+//	tags, err := GetTags()
+//	if err != nil || len(tags) == 0 {
+//		t.Fail()
+//	}
+//
+//	for _, one := range tags {
+//		err := DeleteTag(&one)
+//		if err != nil {
+//			t.Fail()
+//		}
+//	}
+//
+//	objects, err := GetTags()
+//	if err != nil || len(objects) != 0 {
+//		t.Fail()
+//	}
+//}

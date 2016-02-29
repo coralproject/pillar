@@ -27,7 +27,7 @@ var routes = []Route{
 
 	//Manage Tags
 	Route{"GET", "/api/tags", handler.GetTags},
-	Route{"POST", "/api/tag", handler.UpsertTag},
+	Route{"POST", "/api/tag", handler.CreateUpdateTag},
 	Route{"DELETE", "/api/tag", handler.DeleteTag},
 
 	//Manage User Activities

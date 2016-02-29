@@ -32,26 +32,89 @@ func CreateTagTargets(manager *MongoManager, tags []string, tt *model.TagTarget)
 	return nil
 }
 
-// UpsertTag adds/updates tags to the master list
-func UpsertTag(object *model.Tag) (*model.Tag, *AppError) {
+// CreateUpdateTag adds or updates a tag
+func CreateUpdateTag(object *model.Tag) (*model.Tag, *AppError) {
 	manager := GetMongoManager()
 	defer manager.Close()
 
-	//set created-date for the new ones
-	var dbEntity model.Tag
-	if manager.Tags.FindId(object.Name).One(&dbEntity); dbEntity.Name == "" {
-		object.DateCreated = time.Now()
+	//Create a new one, set created-date for the new ones
+	if object.Old_Name == "" {
+		return createTag(object, manager)
 	}
 
-	object.DateUpdated = time.Now()
-	_, err := manager.Tags.UpsertId(object.Name, object)
-	if err != nil {
+	return updateTag(object, manager)
+}
+
+// creates a new Tag
+func createTag(object *model.Tag, manager *MongoManager) (*model.Tag, *AppError) {
+	var dbEntity model.Tag
+
+	//return, if exists
+	if manager.Tags.FindId(object.Name).One(&dbEntity); dbEntity.Name != "" {
+		message := fmt.Sprintf("Tag exists [%+v]\n", object)
+		return nil, &AppError{nil, message, http.StatusInternalServerError}
+	}
+
+	object.DateCreated = time.Now()
+	if err := manager.Tags.Insert(object); err != nil {
 		message := fmt.Sprintf("Error creating tag [%+v]", object)
 		return nil, &AppError{err, message, http.StatusInternalServerError}
 	}
 
 	return object, nil
 }
+
+// updates an existing Tag
+func updateTag(object *model.Tag, manager *MongoManager) (*model.Tag, *AppError) {
+
+	var dbEntity model.Tag
+	if manager.Tags.FindId(object.Old_Name).One(&dbEntity); dbEntity.Name == "" {
+		message := fmt.Sprintf("Cannot update, tag not found: [%+v]", object)
+		return nil, &AppError{nil, message, http.StatusInternalServerError}
+	}
+
+	var newTag model.Tag
+	newTag.Name = object.Name
+	newTag.Old_Name = object.Old_Name
+	newTag.Description = dbEntity.Description
+	if object.Description != "" {
+		newTag.Description = object.Description
+	}
+	newTag.DateCreated = dbEntity.DateCreated
+	newTag.DateUpdated = time.Now()
+
+	//remove the old one
+	if err := manager.Tags.RemoveId(object.Old_Name); err != nil {
+		message := fmt.Sprintf("Error removing old tag [%+v]", object)
+		return nil, &AppError{err, message, http.StatusInternalServerError}
+	}
+
+	//insert new tag
+	if err := manager.Tags.Insert(newTag); err != nil {
+		message := fmt.Sprintf("Error creating tag [%+v]", newTag)
+		return nil, &AppError{err, message, http.StatusInternalServerError}
+	}
+
+	var user model.User
+	iter := manager.Users.Find(bson.M{"tags": object.Old_Name}).Iter()
+	for iter.Next(&user) {
+		tags := make([]string, len(user.Tags))
+		for _, one := range user.Tags {
+			if one != object.Old_Name {
+				tags = append(tags, one)
+			}
+		}
+		tags = append(tags, object.Name)
+		manager.Users.Update(
+			bson.M{"_id": user.ID},
+			bson.M{"$set": bson.M{"tags": tags}},
+		)
+	}
+
+	return &newTag, nil
+}
+
+
 
 // GetTags returns an array of tags
 func GetTags() ([]model.Tag, *AppError) {

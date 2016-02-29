@@ -17,14 +17,14 @@ func GetTags(w http.ResponseWriter, r *http.Request) {
 	doRespond(w, dbObject, err)
 }
 
-func UpsertTag(w http.ResponseWriter, r *http.Request) {
+func CreateUpdateTag(w http.ResponseWriter, r *http.Request) {
 	//Get the tag from request
 	jsonObject := model.Tag{}
 	json.NewDecoder(r.Body).Decode(&jsonObject)
 
 	// Write content-type, status code and payload
 	w.Header().Set("Content-Type", "application/json")
-	dbObject, err := service.UpsertTag(&jsonObject)
+	dbObject, err := service.CreateUpdateTag(&jsonObject)
 	doRespond(w, dbObject, err)
 }
 
