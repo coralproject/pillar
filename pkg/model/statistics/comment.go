@@ -15,14 +15,14 @@ type CommentStatistics struct {
 
 	// Replied concerns the comments of this group.
 	RepliedCount      int      `json:"replied_count" bson:"replied_count"`
-	RepliedToComments []string `json:"replied_comments" bson:"replied_comments"`
-	RepliedToUsers    []string `json:"replied_users" bson:"replied_users"`
+	RepliedToComments []string `json:"replied_comments,omitempty" bson:"replied_comments,omitempty"`
+	RepliedToUsers    []string `json:"replied_users,omitempty" bson:"replied_users,omitempty"`
 	RepliedRatio      float64  `json:"replied_ratio" bson:"replied_ratio"`
 
 	// Reply concerns replies to the comments of this group.
 	ReplyCount    int      `json:"reply_count" bson:"reply_count"`
-	ReplyComments []string `json:"reply_comments" bson:"reply_comments"`
-	ReplyUsers    []string `json:"reply_users" bson:"reply_users"`
+	ReplyComments []string `json:"reply_comments,omitempty" bson:"reply_comments,omitempty"`
+	ReplyUsers    []string `json:"reply_users,omitempty" bson:"reply_users,omitempty"`
 	ReplyRatio    float64  `json:"reply_ratio" bson:"reply_ratio"`
 }
 
@@ -86,8 +86,8 @@ func (a *CommentStatisticsAccumulator) CommentStatistics() *CommentStatistics {
 }
 
 type CommentTypes struct {
-	All   *CommentStatistics
-	Types map[string]*CommentStatistics `json:"types" bson:",inline"`
+	All   *CommentStatistics            `json:"all,omitempty" bson:"all,omitempty"`
+	Types map[string]*CommentStatistics `json:"types,omitempty" bson:",inline"`
 }
 
 type CommentTypesAccumulator struct {
@@ -143,8 +143,8 @@ func (a *CommentTypesAccumulator) CommentTypes() *CommentTypes {
 }
 
 type CommentDimensions struct {
-	All   *CommentTypes
-	Types map[string]map[string]*CommentTypes `json:"types" bson:",inline"`
+	All   *CommentTypes                       `json:"all,omitempty" bson:"all,omitempty"`
+	Types map[string]map[string]*CommentTypes `json:"types,omitempty" bson:",inline"`
 }
 
 type CommentDimensionsAccumulator struct {
