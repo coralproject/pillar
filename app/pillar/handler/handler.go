@@ -3,21 +3,28 @@ package handler
 import (
 	"encoding/json"
 	"github.com/coralproject/pillar/app/pillar/config"
-	"github.com/coralproject/pillar/pkg/service"
 	"github.com/coralproject/pillar/pkg/model"
+	"github.com/coralproject/pillar/pkg/service"
 	"net/http"
 )
 
 func doRespond(w http.ResponseWriter, object interface{}, appErr *service.AppError) {
 	if appErr != nil {
-		config.Logger.Printf("Call failed [%s]", appErr.Message)
-		http.Error(w, appErr.Message, appErr.Code)
+		config.Logger.Printf("Call failed [%+v]", appErr)
+		payload, err := json.Marshal(appErr)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		w.WriteHeader(appErr.Code)
+		w.Write(payload)
 		return
 	}
 
 	payload, err := json.Marshal(object)
 	if err != nil {
-		config.Logger.Printf("Call failed [%s]", err.Error())
+		config.Logger.Printf("Call failed [%+v]", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}

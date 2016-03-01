@@ -18,9 +18,9 @@ const (
 
 // AppError encapsulates application specific error
 type AppError struct {
-	Error   error
-	Message string
-	Code    int
+	Error   error  `json:"error,omitempty"`
+	Message string `json:"message,omitempty"`
+	Code    int    `json:"code,omitempty"`
 }
 
 var (
