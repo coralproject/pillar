@@ -51,16 +51,19 @@ type UserStatistics struct {
 
 type UserStatisticsAccumulator struct {
 	Comments *CommentDimensionsAccumulator
+	Actions  *UserActionsAccumulator
 }
 
 func NewUserStatisticsAccumulator() *UserStatisticsAccumulator {
 	return &UserStatisticsAccumulator{
 		Comments: NewCommentDimensionsAccumulator(),
+		Actions:  NewUserActionsAccumulator(),
 	}
 }
 
 func (a *UserStatisticsAccumulator) Accumulate(ctx context.Context, object interface{}) {
 	a.Comments.Accumulate(ctx, object)
+	a.Actions.Accumulate(ctx, object)
 }
 
 func (a *UserStatisticsAccumulator) Combine(object interface{}) {
@@ -69,12 +72,14 @@ func (a *UserStatisticsAccumulator) Combine(object interface{}) {
 		log.Println("UserStatisticsAccumulator error: unexpected combine type")
 	case *UserStatisticsAccumulator:
 		a.Comments.Combine(typedObject.Comments)
+		a.Actions.Combine(typedObject.Actions)
 	}
 }
 
 func (a *UserStatisticsAccumulator) UserStatistics(ctx context.Context) *UserStatistics {
 	return &UserStatistics{
 		Comments: a.Comments.CommentDimensions(ctx),
+		Actions:  a.Actions.UserActions(ctx),
 	}
 }
 
@@ -106,36 +111,34 @@ func (a *UserAccumulator) Accumulate(ctx context.Context, object interface{}) {
 		return
 	}
 
-	iter, err := b.Find("comments", map[string]interface{}{"user_id": user.ID})
+	commentsIterator, err := b.Find("comments", map[string]interface{}{"user_id": user.ID})
 	if err != nil {
 		return
 	}
 
-	comments := make(chan interface{})
+	commentsAccumulator :=
+		aggregate.Pipeline(ctx, iterator.EachChannel(commentsIterator), func() aggregate.Accumulator {
+			return NewUserStatisticsAccumulator()
+		})
 
-	go func() {
-		defer close(comments)
-		if err := iterator.Each(iter, func(doc interface{}) error {
+	actionsPerformedIterator, err := b.Find("actions", map[string]interface{}{"user_id": user.ID})
+	if err != nil {
+		return
+	}
 
-			// Assert that the document is the type we expect.
-			comment, ok := doc.(*model.Comment)
-			if !ok {
-				return backend.BackendTypeError
-			}
+	actionsPerformedAccumulator :=
+		aggregate.Pipeline(ctx, iterator.EachChannel(actionsPerformedIterator), func() aggregate.Accumulator {
+			return NewUserStatisticsAccumulator()
+		})
 
-			comments <- comment
-			return nil
-		}); err != nil {
-			log.Println("Comment error:", err)
-			return
-		}
-	}()
+	// 		actionsReceivedIterator, err := b.Find("actions", map[string]interface{}{"":"","target_id": user.ID})
+	// if err != nil {
+	// 	return
+	// }
 
-	accumulator := aggregate.Pipeline(ctx, comments, func() aggregate.Accumulator {
-		return NewUserStatisticsAccumulator()
-	})
+	commentsAccumulator.Combine(actionsPerformedAccumulator)
 
-	userStatisticsAccumulator, ok := accumulator.(*UserStatisticsAccumulator)
+	userStatisticsAccumulator, ok := commentsAccumulator.(*UserStatisticsAccumulator)
 	if !ok {
 		return
 	}

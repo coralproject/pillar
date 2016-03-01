@@ -10,19 +10,19 @@ import (
 )
 
 type ActionStatistics struct {
-	Count    int            `json:"count" bson:"count"`
-	Users    map[string]int `json:"users,omitempty" bson:"users,omitempty"`
+	Count    int            `json:"count" bson:"count,minsize"`
+	Users    map[string]int `json:"users,omitempty" bson:"users,omitempty,minsize"`
 	Comments []string       `json:"comments,omitempty" bson:"comments,omitempty"`
 	Assets   []string       `json:"assets,omitempty" bson:"assets,omitempty"`
 	Sections []string       `json:"sections,omitempty" bson:"sections,omitempty"`
 }
 
-type ActionStatisticsAccumulator struct {
+type PerformedActionStatisticsAccumulator struct {
 	Counts, Comments, Assets, Users aggregate.Int
 }
 
-func NewActionStatisticsAccumulator() *ActionStatisticsAccumulator {
-	return &ActionStatisticsAccumulator{
+func NewPerformedActionStatisticsAccumulator() *PerformedActionStatisticsAccumulator {
+	return &PerformedActionStatisticsAccumulator{
 		Counts:   aggregate.NewInt(),
 		Comments: aggregate.NewInt(),
 		Assets:   aggregate.NewInt(),
@@ -30,21 +30,25 @@ func NewActionStatisticsAccumulator() *ActionStatisticsAccumulator {
 	}
 }
 
-func (a *ActionStatisticsAccumulator) Accumulate(ctx context.Context, object interface{}) {
+func (a *PerformedActionStatisticsAccumulator) Accumulate(ctx context.Context, object interface{}) {
 	if action, ok := object.(*model.Action); ok {
 		a.Counts.Add("count", 1)
-		a.Users.Add(action.UserID.Hex(), 1)
-		if action.Target == "comment" {
+		switch {
+		case action.Target == "comment":
 			a.Comments.Add(action.TargetID.Hex(), 1)
+		case action.Target == "user":
+			a.Users.Add(action.TargetID.Hex(), 1)
+		case action.Target == "asset":
+			a.Assets.Add(action.TargetID.Hex(), 1)
 		}
 	}
 }
 
-func (a *ActionStatisticsAccumulator) Combine(object interface{}) {
+func (a *PerformedActionStatisticsAccumulator) Combine(object interface{}) {
 	switch typedObject := object.(type) {
 	default:
-		log.Println("ActionStatisticsAccumulator error: unexpected combine type")
-	case *ActionStatisticsAccumulator:
+		log.Println("PerformedActionStatisticsAccumulator error: unexpected combine type")
+	case *PerformedActionStatisticsAccumulator:
 		a.Counts.Combine(typedObject.Counts)
 		a.Comments.Combine(typedObject.Comments)
 		a.Assets.Combine(typedObject.Assets)
@@ -52,7 +56,7 @@ func (a *ActionStatisticsAccumulator) Combine(object interface{}) {
 	}
 }
 
-func (a *ActionStatisticsAccumulator) ActionStatistics(ctx context.Context) *ActionStatistics {
+func (a *PerformedActionStatisticsAccumulator) ActionStatistics(ctx context.Context) *ActionStatistics {
 	actionStatistics := &ActionStatistics{
 		Count: a.Counts.Total("count"),
 	}
@@ -67,19 +71,20 @@ func (a *ActionStatisticsAccumulator) ActionStatistics(ctx context.Context) *Act
 }
 
 type ActionTypes struct {
-	All   *ActionStatistics            `json:"all,omitempty" bson:"all,omitempty"`
-	Types map[string]*ActionStatistics `json:"types" bson:",inline"`
+	All    *ActionStatistics            `json:"all,omitempty" bson:"all,omitempty"`
+	Types  map[string]*ActionStatistics `json:"types" bson:",inline"`
+	Ratios map[string]float64           `json:"ratios,omitempty" bson:"ratios,omitempty"`
 }
 
 type ActionTypesAccumulator struct {
-	All   *ActionStatisticsAccumulator
-	Types map[string]*ActionStatisticsAccumulator
+	All   *PerformedActionStatisticsAccumulator
+	Types map[string]*PerformedActionStatisticsAccumulator
 }
 
 func NewActionTypesAccumulator() *ActionTypesAccumulator {
 	return &ActionTypesAccumulator{
-		All:   NewActionStatisticsAccumulator(),
-		Types: make(map[string]*ActionStatisticsAccumulator),
+		All:   NewPerformedActionStatisticsAccumulator(),
+		Types: make(map[string]*PerformedActionStatisticsAccumulator),
 	}
 }
 
@@ -88,7 +93,7 @@ func (a *ActionTypesAccumulator) Accumulate(ctx context.Context, object interfac
 		a.All.Accumulate(ctx, object)
 		if action.Type != "" {
 			if _, ok := a.Types[action.Type]; !ok {
-				a.Types[action.Type] = NewActionStatisticsAccumulator()
+				a.Types[action.Type] = NewPerformedActionStatisticsAccumulator()
 			}
 			a.Types[action.Type].Accumulate(ctx, object)
 		}
@@ -103,7 +108,7 @@ func (a *ActionTypesAccumulator) Combine(object interface{}) {
 		a.All.Combine(typedObject.All)
 		for key, value := range typedObject.Types {
 			if _, ok := a.Types[key]; !ok {
-				a.Types[key] = NewActionStatisticsAccumulator()
+				a.Types[key] = NewPerformedActionStatisticsAccumulator()
 			}
 			a.Types[key].Combine(value)
 		}
@@ -111,13 +116,19 @@ func (a *ActionTypesAccumulator) Combine(object interface{}) {
 }
 
 func (a *ActionTypesAccumulator) ActionStatistics(ctx context.Context) *ActionTypes {
+	all := a.All.ActionStatistics(ctx)
 	types := make(map[string]*ActionStatistics)
+	ratios := make(map[string]float64)
 	for key, value := range a.Types {
 		types[key] = value.ActionStatistics(ctx)
+		if all.Count > 0 {
+			ratios[key] = float64(types[key].Count) / float64(all.Count)
+		}
 	}
 
 	return &ActionTypes{
-		All:   a.All.ActionStatistics(ctx),
-		Types: types,
+		All:    all,
+		Types:  types,
+		Ratios: ratios,
 	}
 }

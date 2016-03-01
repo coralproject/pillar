@@ -37,6 +37,7 @@ var (
 type MongoDBBackend struct {
 	database string
 	session  *mgo.Session
+	sem      chan struct{}
 }
 
 // NewMongoDBBackend creates a new MongoDBBackendBackend object using a
@@ -81,6 +82,11 @@ func NewMongoDBBackend(addrs []string, database, username, password string, ssl 
 
 	return m, nil
 }
+
+// type session struct {
+// 	session *mgo.Session
+// 	sem
+// }
 
 func (m *MongoDBBackend) newSession() *mgo.Session {
 	return m.session.Clone()

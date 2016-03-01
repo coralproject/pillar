@@ -2,6 +2,8 @@ package statistics
 
 import (
 	"log"
+	"strings"
+	"time"
 
 	"golang.org/x/net/context"
 
@@ -11,23 +13,32 @@ import (
 )
 
 type CommentStatistics struct {
-	Count int `json:"count" bson:"count"`
+	Count int `json:"count" bson:"count,minsize"`
 
 	// Replied concerns the comments of this group.
-	RepliedCount      int      `json:"replied_count" bson:"replied_count"`
+	RepliedCount      int      `json:"replied_count" bson:"replied_count,minsize"`
 	RepliedToComments []string `json:"replied_comments,omitempty" bson:"replied_comments,omitempty"`
 	RepliedToUsers    []string `json:"replied_users,omitempty" bson:"replied_users,omitempty"`
 	RepliedRatio      float64  `json:"replied_ratio" bson:"replied_ratio"`
 
 	// Reply concerns replies to the comments of this group.
-	ReplyCount    int      `json:"reply_count" bson:"reply_count"`
+	ReplyCount    int      `json:"reply_count" bson:"reply_count,minsize"`
 	ReplyComments []string `json:"reply_comments,omitempty" bson:"reply_comments,omitempty"`
 	ReplyUsers    []string `json:"reply_users,omitempty" bson:"reply_users,omitempty"`
 	ReplyRatio    float64  `json:"reply_ratio" bson:"reply_ratio"`
+
+	// First and last comments.
+	First time.Time `json:"first,omitempty" bson:"first,omitempty"`
+	Last  time.Time `json:"last,omitempty" bson:"last,omitempty"`
+
+	// Text analysis.
+	WordCountAverage float64 `json:"word_count_average" bson:"word_count_average"`
 }
 
 type CommentStatisticsAccumulator struct {
 	Counts, RepliedComments, RepliedUsers, ReplyComments, ReplyUsers aggregate.Int
+	First                                                            *aggregate.Oldest
+	Last                                                             *aggregate.Newest
 }
 
 func NewCommentStatisticsAccumulator() *CommentStatisticsAccumulator {
@@ -37,12 +48,17 @@ func NewCommentStatisticsAccumulator() *CommentStatisticsAccumulator {
 		RepliedUsers:    aggregate.NewInt(),
 		ReplyComments:   aggregate.NewInt(),
 		ReplyUsers:      aggregate.NewInt(),
+		First:           aggregate.NewOldest(),
+		Last:            aggregate.NewNewest(),
 	}
 }
 
 func (a *CommentStatisticsAccumulator) Accumulate(ctx context.Context, object interface{}) {
 	if comment, ok := object.(*model.Comment); ok {
 		a.Counts.Add("count", 1)
+
+		// Word count.
+		a.Counts.Add("word_count", len(strings.Split(comment.Body, " ")))
 
 		// Handle replied.
 		if comment.ParentID.Hex() != "" {
@@ -55,6 +71,9 @@ func (a *CommentStatisticsAccumulator) Accumulate(ctx context.Context, object in
 			a.Counts.Add("reply_count", 1)
 			a.ReplyComments.Add(reply.Hex(), 1)
 		}
+
+		a.First.Check(comment.DateCreated)
+		a.Last.Check(comment.DateCreated)
 	}
 }
 
@@ -68,16 +87,27 @@ func (a *CommentStatisticsAccumulator) Combine(object interface{}) {
 		a.RepliedUsers.Combine(typedObject.RepliedUsers)
 		a.ReplyComments.Combine(typedObject.ReplyComments)
 		a.ReplyUsers.Combine(typedObject.ReplyUsers)
+		a.First.Combine(typedObject.First)
+		a.Last.Combine(typedObject.Last)
 	}
 }
 
 func (a *CommentStatisticsAccumulator) CommentStatistics(ctx context.Context) *CommentStatistics {
 	commentStatistics := &CommentStatistics{
-		Count:        a.Counts.Total("count"),
-		RepliedCount: a.Counts.Total("replied_count"),
-		RepliedRatio: a.Counts.Ratio("replied_count", "count"),
-		ReplyCount:   a.Counts.Total("reply_count"),
-		ReplyRatio:   a.Counts.Ratio("reply_count", "count"),
+		Count:            a.Counts.Total("count"),
+		RepliedCount:     a.Counts.Total("replied_count"),
+		RepliedRatio:     a.Counts.Ratio("replied_count", "count"),
+		ReplyCount:       a.Counts.Total("reply_count"),
+		ReplyRatio:       a.Counts.Ratio("reply_count", "count"),
+		WordCountAverage: float64(a.Counts.Total("word_count")) / float64(a.Counts.Total("count")),
+	}
+
+	if a.First.Valid {
+		commentStatistics.First = a.First.Time
+	}
+
+	if a.Last.Valid {
+		commentStatistics.Last = a.Last.Time
 	}
 
 	//  add unbound values if this isn't a reference-only request.
@@ -92,8 +122,9 @@ func (a *CommentStatisticsAccumulator) CommentStatistics(ctx context.Context) *C
 }
 
 type CommentTypes struct {
-	All   *CommentStatistics            `json:"all,omitempty" bson:"all,omitempty"`
-	Types map[string]*CommentStatistics `json:"types,omitempty" bson:",inline"`
+	All    *CommentStatistics            `json:"all,omitempty" bson:"all,omitempty"`
+	Types  map[string]*CommentStatistics `json:"types,omitempty" bson:",inline"`
+	Ratios map[string]float64            `json:"ratios,omitempty" bson:"ratios,omitempty"`
 }
 
 type CommentTypesAccumulator struct {
@@ -137,14 +168,21 @@ func (a *CommentTypesAccumulator) Combine(object interface{}) {
 }
 
 func (a *CommentTypesAccumulator) CommentTypes(ctx context.Context) *CommentTypes {
+	all := a.All.CommentStatistics(ctx)
+
 	types := make(map[string]*CommentStatistics)
+	ratios := make(map[string]float64)
 	for key, value := range a.Types {
 		types[key] = value.CommentStatistics(ctx)
+		if all.Count > 0 {
+			ratios[key] = float64(types[key].Count) / float64(all.Count)
+		}
 	}
 
 	return &CommentTypes{
-		All:   a.All.CommentStatistics(ctx),
-		Types: types,
+		All:    all,
+		Types:  types,
+		Ratios: ratios,
 	}
 }
 
