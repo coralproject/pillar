@@ -4,6 +4,8 @@ import (
 	"golang.org/x/net/context"
 	"log"
 
+	"gopkg.in/mgo.v2/bson"
+
 	"github.com/coralproject/pillar/pkg/aggregate"
 	"github.com/coralproject/pillar/pkg/backend"
 	"github.com/coralproject/pillar/pkg/backend/iterator"
@@ -159,12 +161,11 @@ func (a *UserAccumulator) Accumulate(ctx context.Context, object interface{}) {
 	}
 
 	actionsRevceivedIterator, err := b.Find("actions", map[string]interface{}{
-		"target":    "comments",
-		"target_id": userStatisticsAccumulator.CommentIDs(ctx),
+		"target": "comments",
+		"target_id": bson.M{
+			"$in": userStatisticsAccumulator.CommentIDs(ctx),
+		},
 	})
-	if err != nil {
-		return
-	}
 
 	actionsReceivedAccumulator :=
 		aggregate.Pipeline(ctx, iterator.EachChannel(actionsRevceivedIterator), func() aggregate.Accumulator {
