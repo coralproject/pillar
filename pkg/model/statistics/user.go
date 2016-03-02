@@ -17,16 +17,25 @@ type UserActions struct {
 
 type UserActionsAccumulator struct {
 	Performed *ActionTypesAccumulator
+	Received  *ReceivedActionTypesAccumulator
 }
 
 func NewUserActionsAccumulator() *UserActionsAccumulator {
 	return &UserActionsAccumulator{
 		Performed: NewActionTypesAccumulator(),
+		Received:  NewReceivedActionTypesAccumulator(),
 	}
 }
 
 func (a *UserActionsAccumulator) Accumulate(ctx context.Context, object interface{}) {
-	a.Performed.Accumulate(ctx, object)
+	if action, ok := object.(*model.Action); ok {
+		userID := ctx.Value("user_id")
+		if action.UserID == userID {
+			a.Performed.Accumulate(ctx, object)
+		} else {
+			a.Received.Accumulate(ctx, object)
+		}
+	}
 }
 
 func (a *UserActionsAccumulator) Combine(object interface{}) {
@@ -35,12 +44,14 @@ func (a *UserActionsAccumulator) Combine(object interface{}) {
 		log.Println("UserActionsAccumulator error: unexpected combine type")
 	case *UserActionsAccumulator:
 		a.Performed.Combine(typedObject.Performed)
+		a.Received.Combine(typedObject.Received)
 	}
 }
 
 func (a *UserActionsAccumulator) UserActions(ctx context.Context) *UserActions {
 	return &UserActions{
 		Performed: a.Performed.ActionStatistics(ctx),
+		Received:  a.Received.ActionStatistics(ctx),
 	}
 }
 
@@ -50,20 +61,25 @@ type UserStatistics struct {
 }
 
 type UserStatisticsAccumulator struct {
-	Comments *CommentDimensionsAccumulator
-	Actions  *UserActionsAccumulator
+	Comments     *CommentDimensionsAccumulator
+	Actions      *UserActionsAccumulator
+	CommentIDMap map[interface{}]struct{}
 }
 
 func NewUserStatisticsAccumulator() *UserStatisticsAccumulator {
 	return &UserStatisticsAccumulator{
-		Comments: NewCommentDimensionsAccumulator(),
-		Actions:  NewUserActionsAccumulator(),
+		Comments:     NewCommentDimensionsAccumulator(),
+		Actions:      NewUserActionsAccumulator(),
+		CommentIDMap: make(map[interface{}]struct{}),
 	}
 }
 
 func (a *UserStatisticsAccumulator) Accumulate(ctx context.Context, object interface{}) {
 	a.Comments.Accumulate(ctx, object)
 	a.Actions.Accumulate(ctx, object)
+	if comment, ok := object.(*model.Comment); ok {
+		a.CommentIDMap[comment.ID] = struct{}{}
+	}
 }
 
 func (a *UserStatisticsAccumulator) Combine(object interface{}) {
@@ -73,6 +89,9 @@ func (a *UserStatisticsAccumulator) Combine(object interface{}) {
 	case *UserStatisticsAccumulator:
 		a.Comments.Combine(typedObject.Comments)
 		a.Actions.Combine(typedObject.Actions)
+		for key, _ := range typedObject.CommentIDMap {
+			a.CommentIDMap[key] = struct{}{}
+		}
 	}
 }
 
@@ -81,6 +100,14 @@ func (a *UserStatisticsAccumulator) UserStatistics(ctx context.Context) *UserSta
 		Comments: a.Comments.CommentDimensions(ctx),
 		Actions:  a.Actions.UserActions(ctx),
 	}
+}
+
+func (a *UserStatisticsAccumulator) CommentIDs(ctx context.Context) []interface{} {
+	commentIDs := make([]interface{}, 0, len(a.CommentIDMap))
+	for key, _ := range a.CommentIDMap {
+		commentIDs = append(commentIDs, key)
+	}
+	return commentIDs
 }
 
 type User struct {
@@ -106,12 +133,17 @@ func (a *UserAccumulator) Accumulate(ctx context.Context, object interface{}) {
 		return
 	}
 
+	// Add the user ID to the context.
+	ctx = context.WithValue(ctx, "user_id", user.ID)
+
 	b, ok := ctx.Value("backend").(backend.Backend)
 	if !ok {
 		return
 	}
 
-	commentsIterator, err := b.Find("comments", map[string]interface{}{"user_id": user.ID})
+	commentsIterator, err := b.Find("comments", map[string]interface{}{
+		"user_id": user.ID,
+	})
 	if err != nil {
 		return
 	}
@@ -121,7 +153,29 @@ func (a *UserAccumulator) Accumulate(ctx context.Context, object interface{}) {
 			return NewUserStatisticsAccumulator()
 		})
 
-	actionsPerformedIterator, err := b.Find("actions", map[string]interface{}{"user_id": user.ID})
+	userStatisticsAccumulator, ok := commentsAccumulator.(*UserStatisticsAccumulator)
+	if !ok {
+		return
+	}
+
+	actionsRevceivedIterator, err := b.Find("actions", map[string]interface{}{
+		"target":    "comments",
+		"target_id": userStatisticsAccumulator.CommentIDs(ctx),
+	})
+	if err != nil {
+		return
+	}
+
+	actionsReceivedAccumulator :=
+		aggregate.Pipeline(ctx, iterator.EachChannel(actionsRevceivedIterator), func() aggregate.Accumulator {
+			return NewUserStatisticsAccumulator()
+		})
+
+	userStatisticsAccumulator.Combine(actionsReceivedAccumulator)
+
+	actionsPerformedIterator, err := b.Find("actions", map[string]interface{}{
+		"user_id": user.ID,
+	})
 	if err != nil {
 		return
 	}
@@ -131,17 +185,12 @@ func (a *UserAccumulator) Accumulate(ctx context.Context, object interface{}) {
 			return NewUserStatisticsAccumulator()
 		})
 
+	userStatisticsAccumulator.Combine(actionsPerformedAccumulator)
+
 	// 		actionsReceivedIterator, err := b.Find("actions", map[string]interface{}{"":"","target_id": user.ID})
 	// if err != nil {
 	// 	return
 	// }
-
-	commentsAccumulator.Combine(actionsPerformedAccumulator)
-
-	userStatisticsAccumulator, ok := commentsAccumulator.(*UserStatisticsAccumulator)
-	if !ok {
-		return
-	}
 
 	userStatisticsReference := userStatisticsAccumulator.UserStatistics(ctx)
 	if count := user.Stats["comments"]; count != nil && userStatisticsReference.Comments.All.All.Count != count {

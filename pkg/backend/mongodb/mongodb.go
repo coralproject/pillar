@@ -18,9 +18,15 @@ var (
 	indexMap = map[string][]mgo.Index{
 		"comments": []mgo.Index{
 			mgo.Index{
-				Key:      []string{"user_id"},
-				Unique:   false,
-				DropDups: false,
+				Key: []string{"user_id"},
+			},
+		},
+		"actions": []mgo.Index{
+			mgo.Index{
+				Key: []string{"user_id"},
+			},
+			mgo.Index{
+				Key: []string{"target", "target_id"},
 			},
 		},
 		"dimensions": []mgo.Index{
