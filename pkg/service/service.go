@@ -57,28 +57,16 @@ func initDB() {
 		log.Fatalf("Error connecting to mongo database: %s", err)
 	}
 
+	// Ensure indicies are built.
+	for _, one := range model.Indicies {
+		c := session.DB("").C(one.Target)
+		if err := c.EnsureIndex(one.Index); err != nil {
+			log.Fatalf("Error building indicies: %s", err)
+		}
+	}
+
+	//keep it for reuse
 	mgoSession = session
-
-	//source.id and target+type+user_id+target_id
-	mgoSession.DB("").C(model.Actions).EnsureIndexKey("source.id")
-	mgoSession.DB("").C(model.Actions).EnsureIndexKey("user_id", "target_id", "target", "type")
-
-	//url and source.id on Asset
-	mgoSession.DB("").C(model.Assets).EnsureIndexKey("source.id")
-	mgoSession.DB("").C(model.Assets).EnsureIndexKey("url")
-
-	//source.id on User
-	mgoSession.DB("").C(model.Users).EnsureIndexKey("source.id")
-
-	//source.id on Comment
-	mgoSession.DB("").C(model.Comments).EnsureIndexKey("source.id")
-	mgoSession.DB("").C(model.Comments).EnsureIndexKey("source.parent_id")
-
-	//name on Tag
-	mgoSession.DB("").C(model.Tags).EnsureIndexKey("name")
-
-	//target_id, name and target,
-	mgoSession.DB("").C(model.Tags).EnsureIndexKey("target_id", "name", "target")
 }
 
 func initIndex() {
