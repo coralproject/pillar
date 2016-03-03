@@ -37,9 +37,9 @@ func (m *MongoDB) Close() {
 }
 
 func (m *MongoDB) Upsert(objectType string, id, object interface{}) error {
-	//	session := m.NewMongoDB()
-	//	defer session.Close()
-	//
+	session := m.Session.Clone()
+	defer session.Close()
+
 	_, err := m.Session.DB("").C(objectType).UpsertId(id, object)
 	return err
 }
@@ -49,7 +49,7 @@ func (m *MongoDB) Find(objectType string, query map[string]interface{}) (iterato
 		return nil, err
 	}
 
-	session := m.Session
+	session := m.Session.Clone()
 	return &iter{
 		session: session,
 		iter:    session.DB("").C(objectType).Find(query).Iter(),
