@@ -3,6 +3,7 @@ package service
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/coralproject/pillar/pkg/db"
 	"github.com/coralproject/pillar/pkg/model"
 	"os"
 	"testing"
@@ -21,14 +22,17 @@ const (
 )
 
 func init() {
-	mm := GetMongoManager()
-	mm.TagTargets.RemoveAll(nil)
-	mm.Tags.RemoveAll(nil)
-	mm.Actions.RemoveAll(nil)
-	mm.Comments.RemoveAll(nil)
-	mm.Users.RemoveAll(nil)
-	mm.Assets.RemoveAll(nil)
-	mm.CayUserActions.RemoveAll(nil)
+	db := db.NewMongoDB()
+	defer db.Close()
+
+	//Empty all test data
+	db.TagTargets.RemoveAll(nil)
+	db.Tags.RemoveAll(nil)
+	db.Actions.RemoveAll(nil)
+	db.Comments.RemoveAll(nil)
+	db.Users.RemoveAll(nil)
+	db.Assets.RemoveAll(nil)
+	db.CayUserActions.RemoveAll(nil)
 }
 
 func TestCreateTag(t *testing.T) {
@@ -43,8 +47,11 @@ func TestCreateTag(t *testing.T) {
 		fmt.Println("Error reading tags ", err.Error())
 	}
 
+	c := NewContext()
+	defer c.Close()
 	for _, one := range objects {
-		_, err := CreateUpdateTag(&one)
+		c.Input = one
+		_, err := CreateUpdateTag(c)
 		if err != nil {
 			t.Fail()
 		}
@@ -63,8 +70,11 @@ func TestCreateAsset(t *testing.T) {
 		fmt.Println("Error reading asset data", err.Error())
 	}
 
+	c := NewContext()
+	defer c.Close()
 	for _, one := range objects {
-		_, err := CreateAsset(&one)
+		c.Input = one
+		_, err := CreateAsset(c)
 		if err != nil {
 			t.Fail()
 		}
@@ -72,7 +82,8 @@ func TestCreateAsset(t *testing.T) {
 
 	//try the same set again and it shouldn't fail
 	for _, one := range objects {
-		_, err := CreateAsset(&one)
+		c.Input = one
+		_, err := CreateAsset(c)
 		if err != nil {
 			t.Fail()
 		}
@@ -91,15 +102,19 @@ func TestCreateUser(t *testing.T) {
 		fmt.Println("Error reading user data", err.Error())
 	}
 
+	c := NewContext()
+	defer c.Close()
 	for _, one := range objects {
-		_, err := CreateUser(&one)
+		c.Input = one
+		_, err := CreateUser(c)
 		if err != nil {
 			t.Fail()
 		}
 	}
 	//try the same set again and it shouldn't fail
 	for _, one := range objects {
-		_, err := CreateUser(&one)
+		c.Input = one
+		_, err := CreateUser(c)
 		if err != nil {
 			t.Fail()
 		}
@@ -118,15 +133,19 @@ func TestCreateComments(t *testing.T) {
 		fmt.Println("Error reading user data", err.Error())
 	}
 
+	c := NewContext()
+	defer c.Close()
 	for _, one := range objects {
-		_, err := CreateComment(&one)
+		c.Input = one
+		_, err := CreateComment(c)
 		if err != nil {
 			t.Fail()
 		}
 	}
 	//try the same set again and it shouldn't fail
 	for _, one := range objects {
-		_, err := CreateComment(&one)
+		c.Input = one
+		_, err := CreateComment(c)
 		if err != nil {
 			t.Fail()
 		}
@@ -145,8 +164,11 @@ func TestCreateActions(t *testing.T) {
 		fmt.Println("Error reading user data", err.Error())
 	}
 
+	c := NewContext()
+	defer c.Close()
 	for _, one := range objects {
-		_, err := CreateAction(&one)
+		c.Input = one
+		_, err := CreateAction(c)
 		if err != nil {
 			t.Fail()
 		}
@@ -154,7 +176,8 @@ func TestCreateActions(t *testing.T) {
 
 	//Try again with the same data and it should all fail
 	for _, one := range objects {
-		_, err := CreateAction(&one)
+		c.Input = one
+		_, err := CreateAction(c)
 		if err == nil {
 			t.Fail()
 		}
@@ -173,8 +196,11 @@ func TestCreateIndexes(t *testing.T) {
 		fmt.Println("Error reading index data", err.Error())
 	}
 
+	c := NewContext()
+	defer c.Close()
 	for _, one := range objects {
-		err := CreateIndex(&one)
+		c.Input = one
+		err := CreateIndex(c)
 		if err != nil {
 			t.Fail()
 		}
@@ -193,8 +219,11 @@ func TestUpdateMetadata(t *testing.T) {
 		fmt.Println("Error reading metadata ", err.Error())
 	}
 
+	c := NewContext()
+	defer c.Close()
 	for _, one := range objects {
-		_, err := UpdateMetadata(&one)
+		c.Input = one
+		_, err := UpdateMetadata(c)
 		if err != nil {
 			t.Fail()
 		}
@@ -213,8 +242,11 @@ func TestUserActions(t *testing.T) {
 		fmt.Println("Error reading user-actions ", err.Error())
 	}
 
+	c := NewContext()
+	defer c.Close()
 	for _, one := range objects {
-		err := CreateUserAction(&one)
+		c.Input = one
+		err := CreateUserAction(c)
 		if err != nil {
 			fmt.Printf("%+v", err)
 			t.Fail()
@@ -234,8 +266,11 @@ func TestRenameTags(t *testing.T) {
 		fmt.Println("Error reading tags ", err.Error())
 	}
 
+	c := NewContext()
+	defer c.Close()
 	for _, one := range objects {
-		_, err := CreateUpdateTag(&one)
+		c.Input = one
+		_, err := CreateUpdateTag(c)
 		if err != nil {
 			t.Fail()
 		}
