@@ -3,14 +3,14 @@ package handler
 import (
 	"encoding/json"
 	"github.com/coralproject/pillar/app/pillar/config"
-	"github.com/coralproject/pillar/pkg/model"
 	"github.com/coralproject/pillar/pkg/service"
 	"net/http"
+	"github.com/coralproject/pillar/pkg/model"
 )
 
 func doRespond(w http.ResponseWriter, object interface{}, appErr *service.AppError) {
 	if appErr != nil {
-		config.Logger.Printf("Call failed [%+v]", appErr)
+		config.Logger.Printf("Call failed [%v]", appErr)
 		payload, err := json.Marshal(appErr)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -24,7 +24,7 @@ func doRespond(w http.ResponseWriter, object interface{}, appErr *service.AppErr
 
 	payload, err := json.Marshal(object)
 	if err != nil {
-		config.Logger.Printf("Call failed [%+v]", err)
+		config.Logger.Printf("Call failed [%v]", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -34,23 +34,16 @@ func doRespond(w http.ResponseWriter, object interface{}, appErr *service.AppErr
 }
 
 func CreateIndex(w http.ResponseWriter, r *http.Request) {
-	//Get the Index from request
-	jsonObject := model.Index{}
-	json.NewDecoder(r.Body).Decode(&jsonObject)
-
-	// Write content-type, status code and payload
-	w.Header().Set("Content-Type", "application/json")
-	err := service.CreateIndex(&jsonObject)
+	var input model.Index
+	json.NewDecoder(r.Body).Decode(&input)
+	err := service.CreateIndex(GetAppContext(r, input))
 	doRespond(w, nil, err)
 }
 
 func HandleUserAction(w http.ResponseWriter, r *http.Request) {
-	//Get the UserAction from request
-	jsonObject := model.CayUserAction{}
-	json.NewDecoder(r.Body).Decode(&jsonObject)
-
-	// Write content-type, status code and payload
-	w.Header().Set("Content-Type", "application/json")
-	err := service.CreateUserAction(&jsonObject)
+	var input model.Action
+	json.NewDecoder(r.Body).Decode(&input)
+	err := service.CreateUserAction(GetAppContext(r, input))
 	doRespond(w, nil, err)
 }
+
