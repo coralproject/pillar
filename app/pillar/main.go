@@ -8,10 +8,16 @@ import (
 )
 
 func main() {
-	router := route.NewRouter()
+	//new Negroni Middleware
 	n := negroni.Classic()
+
+	//Add CORS and custom AppHandler
 	n.Use(handler.CORS())
 	n.Use(handler.AppHandler())
-	n.UseHandler(router)
+
+	//Router at the end
+	n.UseHandler(route.NewRouter())
+
+	//run server
 	n.Run(config.GetAddress())
 }
