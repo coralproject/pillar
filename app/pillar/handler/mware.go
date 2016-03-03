@@ -43,7 +43,7 @@ func GetAppContext(r *http.Request, input interface{}) *service.AppContext {
 	}
 
 	c := rc.(*service.AppContext)
-	//inject input with appropriate type
+	//inject input data if any
 	if input != nil {
 		c.Input = input
 	}
