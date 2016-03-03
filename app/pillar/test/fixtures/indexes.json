@@ -1,0 +1,47 @@
+[
+    {
+        "target": "assets",
+        "index": {
+            "name": "asset-url",
+            "key": ["url"],
+            "unique": true,
+            "dropdups": true
+        }
+    },
+    {
+        "target": "assets",
+        "index": {
+            "name": "asset-source-id",
+            "key": ["source.id"],
+            "unique": true,
+            "dropdups": true
+        }
+    },
+    {
+        "target": "actions",
+        "index": {
+            "name": "action-source-id",
+            "key": ["source.id"],
+            "unique": true,
+            "dropdups": true
+        }
+    },
+    {
+        "target": "users",
+        "index": {
+            "name": "user-source-id",
+            "key": ["source.id"],
+            "unique": true,
+            "dropdups": true
+        }
+    },
+    {
+        "target": "comments",
+        "index": {
+            "name": "comment-source-id",
+            "key": ["source.id"],
+            "unique": true,
+            "dropdups": true
+        }
+    }
+]
