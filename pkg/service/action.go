@@ -6,18 +6,18 @@ import (
 	"github.com/coralproject/pillar/pkg/model"
 	"gopkg.in/mgo.v2/bson"
 	"net/http"
+	"github.com/coralproject/pillar/pkg/db"
 )
 
 // CreateAction creates a new action resource
-func CreateAction(object *model.Action) (*model.Action, *AppError) {
+func CreateAction(context *AppContext) (*model.Action, *AppError) {
 
-	manager := GetMongoManager()
-	defer manager.Close()
+	db := context.DB
+	object := context.Input.(model.Action)
 
 	dbEntity := model.Action{}
-
 	//return, if exists
-	manager.Actions.FindId(object.ID).One(&dbEntity)
+	db.Actions.FindId(object.ID).One(&dbEntity)
 	if dbEntity.ID != "" {
 		message := fmt.Sprintf("Action exists with source ID [%s]\n", object.ID)
 		return nil, &AppError{nil, message, http.StatusInternalServerError}
@@ -25,20 +25,20 @@ func CreateAction(object *model.Action) (*model.Action, *AppError) {
 
 	//find & return if one exist with the same source.id
 	if object.Source.ID != "" {
-		manager.Actions.Find(bson.M{"source.id": object.Source.ID}).One(&dbEntity)
+		db.Actions.Find(bson.M{"source.id": object.Source.ID}).One(&dbEntity)
 		if dbEntity.ID != "" {
 			message := fmt.Sprintf("Action exists with source [%s]\n", object.Source.ID)
 			return nil, &AppError{nil, message, http.StatusInternalServerError}
 		}
 	}
 
-	if err := setReferences(object, manager); err != nil {
+	if err := setReferences(db, &object); err != nil {
 		message := fmt.Sprintf("Error setting action references [%s]", err)
 		return nil, &AppError{nil, message, http.StatusInternalServerError}
 	}
 
 	//do not allow duplicate action from this user on the same target
-	manager.Actions.Find(bson.M{"user_id": object.UserID, "target_id": object.TargetID,
+	db.Actions.Find(bson.M{"user_id": object.UserID, "target_id": object.TargetID,
 		"target": object.Target, "type": object.Type}).One(&dbEntity)
 	if dbEntity.ID != "" {
 		message := fmt.Sprintf("Duplicate %s action detected by user [%s] on target [%s: %s]\n",
@@ -46,20 +46,20 @@ func CreateAction(object *model.Action) (*model.Action, *AppError) {
 		return nil, &AppError{nil, message, http.StatusInternalServerError}
 	}
 
-	if err := manager.Actions.Insert(object); err != nil {
+	if err := db.Actions.Insert(object); err != nil {
 		message := fmt.Sprintf("Error creating action [%s]", err)
 		return nil, &AppError{err, message, http.StatusInternalServerError}
 	}
 
-	if err := updateTargetOnAction(object, manager); err != nil {
+	if err := updateTargetOnAction(db, &object); err != nil {
 		message := fmt.Sprintf("Error updating stats on target [%s]", err)
 		return nil, &AppError{err, message, http.StatusInternalServerError}
 	}
 
-	return object, nil
+	return &object, nil
 }
 
-func setReferences(object *model.Action, manager *MongoManager) error {
+func setReferences(db *db.MongoDB, object *model.Action) error {
 
 	//set _id
 	object.ID = bson.NewObjectId()
@@ -67,7 +67,7 @@ func setReferences(object *model.Action, manager *MongoManager) error {
 	//set user_id
 	if object.UserID == "" {
 		var user model.User
-		manager.Users.Find(bson.M{"source.id": object.Source.UserID}).One(&user)
+		db.Users.Find(bson.M{"source.id": object.Source.UserID}).One(&user)
 		if user.ID == "" {
 			err := errors.New("Cannot find user from source: " + object.Source.UserID)
 			return err
@@ -77,7 +77,7 @@ func setReferences(object *model.Action, manager *MongoManager) error {
 
 	//set target_id
 	if object.TargetID == "" {
-		if err := setTarget(object, manager); err != nil {
+		if err := setTarget(db, object); err != nil {
 			return err
 		}
 	}
@@ -85,13 +85,13 @@ func setReferences(object *model.Action, manager *MongoManager) error {
 	return nil
 }
 
-func setTarget(object *model.Action, manager *MongoManager) error {
+func setTarget(db *db.MongoDB, object *model.Action) error {
 
 	//find target and set the reference
 	switch object.Target {
 	case model.Users:
 		var user model.User
-		manager.Users.Find(bson.M{"source.id": object.Source.TargetID}).One(&user)
+		db.Users.Find(bson.M{"source.id": object.Source.TargetID}).One(&user)
 		if user.ID == "" {
 			return errors.New("Cannot find user from source: " + object.Source.TargetID)
 		}
@@ -101,7 +101,7 @@ func setTarget(object *model.Action, manager *MongoManager) error {
 
 	case model.Comments:
 		var comment model.Comment
-		manager.Comments.Find(bson.M{"source.id": object.Source.TargetID}).One(&comment)
+		db.Comments.Find(bson.M{"source.id": object.Source.TargetID}).One(&comment)
 		if comment.ID == "" {
 			return errors.New("Cannot find comment from source: " + object.Source.TargetID)
 		}
@@ -113,17 +113,17 @@ func setTarget(object *model.Action, manager *MongoManager) error {
 	return nil
 }
 
-func updateTargetOnAction(object *model.Action, manager *MongoManager) error {
+func updateTargetOnAction(db *db.MongoDB, object *model.Action) error {
 
 	//find target and set the reference
 	switch object.Target {
 	case model.Users:
 		//update comment with this action
-		return updateUserOnAction(object, manager)
+		return updateUserOnAction(db, object)
 
 	case model.Comments:
 		//update comment with this action
-		return updateCommentOnAction(object, manager)
+		return updateCommentOnAction(db, object)
 	}
 
 	return nil

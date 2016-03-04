@@ -4,20 +4,20 @@ import (
 	"github.com/codegangsta/negroni"
 	"github.com/coralproject/pillar/app/pillar/config"
 	"github.com/coralproject/pillar/app/pillar/route"
-	"github.com/rs/cors"
+	"github.com/coralproject/pillar/app/pillar/handler"
 )
 
 func main() {
-	c := cors.New(cors.Options{
-		AllowedOrigins:   []string{"*"},
-		AllowedMethods:   []string{"POST", "GET", "OPTIONS", "DELETE"},
-		AllowedHeaders:   []string{"Accept", "Content-Type", "Content-Length", "Accept-Encoding"},
-		AllowCredentials: true,
-	})
-
-	router := route.NewRouter()
+	//new Negroni Middleware
 	n := negroni.Classic()
-	n.Use(c)
-	n.UseHandler(router)
+
+	//Add CORS and custom AppHandler
+	n.Use(handler.CORS())
+	n.Use(handler.AppHandler())
+
+	//Router at the end
+	n.UseHandler(route.NewRouter())
+
+	//run server
 	n.Run(config.GetAddress())
 }
