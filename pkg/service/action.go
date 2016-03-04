@@ -9,54 +9,100 @@ import (
 	"github.com/coralproject/pillar/pkg/db"
 )
 
-// CreateAction creates a new action resource
-func CreateAction(context *AppContext) (*model.Action, *AppError) {
-
+// ImportAction imports a new action resource
+func ImportAction(context *AppContext) (*model.Action, *AppError) {
 	db := context.DB
-	object := context.Input.(model.Action)
+	input := context.Input.(model.Action)
 
-	dbEntity := model.Action{}
-	//return, if exists
-	db.Actions.FindId(object.ID).One(&dbEntity)
-	if dbEntity.ID != "" {
-		message := fmt.Sprintf("Action exists with source ID [%s]\n", object.ID)
-		return nil, &AppError{nil, message, http.StatusInternalServerError}
-	}
-
-	//find & return if one exist with the same source.id
-	if object.Source.ID != "" {
-		db.Actions.Find(bson.M{"source.id": object.Source.ID}).One(&dbEntity)
-		if dbEntity.ID != "" {
-			message := fmt.Sprintf("Action exists with source [%s]\n", object.Source.ID)
-			return nil, &AppError{nil, message, http.StatusInternalServerError}
-		}
-	}
-
-	if err := setReferences(db, &object); err != nil {
+	if err := setReferences(db, &input); err != nil {
 		message := fmt.Sprintf("Error setting action references [%s]", err)
 		return nil, &AppError{nil, message, http.StatusInternalServerError}
 	}
 
-	//do not allow duplicate action from this user on the same target
-	db.Actions.Find(bson.M{"user_id": object.UserID, "target_id": object.TargetID,
-		"target": object.Target, "type": object.Type}).One(&dbEntity)
-	if dbEntity.ID != "" {
-		message := fmt.Sprintf("Duplicate %s action detected by user [%s] on target [%s: %s]\n",
-			object.Type, object.UserID, object.Target, object.TargetID)
+	//return, if entity exists
+	if dbEntity := actionExists(db, &input); dbEntity != nil {
+		message := fmt.Sprintf("Action exists [%v]", input)
 		return nil, &AppError{nil, message, http.StatusInternalServerError}
 	}
 
-	if err := db.Actions.Insert(object); err != nil {
+	return doCreateAction(db, &input)
+}
+
+// CreateUpdateAction creates/updates an action
+func CreateUpdateAction(context *AppContext) (*model.Action, *AppError) {
+	input := context.Input.(model.Action)
+	if input.ID == "" {
+		return createAction(context)
+	}
+
+	return updateAction(context)
+}
+
+// createAction creates a new action resource
+func createAction(context *AppContext) (*model.Action, *AppError) {
+
+	db := context.DB
+	input := context.Input.(model.Action)
+
+	//return, if entity exists
+	if dbEntity := actionExists(db, &input); dbEntity != nil {
+		message := fmt.Sprintf("Action exists [%v]", input)
+		return nil, &AppError{nil, message, http.StatusInternalServerError}
+	}
+
+	return doCreateAction(db, &input)
+}
+
+// updateAction updates an action resource
+func updateAction(context *AppContext) (*model.Action, *AppError) {
+	db := context.DB
+	input := context.Input.(model.Action)
+	var dbEntity model.Action
+
+	//entity not found, return
+	db.Actions.FindId(input.ID).One(&dbEntity)
+	if dbEntity.ID == "" {
+		message := fmt.Sprintf("Action not found [%s]\n", input.ID)
+		return nil, &AppError{nil, message, http.StatusInternalServerError}
+	}
+
+	//do we really need to update actions?
+	//code here
+	return &dbEntity, nil
+}
+
+func doCreateAction(db *db.MongoDB, input *model.Action) (*model.Action, *AppError) {
+	if err := db.Actions.Insert(input); err != nil {
 		message := fmt.Sprintf("Error creating action [%s]", err)
 		return nil, &AppError{err, message, http.StatusInternalServerError}
 	}
 
-	if err := updateTargetOnAction(db, &object); err != nil {
+	if err := updateTargetOnAction(db, input); err != nil {
 		message := fmt.Sprintf("Error updating stats on target [%s]", err)
 		return nil, &AppError{err, message, http.StatusInternalServerError}
 	}
 
-	return &object, nil
+	return input, nil
+}
+
+//finds and returns an action if exists, else nil
+func actionExists(db *db.MongoDB, input *model.Action) *model.Action {
+	var dbEntity model.Action
+
+	//return, if exists
+	db.Actions.FindId(input.ID).One(&dbEntity)
+	if dbEntity.ID != "" {
+		return &dbEntity
+	}
+
+	//do not allow duplicate action from this user on the same target
+	db.Actions.Find(bson.M{"user_id": input.UserID, "target_id": input.TargetID,
+		"target": input.Target, "type": input.Type}).One(&dbEntity)
+	if dbEntity.ID != "" {
+		return &dbEntity
+	}
+
+	return nil
 }
 
 func setReferences(db *db.MongoDB, object *model.Action) error {

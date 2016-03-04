@@ -4,10 +4,25 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"github.com/coralproject/pillar/pkg/db"
 	"github.com/coralproject/pillar/pkg/model"
 	"os"
 	"testing"
 )
+
+func init() {
+	db := db.NewMongoDB()
+	defer db.Close()
+
+	//Empty all test data
+	db.TagTargets.RemoveAll(nil)
+	db.Tags.RemoveAll(nil)
+	db.Actions.RemoveAll(nil)
+	db.Comments.RemoveAll(nil)
+	db.Users.RemoveAll(nil)
+	db.Assets.RemoveAll(nil)
+	db.CayUserActions.RemoveAll(nil)
+}
 
 func TestCORS(t *testing.T) {
 	if r, _ := request(MethodOption, URLTag, nil); r.StatusCode != 200 {

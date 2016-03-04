@@ -36,14 +36,15 @@ func CreateTagTargets(db *db.MongoDB, tags []string, tt *model.TagTarget) error 
 // CreateUpdateTag adds or updates a tag
 func CreateUpdateTag(context *AppContext) (*model.Tag, *AppError) {
 	db := context.DB
-	object := context.Input.(model.Tag)
+	input := context.Input.(model.Tag)
 
-	//Create a new one, set created-date for the new ones
-	if object.Old_Name == "" {
-		return upsertTag(db, &object)
+	//old-name is empty, upsert one
+	if input.Old_Name == "" {
+		return upsertTag(db, &input)
 	}
 
-	return renameTag(db, &object)
+	//since old-name is passed, this implies a rename
+	return renameTag(db, &input)
 }
 
 // creates a new Tag
@@ -113,8 +114,6 @@ func renameTag(db *db.MongoDB, object *model.Tag) (*model.Tag, *AppError) {
 
 	return &newTag, nil
 }
-
-
 
 // GetTags returns an array of tags
 func GetTags(context *AppContext) ([]model.Tag, *AppError) {
