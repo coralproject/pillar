@@ -3,54 +3,98 @@ package service
 import (
 	"errors"
 	"fmt"
+	"github.com/coralproject/pillar/pkg/db"
 	"github.com/coralproject/pillar/pkg/model"
 	"gopkg.in/mgo.v2/bson"
 	"net/http"
-	"reflect"
-	"github.com/coralproject/pillar/pkg/db"
 )
 
-// CreateUser creates a new user resource
-func CreateUser(context *AppContext) (*model.User, *AppError) {
+// ImportUser imports a new user resource
+func ImportUser(context *AppContext) (*model.User, *AppError) {
 
 	db := context.DB
-	object := context.Input.(model.User)
+	input := context.Input.(model.User)
+	var dbEntity model.User
 
-	dbEntity := model.User{}
+	//upsert if entity exists with same source.id
+	db.Users.Find(bson.M{"source.id": input.Source.ID}).One(&dbEntity)
+	if dbEntity.ID != "" {
+		input.ID = dbEntity.ID
+		if _, err := db.Users.UpsertId(dbEntity.ID, &input); err != nil {
+			message := fmt.Sprintf("Error updating existing User [%s]", input.Source.ID)
+			return nil, &AppError{err, message, http.StatusInternalServerError}
+		}
+		return &input, nil
+	}
+
+	return doCreateUser(db, &input)
+}
+
+// CreateUpdateUser creates/updates a user resource
+func CreateUpdateUser(context *AppContext) (*model.User, *AppError) {
+	input := context.Input.(model.User)
+	if input.ID == "" {
+		return createUser(context)
+	}
+
+	return updateUser(context)
+}
+
+// createUser creates a new user resource
+func createUser(context *AppContext) (*model.User, *AppError) {
+
+	db := context.DB
+	input := context.Input.(model.User)
+	var dbEntity model.User
 
 	//return, if exists
-	db.Users.FindId(object.ID).One(&dbEntity)
+	db.Users.FindId(input.ID).One(&dbEntity)
 	if dbEntity.ID != "" {
-		message := fmt.Sprintf("%s exists with ID [%s]\n", reflect.TypeOf(object).Name(), object.ID)
+		message := fmt.Sprintf("User exists with ID [%s]\n", input.ID)
 		return nil, &AppError{nil, message, http.StatusInternalServerError}
 	}
 
-	//upsert if entity exists with same source.id
-	db.Users.Find(bson.M{"source.id": object.Source.ID}).One(&dbEntity)
-	if dbEntity.ID != "" {
-		object.ID = dbEntity.ID
-		_, err := db.Users.UpsertId(dbEntity.ID, &object)
-		if err != nil {
-			message := fmt.Sprintf("Error updating existing User [%s], %s", object.Source.ID, err)
-			return nil, &AppError{err, message, http.StatusInternalServerError}
-		}
-		return &object, nil
+	return doCreateUser(db, &input)
+}
+
+// updateUser updates a user
+func updateUser(context *AppContext) (*model.User, *AppError) {
+
+	db := context.DB
+	input := context.Input.(model.User)
+
+	var dbEntity *model.User
+	//entity not found, return
+	db.Users.FindId(input.ID).One(&dbEntity)
+	if dbEntity.ID == "" {
+		message := fmt.Sprintf("User not found [%+v]\n", input)
+		return nil, &AppError{nil, message, http.StatusInternalServerError}
 	}
 
-	object.ID = bson.NewObjectId()
-	err := db.Users.Insert(object)
-	if err != nil {
+	dbEntity.Tags = input.Tags
+	if err := db.Users.UpdateId(dbEntity.ID, bson.M{"$set": bson.M{"tags": dbEntity.Tags}}); err != nil {
+		message := fmt.Sprintf("Error updating user [%+v]\n", input)
+		return nil, &AppError{nil, message, http.StatusInternalServerError}
+	}
+
+	return dbEntity, nil
+}
+
+//inserts a new user to the db and any related post-processing
+func doCreateUser(db *db.MongoDB, input *model.User) (*model.User, *AppError) {
+	input.ID = bson.NewObjectId()
+	if err := db.Users.Insert(input); err != nil {
 		message := fmt.Sprintf("Error creating user [%s]", err)
 		return nil, &AppError{err, message, http.StatusInternalServerError}
 	}
 
-	err = CreateTagTargets(db, object.Tags, &model.TagTarget{Target: model.Users, TargetID: object.ID})
-	if err != nil {
+	tt := model.TagTarget{Target: model.Users, TargetID: input.ID}
+	if err := CreateTagTargets(db, input.Tags, &tt); err != nil {
 		message := fmt.Sprintf("Error creating TagStat [%s]", err)
 		return nil, &AppError{nil, message, http.StatusInternalServerError}
 	}
 
-	return &object, nil
+	return input, nil
 }
 
 //append action to user's actions array and update stats
@@ -91,27 +135,3 @@ func updateUserOnComment(db *db.MongoDB, user *model.User) {
 		bson.M{"$set": bson.M{"stats": user.Stats}},
 	)
 }
-
-// CreateUpdateUser creates/updates a user
-func CreateUpdateUser(context *AppContext) (*model.User, *AppError) {
-
-	db := context.DB
-	object := context.Input.(model.User)
-
-	var dbEntity *model.User
-	//entity not found, return
-	db.Users.FindId(object.ID).One(&dbEntity)
-	if dbEntity.ID == "" {
-		message := fmt.Sprintf("User not found [%+v]\n", object)
-		return nil, &AppError{nil, message, http.StatusInternalServerError}
-	}
-
-	dbEntity.Tags = object.Tags
-	if err := db.Users.UpdateId(dbEntity.ID, bson.M{"$set": bson.M{"tags": dbEntity.Tags}}); err != nil {
-		message := fmt.Sprintf("Error updating user [%+v]\n", object)
-		return nil, &AppError{nil, message, http.StatusInternalServerError}
-	}
-
-	return dbEntity, nil
-}
-

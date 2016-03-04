@@ -37,4 +37,5 @@ var routes = []Route{
 	Route{"POST", "/api/asset", handler.CreateUpdateAsset},
 	Route{"POST", "/api/user", handler.CreateUpdateUser},
 	Route{"POST", "/api/comment", handler.CreateUpdateComment},
+	Route{"POST", "/api/index", handler.CreateIndex},
 }
