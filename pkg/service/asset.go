@@ -111,10 +111,22 @@ func doCreateAsset(db *db.MongoDB, input *model.Asset) (*model.Asset, *AppError)
 		return nil, &AppError{err, message, http.StatusInternalServerError}
 	}
 
+	//create/update authors, if any
+	for _, one := range input.Authors {
+		if _, err := CreateUpdateAuthor(&AppContext{db, one}); err != nil {
+			//return nil, err
+		}
+	}
+
+	c := AppContext{db, model.Section{Name: input.Section}}
+	if _, err := CreateSection(&c); err != nil {
+		//return nil, err
+	}
+
 	tt := &model.TagTarget{Target: model.Assets, TargetID: input.ID}
 	if err := CreateTagTargets(db, input.Tags, tt); err != nil {
-		message := fmt.Sprintf("Error creating TagStat [%s]", err)
-		return nil, &AppError{nil, message, http.StatusInternalServerError}
+		//message := fmt.Sprintf("Error creating TagStat [%s]", err)
+		//return nil, &AppError{nil, message, http.StatusInternalServerError}
 	}
 
 	return input, nil

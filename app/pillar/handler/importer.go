@@ -47,8 +47,8 @@ func ImportNote(w http.ResponseWriter, r *http.Request) {
 	doRespond(w, dbObject, err)
 }
 
-//ImportMetadata imports metadata to various entities in the system
-func ImportMetadata(w http.ResponseWriter, r *http.Request) {
+//UpdateMetadata updates metadata to various entities in the system
+func UpdateMetadata(w http.ResponseWriter, r *http.Request) {
 	var input model.Metadata
 	json.NewDecoder(r.Body).Decode(&input)
 	dbObject, err := service.UpdateMetadata(GetAppContext(r, input))
