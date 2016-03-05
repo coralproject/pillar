@@ -21,9 +21,9 @@ type Comment struct {
 	Actions      []bson.ObjectId `json:"actions,omitempty" bson:"actions,omitempty"`
 	Notes        []Note          `json:"notes,omitempty" bson:"notes,omitempty"`
 	Tags         []string        `json:"tags,omitempty" bson:"tags,omitempty"`
-	Source       ImportSource    `json:"source" bson:"source"`
 	Stats        bson.M          `json:"stats,omitempty" bson:"stats,omitempty"`
 	Metadata     bson.M          `json:"metadata,omitempty" bson:"metadata,omitempty"`
+	Source       ImportSource    `json:"source" bson:"source"`
 }
 
 // Validate performs validation on a Comment value before it is processed.

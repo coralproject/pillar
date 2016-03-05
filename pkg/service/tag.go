@@ -49,9 +49,12 @@ func CreateUpdateTag(context *AppContext) (*model.Tag, *AppError) {
 
 // creates a new Tag
 func upsertTag(db *db.MongoDB, object *model.Tag) (*model.Tag, *AppError) {
-	var dbEntity model.Tag
+	if object.Name == "" {
+		message := fmt.Sprintf("Invalid Tag Name [%s]", object.Name)
+		return nil, &AppError{nil, message, http.StatusInternalServerError}
+	}
 
-	//return, if exists
+	var dbEntity model.Tag
 	if db.Tags.FindId(object.Name).One(&dbEntity); dbEntity.Name == "" {
 		object.DateCreated = time.Now()
 	}

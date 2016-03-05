@@ -16,9 +16,10 @@ const (
 	dataComments = "fixtures/import/comments.json"
 	dataActions  = "fixtures/import/actions.json"
 
+	dataTags        = "fixtures/crud/tags.json"
+	dataSections    = "fixtures/crud/sections.json"
 	dataIndexes     = "fixtures/crud/indexes.json"
 	dataMetadata    = "fixtures/crud/metadata.json"
-	dataTags        = "fixtures/crud/tags.json"
 	dataNewTags     = "fixtures/crud/tags_rename.json"
 	dataUserActions = "fixtures/crud/user-actions.json"
 )
@@ -28,16 +29,40 @@ func init() {
 	defer db.Close()
 
 	//Empty all test data
-	db.TagTargets.RemoveAll(nil)
 	db.Tags.RemoveAll(nil)
+	db.Sections.RemoveAll(nil)
+	db.Authors.RemoveAll(nil)
 	db.Actions.RemoveAll(nil)
 	db.Comments.RemoveAll(nil)
 	db.Users.RemoveAll(nil)
 	db.Assets.RemoveAll(nil)
 	db.CayUserActions.RemoveAll(nil)
+	db.TagTargets.RemoveAll(nil)
 }
 
-func TestCreateTag(t *testing.T) {
+func TestCreateSections(t *testing.T) {
+	file, err := os.Open(dataSections)
+	if err != nil {
+		log.Fatalf("opening config file", err.Error())
+	}
+
+	objects := []model.Section{}
+	jsonParser := json.NewDecoder(file)
+	if err = jsonParser.Decode(&objects); err != nil {
+		log.Fatalf("Error reading tags ", err.Error())
+	}
+
+	c := service.NewContext()
+	defer c.Close()
+	for _, one := range objects {
+		c.Input = one
+		if _, err := service.CreateSection(c); err != nil {
+			t.Fail()
+		}
+	}
+}
+
+func TestCreateTags(t *testing.T) {
 	file, err := os.Open(dataTags)
 	if err != nil {
 		log.Fatalf("opening config file", err.Error())
@@ -59,7 +84,7 @@ func TestCreateTag(t *testing.T) {
 	}
 }
 
-func TestImportAsset(t *testing.T) {
+func TestImportAssets(t *testing.T) {
 	file, err := os.Open(dataAssets)
 	if err != nil {
 		log.Fatalf("opening config file", err.Error())
@@ -89,7 +114,7 @@ func TestImportAsset(t *testing.T) {
 	}
 }
 
-func TestImportUser(t *testing.T) {
+func TestImportUsers(t *testing.T) {
 	file, err := os.Open(dataUsers)
 	if err != nil {
 		log.Fatalf("opening config file", err.Error())
