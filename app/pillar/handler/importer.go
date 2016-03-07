@@ -11,7 +11,7 @@ import (
 func ImportUser(w http.ResponseWriter, r *http.Request) {
 	var input model.User
 	json.NewDecoder(r.Body).Decode(&input)
-	dbObject, err := service.CreateUser(GetAppContext(r, input))
+	dbObject, err := service.ImportUser(GetAppContext(r, input))
 	doRespond(w, dbObject, err)
 }
 
@@ -19,7 +19,7 @@ func ImportUser(w http.ResponseWriter, r *http.Request) {
 func ImportAsset(w http.ResponseWriter, r *http.Request) {
 	var input model.Asset
 	json.NewDecoder(r.Body).Decode(&input)
-	dbObject, err := service.CreateAsset(GetAppContext(r, input))
+	dbObject, err := service.ImportAsset(GetAppContext(r, input))
 	doRespond(w, dbObject, err)
 }
 
@@ -27,7 +27,7 @@ func ImportAsset(w http.ResponseWriter, r *http.Request) {
 func ImportComment(w http.ResponseWriter, r *http.Request) {
 	var input model.Comment
 	json.NewDecoder(r.Body).Decode(&input)
-	dbObject, err := service.CreateComment(GetAppContext(r, input))
+	dbObject, err := service.ImportComment(GetAppContext(r, input))
 	doRespond(w, dbObject, err)
 }
 
@@ -35,7 +35,7 @@ func ImportComment(w http.ResponseWriter, r *http.Request) {
 func ImportAction(w http.ResponseWriter, r *http.Request) {
 	var input model.Action
 	json.NewDecoder(r.Body).Decode(&input)
-	dbObject, err := service.CreateAction(GetAppContext(r, input))
+	dbObject, err := service.ImportAction(GetAppContext(r, input))
 	doRespond(w, dbObject, err)
 }
 
@@ -47,8 +47,8 @@ func ImportNote(w http.ResponseWriter, r *http.Request) {
 	doRespond(w, dbObject, err)
 }
 
-//ImportMetadata imports metadata to various entities in the system
-func ImportMetadata(w http.ResponseWriter, r *http.Request) {
+//UpdateMetadata updates metadata to various entities in the system
+func UpdateMetadata(w http.ResponseWriter, r *http.Request) {
 	var input model.Metadata
 	json.NewDecoder(r.Body).Decode(&input)
 	dbObject, err := service.UpdateMetadata(GetAppContext(r, input))
