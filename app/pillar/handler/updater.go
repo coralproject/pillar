@@ -1,10 +1,10 @@
 package handler
 
 import (
+	"encoding/json"
+	"github.com/coralproject/pillar/pkg/model"
 	"github.com/coralproject/pillar/pkg/service"
 	"net/http"
-	"github.com/coralproject/xpillar/pkg/model"
-	"encoding/json"
 )
 
 //CreateUpdateUser creates/updates an user in the system
