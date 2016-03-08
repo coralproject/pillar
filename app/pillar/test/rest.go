@@ -3,8 +3,8 @@ package test
 import (
 	"io"
 	"io/ioutil"
-	"net/http"
 	"log"
+	"net/http"
 )
 
 //various constants

@@ -3,34 +3,35 @@ package service
 import (
 	"errors"
 	"fmt"
+	"github.com/coralproject/pillar/pkg/db"
 	"github.com/coralproject/pillar/pkg/model"
+	"github.com/coralproject/pillar/pkg/web"
 	"gopkg.in/mgo.v2/bson"
 	"net/http"
-	"github.com/coralproject/pillar/pkg/db"
 )
 
 // ImportAction imports a new action resource
-func ImportAction(context *AppContext) (*model.Action, *AppError) {
+func ImportAction(context *web.AppContext) (*model.Action, *web.AppError) {
 
 	var input model.Action
 	context.Unmarshall(&input)
 
 	if err := setReferences(context.DB, &input); err != nil {
 		message := fmt.Sprintf("Error setting action references [%s]", err)
-		return nil, &AppError{nil, message, http.StatusInternalServerError}
+		return nil, &web.AppError{nil, message, http.StatusInternalServerError}
 	}
 
 	//return, if entity exists
 	if dbEntity := actionExists(context.DB, &input); dbEntity != nil {
 		message := fmt.Sprintf("Action exists [%v]", input)
-		return nil, &AppError{nil, message, http.StatusInternalServerError}
+		return nil, &web.AppError{nil, message, http.StatusInternalServerError}
 	}
 
 	return doCreateAction(context.DB, &input)
 }
 
 // CreateUpdateAction creates/updates an action
-func CreateUpdateAction(context *AppContext) (*model.Action, *AppError) {
+func CreateUpdateAction(context *web.AppContext) (*model.Action, *web.AppError) {
 
 	var input model.Action
 	context.Unmarshall(&input)
@@ -43,25 +44,25 @@ func CreateUpdateAction(context *AppContext) (*model.Action, *AppError) {
 }
 
 // createAction creates a new action resource
-func createAction(db *db.MongoDB, input *model.Action) (*model.Action, *AppError) {
+func createAction(db *db.MongoDB, input *model.Action) (*model.Action, *web.AppError) {
 
 	//return, if entity exists
 	if dbEntity := actionExists(db, input); dbEntity != nil {
 		message := fmt.Sprintf("Action exists [%v]", input)
-		return nil, &AppError{nil, message, http.StatusInternalServerError}
+		return nil, &web.AppError{nil, message, http.StatusInternalServerError}
 	}
 
 	return doCreateAction(db, input)
 }
 
 // updateAction updates an action resource
-func updateAction(db *db.MongoDB, input *model.Action) (*model.Action, *AppError) {
+func updateAction(db *db.MongoDB, input *model.Action) (*model.Action, *web.AppError) {
 	var dbEntity model.Action
 	//entity not found, return
 	db.Actions.FindId(input.ID).One(&dbEntity)
 	if dbEntity.ID == "" {
 		message := fmt.Sprintf("Action not found [%s]\n", input.ID)
-		return nil, &AppError{nil, message, http.StatusInternalServerError}
+		return nil, &web.AppError{nil, message, http.StatusInternalServerError}
 	}
 
 	//do we really need to update actions?
@@ -69,15 +70,15 @@ func updateAction(db *db.MongoDB, input *model.Action) (*model.Action, *AppError
 	return &dbEntity, nil
 }
 
-func doCreateAction(db *db.MongoDB, input *model.Action) (*model.Action, *AppError) {
+func doCreateAction(db *db.MongoDB, input *model.Action) (*model.Action, *web.AppError) {
 	if err := db.Actions.Insert(input); err != nil {
 		message := fmt.Sprintf("Error creating action [%s]", err)
-		return nil, &AppError{err, message, http.StatusInternalServerError}
+		return nil, &web.AppError{err, message, http.StatusInternalServerError}
 	}
 
 	if err := updateTargetOnAction(db, input); err != nil {
 		message := fmt.Sprintf("Error updating stats on target [%s]", err)
-		return nil, &AppError{err, message, http.StatusInternalServerError}
+		return nil, &web.AppError{err, message, http.StatusInternalServerError}
 	}
 
 	return input, nil

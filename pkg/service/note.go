@@ -2,14 +2,15 @@ package service
 
 import (
 	"fmt"
+	"github.com/coralproject/pillar/pkg/db"
 	"github.com/coralproject/pillar/pkg/model"
+	"github.com/coralproject/pillar/pkg/web"
 	"gopkg.in/mgo.v2/bson"
 	"net/http"
-	"github.com/coralproject/pillar/pkg/db"
 )
 
 // CreateNote creates a new note resource
-func CreateNote(context *AppContext) (*model.Note, *AppError) {
+func CreateNote(context *web.AppContext) (*model.Note, *web.AppError) {
 
 	var input model.Note
 	context.Unmarshall(&input)
@@ -21,7 +22,7 @@ func CreateNote(context *AppContext) (*model.Note, *AppError) {
 		context.DB.Users.Find(bson.M{"source.id": input.Source.UserID}).One(&user)
 		if user.ID == "" {
 			message := fmt.Sprintf("Invalid user with source ID [%s]\n", input.Source.UserID)
-			return nil, &AppError{nil, message, http.StatusInternalServerError}
+			return nil, &web.AppError{nil, message, http.StatusInternalServerError}
 		}
 		input.UserID = user.ID
 	}
@@ -40,18 +41,18 @@ func CreateNote(context *AppContext) (*model.Note, *AppError) {
 	return &input, nil
 }
 
-func addNoteToComment(db *db.MongoDB, object *model.Note) (*model.Note, *AppError) {
+func addNoteToComment(db *db.MongoDB, object *model.Note) (*model.Note, *web.AppError) {
 	var dbEntity model.Comment
 
 	if object.TargetID != "" {
 		if db.Comments.FindId(object.TargetID).One(&dbEntity); dbEntity.ID == "" {
 			message := fmt.Sprintf("Invalid comment ID [%s]\n", object.TargetID)
-			return nil, &AppError{nil, message, http.StatusInternalServerError}
+			return nil, &web.AppError{nil, message, http.StatusInternalServerError}
 		}
 	} else {
 		if db.Comments.Find(bson.M{"source.id": object.Source.TargetID}).One(&dbEntity); dbEntity.ID == "" {
 			message := fmt.Sprintf("Invalid comment source ID [%s]\n", object.Source.TargetID)
-			return nil, &AppError{nil, message, http.StatusInternalServerError}
+			return nil, &web.AppError{nil, message, http.StatusInternalServerError}
 		}
 	}
 
@@ -63,18 +64,18 @@ func addNoteToComment(db *db.MongoDB, object *model.Note) (*model.Note, *AppErro
 	return object, nil
 }
 
-func addNoteToUser(db *db.MongoDB, object *model.Note) (*model.Note, *AppError) {
+func addNoteToUser(db *db.MongoDB, object *model.Note) (*model.Note, *web.AppError) {
 	var dbEntity model.User
 
 	if object.TargetID != "" {
 		if db.Users.FindId(object.TargetID).One(&dbEntity); dbEntity.ID == "" {
 			message := fmt.Sprintf("Invalid user ID [%s]\n", object.TargetID)
-			return nil, &AppError{nil, message, http.StatusInternalServerError}
+			return nil, &web.AppError{nil, message, http.StatusInternalServerError}
 		}
 	} else {
 		if db.Users.Find(bson.M{"source.id": object.Source.TargetID}).One(&dbEntity); dbEntity.ID == "" {
 			message := fmt.Sprintf("Invalid user source ID [%s]\n", object.Source.TargetID)
-			return nil, &AppError{nil, message, http.StatusInternalServerError}
+			return nil, &web.AppError{nil, message, http.StatusInternalServerError}
 		}
 	}
 

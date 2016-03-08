@@ -1,56 +1,17 @@
 package service
 
 import (
+	"encoding/json"
 	"fmt"
-	"github.com/coralproject/pillar/pkg/db"
 	"github.com/coralproject/pillar/pkg/model"
+	"github.com/coralproject/pillar/pkg/web"
 	"gopkg.in/mgo.v2/bson"
 	"net/http"
 	"time"
-	"io"
-	"encoding/json"
-	"io/ioutil"
-	"bytes"
 )
 
-// AppContext encapsulates application specific runtime information
-type AppContext struct {
-	DB      *db.MongoDB
-	Body    io.ReadCloser
-}
-
-func (c *AppContext) Close() {
-	c.DB.Close()
-}
-
-//Unmarshall unmarshalls the Body to the passed object
-func (c *AppContext) Unmarshall(input interface{}) error {
-	bytez, _ := ioutil.ReadAll(c.Body)
-	if err := json.Unmarshal(bytez, input); err != nil {
-		return err
-	}
-	return nil
-}
-
-//Marshall marshalls an incoming object and sets it to the Body
-func (c *AppContext) Marshall(j interface{}) {
-	bytez, _ := json.Marshal(j)
-	c.Body = ioutil.NopCloser(bytes.NewReader(bytez))
-}
-
-func NewContext(body io.ReadCloser) *AppContext {
-	return &AppContext{db.NewMongoDB(), body}
-}
-
-// AppError encapsulates application specific error
-type AppError struct {
-	Error   error  `json:"error,omitempty"`
-	Message string `json:"message,omitempty"`
-	Code    int    `json:"code,omitempty"`
-}
-
 // UpdateMetadata updates metadata for an entity
-func UpdateMetadata(context *AppContext) (interface{}, *AppError) {
+func UpdateMetadata(context *web.AppContext) (interface{}, *web.AppError) {
 
 	db := context.DB
 	var input model.Metadata
@@ -65,7 +26,7 @@ func UpdateMetadata(context *AppContext) (interface{}, *AppError) {
 
 	if len(dbEntity) == 0 {
 		message := fmt.Sprintf("Cannot update metadata for [%+v]\n", input)
-		return nil, &AppError{nil, message, http.StatusInternalServerError}
+		return nil, &web.AppError{nil, message, http.StatusInternalServerError}
 	}
 
 	collection.Update(
@@ -77,7 +38,7 @@ func UpdateMetadata(context *AppContext) (interface{}, *AppError) {
 }
 
 // CreateIndex creates indexes to various entities
-func CreateIndex(context *AppContext) *AppError {
+func CreateIndex(context *web.AppContext) *web.AppError {
 
 	db := context.DB
 	var input model.Index
@@ -86,14 +47,14 @@ func CreateIndex(context *AppContext) *AppError {
 	err := db.Session.DB("").C(input.Target).EnsureIndex(input.Index)
 	if err != nil {
 		message := fmt.Sprintf("Error creating index [%+v]", input)
-		return &AppError{err, message, http.StatusInternalServerError}
+		return &web.AppError{err, message, http.StatusInternalServerError}
 	}
 
 	return nil
 }
 
 // CreateUserAction inserts an activity by the user
-func CreateUserAction(context *AppContext) *AppError {
+func CreateUserAction(context *web.AppContext) *web.AppError {
 
 	db := context.DB
 	var input model.CayUserAction
@@ -107,7 +68,7 @@ func CreateUserAction(context *AppContext) *AppError {
 	err := db.CayUserActions.Insert(input)
 	if err != nil {
 		message := fmt.Sprintf("Error creating user-action [%s]", err)
-		return &AppError{err, message, http.StatusInternalServerError}
+		return &web.AppError{err, message, http.StatusInternalServerError}
 	}
 
 	return nil

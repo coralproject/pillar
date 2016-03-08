@@ -2,13 +2,14 @@ package route
 
 import (
 	"github.com/coralproject/pillar/app/pillar/handler"
+	"github.com/coralproject/pillar/pkg/web"
 )
 
 //Route defines mappings of end-points to handler methods
 type Route struct {
 	Method      string
 	Pattern     string
-	HandlerFunc handler.AppHandlerFunc
+	HandlerFunc web.HandlerFunc
 }
 
 var routes = []Route{

@@ -2,11 +2,12 @@ package service
 
 import (
 	"fmt"
+	"github.com/coralproject/pillar/pkg/db"
 	"github.com/coralproject/pillar/pkg/model"
+	"github.com/coralproject/pillar/pkg/web"
 	"gopkg.in/mgo.v2/bson"
 	"net/http"
 	"time"
-	"github.com/coralproject/pillar/pkg/db"
 )
 
 // CreateTagTargets creates TagTarget entries for various tags on an entity
@@ -34,7 +35,7 @@ func CreateTagTargets(db *db.MongoDB, tags []string, tt *model.TagTarget) error 
 }
 
 // CreateUpdateTag adds or updates a tag
-func CreateUpdateTag(context *AppContext) (*model.Tag, *AppError) {
+func CreateUpdateTag(context *web.AppContext) (*model.Tag, *web.AppError) {
 	var input model.Tag
 	context.Unmarshall(&input)
 
@@ -48,10 +49,10 @@ func CreateUpdateTag(context *AppContext) (*model.Tag, *AppError) {
 }
 
 // creates a new Tag
-func upsertTag(db *db.MongoDB, object *model.Tag) (*model.Tag, *AppError) {
+func upsertTag(db *db.MongoDB, object *model.Tag) (*model.Tag, *web.AppError) {
 	if object.Name == "" {
 		message := fmt.Sprintf("Invalid Tag Name [%s]", object.Name)
-		return nil, &AppError{nil, message, http.StatusInternalServerError}
+		return nil, &web.AppError{nil, message, http.StatusInternalServerError}
 	}
 
 	var dbEntity model.Tag
@@ -62,19 +63,19 @@ func upsertTag(db *db.MongoDB, object *model.Tag) (*model.Tag, *AppError) {
 	object.DateUpdated = time.Now()
 	if _, err := db.Tags.UpsertId(object.Name, object); err != nil {
 		message := fmt.Sprintf("Error creating tag [%+v]", object)
-		return nil, &AppError{err, message, http.StatusInternalServerError}
+		return nil, &web.AppError{err, message, http.StatusInternalServerError}
 	}
 
 	return object, nil
 }
 
 // updates an existing Tag
-func renameTag(db *db.MongoDB, object *model.Tag) (*model.Tag, *AppError) {
+func renameTag(db *db.MongoDB, object *model.Tag) (*model.Tag, *web.AppError) {
 
 	var dbEntity model.Tag
 	if db.Tags.FindId(object.Old_Name).One(&dbEntity); dbEntity.Name == "" {
 		message := fmt.Sprintf("Cannot update, tag not found: [%s]", object.Old_Name)
-		return nil, &AppError{nil, message, http.StatusInternalServerError}
+		return nil, &web.AppError{nil, message, http.StatusInternalServerError}
 	}
 
 	var newTag model.Tag
@@ -90,13 +91,13 @@ func renameTag(db *db.MongoDB, object *model.Tag) (*model.Tag, *AppError) {
 	//remove the old one
 	if err := db.Tags.RemoveId(object.Old_Name); err != nil {
 		message := fmt.Sprintf("Error removing old tag [%s]", object.Old_Name)
-		return nil, &AppError{err, message, http.StatusInternalServerError}
+		return nil, &web.AppError{err, message, http.StatusInternalServerError}
 	}
 
 	//insert new tag
 	if err := db.Tags.Insert(newTag); err != nil {
 		message := fmt.Sprintf("Error creating tag [%+v]", newTag)
-		return nil, &AppError{err, message, http.StatusInternalServerError}
+		return nil, &web.AppError{err, message, http.StatusInternalServerError}
 	}
 
 	var user model.User
@@ -119,33 +120,33 @@ func renameTag(db *db.MongoDB, object *model.Tag) (*model.Tag, *AppError) {
 }
 
 // GetTags returns an array of tags
-func GetTags(context *AppContext) ([]model.Tag, *AppError) {
+func GetTags(context *web.AppContext) ([]model.Tag, *web.AppError) {
 
 	//set created-date for the new ones
 	all := make([]model.Tag, 0)
 	if err := context.DB.Tags.Find(nil).All(&all); err != nil {
 		message := fmt.Sprintf("Error fetching tags")
-		return nil, &AppError{err, message, http.StatusInternalServerError}
+		return nil, &web.AppError{err, message, http.StatusInternalServerError}
 	}
 
 	return all, nil
 }
 
 // DeleteTag deletes a tag
-func DeleteTag(context *AppContext) *AppError {
+func DeleteTag(context *web.AppContext) *web.AppError {
 	var input model.Tag
 	context.Unmarshall(&input)
 
 	//we must have the tag name for deletion
 	if input.Name == "" {
 		message := fmt.Sprintf("Cannot delete an invalid tag [%v]", input)
-		return &AppError{nil, message, http.StatusInternalServerError}
+		return &web.AppError{nil, message, http.StatusInternalServerError}
 	}
 
 	//delete
 	if err := context.DB.Tags.RemoveId(input.Name); err != nil {
 		message := fmt.Sprintf("Error deleting tag [%v]", input)
-		return &AppError{err, message, http.StatusInternalServerError}
+		return &web.AppError{err, message, http.StatusInternalServerError}
 	}
 
 	return nil

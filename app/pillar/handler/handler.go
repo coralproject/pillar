@@ -4,18 +4,11 @@ import (
 	"encoding/json"
 	"github.com/coralproject/pillar/app/pillar/config"
 	"github.com/coralproject/pillar/pkg/service"
+	"github.com/coralproject/pillar/pkg/web"
 	"net/http"
 )
 
-type AppHandlerFunc func(rw http.ResponseWriter, r *http.Request, c *service.AppContext)
-
-func (h AppHandlerFunc) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
-	c := service.NewContext(r.Body)
-	defer c.Close()
-	h(rw, r, c)
-}
-
-func doRespond(w http.ResponseWriter, object interface{}, appErr *service.AppError) {
+func doRespond(w http.ResponseWriter, object interface{}, appErr *web.AppError) {
 	if appErr != nil {
 		config.Logger.Printf("Call failed [%v]", appErr)
 		payload, err := json.Marshal(appErr)
@@ -40,13 +33,12 @@ func doRespond(w http.ResponseWriter, object interface{}, appErr *service.AppErr
 	w.Write(payload)
 }
 
-func CreateIndex(w http.ResponseWriter, r *http.Request, c *service.AppContext) {
+func CreateIndex(w http.ResponseWriter, r *http.Request, c *web.AppContext) {
 	err := service.CreateIndex(c)
 	doRespond(w, nil, err)
 }
 
-func HandleUserAction(w http.ResponseWriter, r *http.Request, c *service.AppContext) {
+func HandleUserAction(w http.ResponseWriter, r *http.Request, c *web.AppContext) {
 	err := service.CreateUserAction(c)
 	doRespond(w, nil, err)
 }
-

@@ -1,11 +1,11 @@
 package handler
 
 import (
-	"github.com/rs/cors"
 	"github.com/codegangsta/negroni"
-	"net/http"
-	"github.com/coralproject/pillar/pkg/service"
+	"github.com/coralproject/pillar/pkg/web"
 	"github.com/gorilla/context"
+	"github.com/rs/cors"
+	"net/http"
 )
 
 const appContext string = "app-context"
@@ -26,7 +26,7 @@ func AppHandler() negroni.Handler {
 		rw.Header().Set("Content-Type", "application/json")
 
 		//Create/Inject DB
-		c := service.NewContext(nil)
+		c := web.NewContext(nil)
 		defer c.Close()
 
 		//Create/Inject AppContext for the Handlers to use
@@ -35,7 +35,7 @@ func AppHandler() negroni.Handler {
 	})
 }
 
-func GetAppContext(r *http.Request, input interface{}) *service.AppContext {
+func GetAppContext(r *http.Request, input interface{}) *web.AppContext {
 
 	rc := context.Get(r, appContext)
 	if rc == nil {
@@ -43,11 +43,11 @@ func GetAppContext(r *http.Request, input interface{}) *service.AppContext {
 	}
 
 	//inject input data if any
-	c := rc.(*service.AppContext)
+	c := rc.(*web.AppContext)
 	c.Marshall(input)
 	return c
 }
 
-func SetAppContext(r *http.Request, val *service.AppContext) {
+func SetAppContext(r *http.Request, val *web.AppContext) {
 	context.Set(r, appContext, val)
 }

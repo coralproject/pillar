@@ -3,8 +3,8 @@ package main
 import (
 	"github.com/codegangsta/negroni"
 	"github.com/coralproject/pillar/app/pillar/config"
-	"github.com/coralproject/pillar/app/pillar/route"
 	"github.com/coralproject/pillar/app/pillar/handler"
+	"github.com/coralproject/pillar/app/pillar/route"
 )
 
 func main() {

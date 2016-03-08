@@ -5,6 +5,7 @@ import (
 	"github.com/coralproject/pillar/pkg/db"
 	"github.com/coralproject/pillar/pkg/model"
 	"github.com/coralproject/pillar/pkg/service"
+	"github.com/coralproject/pillar/pkg/web"
 	"log"
 	"os"
 	"testing"
@@ -52,7 +53,7 @@ func TestCreateSections(t *testing.T) {
 		log.Fatalf("Error reading tags ", err.Error())
 	}
 
-	c := service.NewContext(nil)
+	c := web.NewContext(nil)
 	defer c.Close()
 
 	for _, one := range objects {
@@ -75,7 +76,7 @@ func TestCreateTags(t *testing.T) {
 		log.Fatalf("Error reading tags ", err.Error())
 	}
 
-	c := service.NewContext(nil)
+	c := web.NewContext(nil)
 	defer c.Close()
 
 	for _, one := range objects {
@@ -98,7 +99,7 @@ func TestImportAssets(t *testing.T) {
 		log.Fatalf("Error reading assets data", err.Error())
 	}
 
-	c := service.NewContext(nil)
+	c := web.NewContext(nil)
 	defer c.Close()
 
 	for _, one := range objects {
@@ -129,7 +130,7 @@ func TestImportUsers(t *testing.T) {
 		log.Fatalf("Error reading users data", err.Error())
 	}
 
-	c := service.NewContext(nil)
+	c := web.NewContext(nil)
 	defer c.Close()
 
 	for _, one := range objects {
@@ -159,7 +160,7 @@ func TestImportComments(t *testing.T) {
 		log.Fatalf("Error reading comments data", err.Error())
 	}
 
-	c := service.NewContext(nil)
+	c := web.NewContext(nil)
 	defer c.Close()
 
 	for _, one := range objects {
@@ -191,7 +192,7 @@ func TestImportActions(t *testing.T) {
 		log.Fatalf("Error reading user data", err.Error())
 	}
 
-	c := service.NewContext(nil)
+	c := web.NewContext(nil)
 	defer c.Close()
 
 	for _, one := range objects {
@@ -224,7 +225,7 @@ func TestCreateIndexes(t *testing.T) {
 		log.Fatalf("Error reading index data", err.Error())
 	}
 
-	c := service.NewContext(nil)
+	c := web.NewContext(nil)
 	defer c.Close()
 
 	for _, one := range objects {
@@ -248,7 +249,7 @@ func TestUpdateMetadata(t *testing.T) {
 		log.Fatalf("Error reading metadata ", err.Error())
 	}
 
-	c := service.NewContext(nil)
+	c := web.NewContext(nil)
 	defer c.Close()
 
 	for _, one := range objects {
@@ -272,7 +273,7 @@ func TestUserActions(t *testing.T) {
 		log.Fatalf("Error reading user-actions ", err.Error())
 	}
 
-	c := service.NewContext(nil)
+	c := web.NewContext(nil)
 	defer c.Close()
 
 	for _, one := range objects {
@@ -296,7 +297,7 @@ func TestRenameTags(t *testing.T) {
 		log.Fatalf("Error reading tags ", err.Error())
 	}
 
-	c := service.NewContext(nil)
+	c := web.NewContext(nil)
 	defer c.Close()
 
 	for _, one := range objects {

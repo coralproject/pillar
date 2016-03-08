@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/coralproject/pillar/pkg/db"
 	"github.com/coralproject/pillar/pkg/model"
+	"github.com/coralproject/pillar/pkg/web"
 	"gopkg.in/mgo.v2/bson"
 	"net/http"
 )
@@ -17,7 +18,7 @@ type reference struct {
 var ref reference
 
 // ImportComment imports a new comment resource
-func ImportComment(context *AppContext) (*model.Comment, *AppError) {
+func ImportComment(context *web.AppContext) (*model.Comment, *web.AppError) {
 
 	var input model.Comment
 	context.Unmarshall(&input)
@@ -26,7 +27,7 @@ func ImportComment(context *AppContext) (*model.Comment, *AppError) {
 	// Find/Set comment references
 	if err := setCommentReferences(context.DB, &input); err != nil {
 		message := fmt.Sprintf("Error setting comment references [%s]", err)
-		return nil, &AppError{nil, message, http.StatusInternalServerError}
+		return nil, &web.AppError{nil, message, http.StatusInternalServerError}
 	}
 
 	//upsert if entity exists with same source.id
@@ -35,7 +36,7 @@ func ImportComment(context *AppContext) (*model.Comment, *AppError) {
 		input.ID = dbEntity.ID
 		if _, err := context.DB.Comments.UpsertId(dbEntity.ID, input); err != nil {
 			message := fmt.Sprintf("Error updating existing Comment [%s]", input.Source.ID)
-			return nil, &AppError{err, message, http.StatusInternalServerError}
+			return nil, &web.AppError{err, message, http.StatusInternalServerError}
 		}
 		return &input, nil
 	}
@@ -44,7 +45,7 @@ func ImportComment(context *AppContext) (*model.Comment, *AppError) {
 }
 
 // CreateUpdateComment creates/updates a comment resource
-func CreateUpdateComment(context *AppContext) (*model.Comment, *AppError) {
+func CreateUpdateComment(context *web.AppContext) (*model.Comment, *web.AppError) {
 	var input model.Comment
 	context.Unmarshall(&input)
 
@@ -56,28 +57,28 @@ func CreateUpdateComment(context *AppContext) (*model.Comment, *AppError) {
 }
 
 // CreateComment creates a new comment resource
-func createComment(db *db.MongoDB, input *model.Comment) (*model.Comment, *AppError) {
+func createComment(db *db.MongoDB, input *model.Comment) (*model.Comment, *web.AppError) {
 
 	var dbEntity model.Comment
 	//return, if exists
 	db.Comments.FindId(input.ID).One(&dbEntity)
 	if dbEntity.ID != "" {
 		message := fmt.Sprintf("Comment exists with ID [%s]\n", input.ID)
-		return nil, &AppError{nil, message, http.StatusInternalServerError}
+		return nil, &web.AppError{nil, message, http.StatusInternalServerError}
 	}
 
 	var asset model.Asset
 	db.Assets.FindId(input.AssetID).One(&asset)
 	if asset.ID == "" {
 		message := fmt.Sprintf("Cannot create Comment, Asset not found [$s]\n", input.AssetID)
-		return nil, &AppError{nil, message, http.StatusInternalServerError}
+		return nil, &web.AppError{nil, message, http.StatusInternalServerError}
 	}
 
 	var user model.User
 	db.Users.FindId(input.UserID).One(&user)
 	if user.ID == "" {
 		message := fmt.Sprintf("Cannot create Comment, User not found [$s]\n", input.UserID)
-		return nil, &AppError{nil, message, http.StatusInternalServerError}
+		return nil, &web.AppError{nil, message, http.StatusInternalServerError}
 	}
 
 	input.ID = bson.NewObjectId()
@@ -85,30 +86,30 @@ func createComment(db *db.MongoDB, input *model.Comment) (*model.Comment, *AppEr
 }
 
 // updateComment updates a comment
-func updateComment(db *db.MongoDB, input *model.Comment) (*model.Comment, *AppError) {
+func updateComment(db *db.MongoDB, input *model.Comment) (*model.Comment, *web.AppError) {
 
 	var dbEntity *model.Comment
 	//entity not found, return
 	db.Comments.FindId(input.ID).One(&dbEntity)
 	if dbEntity.ID == "" {
 		message := fmt.Sprintf("Comment not found [%+v]\n", input)
-		return nil, &AppError{nil, message, http.StatusInternalServerError}
+		return nil, &web.AppError{nil, message, http.StatusInternalServerError}
 	}
 
 	dbEntity.Tags = input.Tags
 	if err := db.Comments.UpdateId(dbEntity.ID, bson.M{"$set": bson.M{"tags": dbEntity.Tags}}); err != nil {
 		message := fmt.Sprintf("Error updating comment [%+v]\n", input)
-		return nil, &AppError{nil, message, http.StatusInternalServerError}
+		return nil, &web.AppError{nil, message, http.StatusInternalServerError}
 	}
 
 	return dbEntity, nil
 }
 
 //inserts a new comment to the db and any related post-processing
-func doCreateComment(db *db.MongoDB, input *model.Comment) (*model.Comment, *AppError) {
+func doCreateComment(db *db.MongoDB, input *model.Comment) (*model.Comment, *web.AppError) {
 	if err := db.Comments.Insert(input); err != nil {
 		message := fmt.Sprintf("Error creating comments [%s]", err)
-		return nil, &AppError{nil, message, http.StatusInternalServerError}
+		return nil, &web.AppError{nil, message, http.StatusInternalServerError}
 	}
 
 	updateUserOnComment(db, ref.user)
@@ -117,7 +118,7 @@ func doCreateComment(db *db.MongoDB, input *model.Comment) (*model.Comment, *App
 	tt := &model.TagTarget{Target: model.Comments, TargetID: input.ID}
 	if err := CreateTagTargets(db, input.Tags, tt); err != nil {
 		message := fmt.Sprintf("Error creating TagStat [%s]", err)
-		return nil, &AppError{nil, message, http.StatusInternalServerError}
+		return nil, &web.AppError{nil, message, http.StatusInternalServerError}
 	}
 
 	return input, nil

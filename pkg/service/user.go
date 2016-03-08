@@ -5,12 +5,13 @@ import (
 	"fmt"
 	"github.com/coralproject/pillar/pkg/db"
 	"github.com/coralproject/pillar/pkg/model"
+	"github.com/coralproject/pillar/pkg/web"
 	"gopkg.in/mgo.v2/bson"
 	"net/http"
 )
 
 // ImportUser imports a new user resource
-func ImportUser(context *AppContext) (*model.User, *AppError) {
+func ImportUser(context *web.AppContext) (*model.User, *web.AppError) {
 
 	var input model.User
 	context.Unmarshall(&input)
@@ -22,7 +23,7 @@ func ImportUser(context *AppContext) (*model.User, *AppError) {
 		input.ID = dbEntity.ID
 		if _, err := context.DB.Users.UpsertId(dbEntity.ID, &input); err != nil {
 			message := fmt.Sprintf("Error updating existing User [%s]", input.Source.ID)
-			return nil, &AppError{err, message, http.StatusInternalServerError}
+			return nil, &web.AppError{err, message, http.StatusInternalServerError}
 		}
 		return &input, nil
 	}
@@ -31,7 +32,7 @@ func ImportUser(context *AppContext) (*model.User, *AppError) {
 }
 
 // CreateUpdateUser creates/updates a user resource
-func CreateUpdateUser(context *AppContext) (*model.User, *AppError) {
+func CreateUpdateUser(context *web.AppContext) (*model.User, *web.AppError) {
 
 	var input model.User
 	context.Unmarshall(&input)
@@ -44,51 +45,51 @@ func CreateUpdateUser(context *AppContext) (*model.User, *AppError) {
 }
 
 // createUser creates a new user resource
-func createUser(db *db.MongoDB, input *model.User) (*model.User, *AppError) {
+func createUser(db *db.MongoDB, input *model.User) (*model.User, *web.AppError) {
 
 	var dbEntity model.User
 	//return, if exists
 	db.Users.FindId(input.ID).One(&dbEntity)
 	if dbEntity.ID != "" {
 		message := fmt.Sprintf("User exists with ID [%s]\n", input.ID)
-		return nil, &AppError{nil, message, http.StatusInternalServerError}
+		return nil, &web.AppError{nil, message, http.StatusInternalServerError}
 	}
 
 	return doCreateUser(db, input)
 }
 
 // updateUser updates a user
-func updateUser(db *db.MongoDB, input *model.User) (*model.User, *AppError) {
+func updateUser(db *db.MongoDB, input *model.User) (*model.User, *web.AppError) {
 
 	var dbEntity *model.User
 	//entity not found, return
 	db.Users.FindId(input.ID).One(&dbEntity)
 	if dbEntity.ID == "" {
 		message := fmt.Sprintf("User not found [%+v]\n", input)
-		return nil, &AppError{nil, message, http.StatusInternalServerError}
+		return nil, &web.AppError{nil, message, http.StatusInternalServerError}
 	}
 
 	dbEntity.Tags = input.Tags
 	if err := db.Users.UpdateId(dbEntity.ID, bson.M{"$set": bson.M{"tags": dbEntity.Tags}}); err != nil {
 		message := fmt.Sprintf("Error updating user [%+v]\n", input)
-		return nil, &AppError{nil, message, http.StatusInternalServerError}
+		return nil, &web.AppError{nil, message, http.StatusInternalServerError}
 	}
 
 	return dbEntity, nil
 }
 
 //inserts a new user to the db and any related post-processing
-func doCreateUser(db *db.MongoDB, input *model.User) (*model.User, *AppError) {
+func doCreateUser(db *db.MongoDB, input *model.User) (*model.User, *web.AppError) {
 	input.ID = bson.NewObjectId()
 	if err := db.Users.Insert(input); err != nil {
 		message := fmt.Sprintf("Error creating user [%s]", err)
-		return nil, &AppError{err, message, http.StatusInternalServerError}
+		return nil, &web.AppError{err, message, http.StatusInternalServerError}
 	}
 
 	tt := model.TagTarget{Target: model.Users, TargetID: input.ID}
 	if err := CreateTagTargets(db, input.Tags, &tt); err != nil {
 		message := fmt.Sprintf("Error creating TagStat [%s]", err)
-		return nil, &AppError{nil, message, http.StatusInternalServerError}
+		return nil, &web.AppError{nil, message, http.StatusInternalServerError}
 	}
 
 	return input, nil
