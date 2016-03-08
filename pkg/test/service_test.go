@@ -52,10 +52,11 @@ func TestCreateSections(t *testing.T) {
 		log.Fatalf("Error reading tags ", err.Error())
 	}
 
-	c := service.NewContext()
+	c := service.NewContext(nil)
 	defer c.Close()
+
 	for _, one := range objects {
-		c.Input = one
+		c.Marshall(one)
 		if _, err := service.CreateSection(c); err != nil {
 			t.Fail()
 		}
@@ -74,10 +75,11 @@ func TestCreateTags(t *testing.T) {
 		log.Fatalf("Error reading tags ", err.Error())
 	}
 
-	c := service.NewContext()
+	c := service.NewContext(nil)
 	defer c.Close()
+
 	for _, one := range objects {
-		c.Input = one
+		c.Marshall(one)
 		if _, err := service.CreateUpdateTag(c); err != nil {
 			t.Fail()
 		}
@@ -96,10 +98,11 @@ func TestImportAssets(t *testing.T) {
 		log.Fatalf("Error reading assets data", err.Error())
 	}
 
-	c := service.NewContext()
+	c := service.NewContext(nil)
 	defer c.Close()
+
 	for _, one := range objects {
-		c.Input = one
+		c.Marshall(one)
 		if _, err := service.ImportAsset(c); err != nil {
 			t.Fail()
 		}
@@ -107,7 +110,7 @@ func TestImportAssets(t *testing.T) {
 
 	//try the same set again and it shouldn't fail
 	for _, one := range objects {
-		c.Input = one
+		c.Marshall(one)
 		if _, err := service.ImportAsset(c); err != nil {
 			t.Fail()
 		}
@@ -126,17 +129,18 @@ func TestImportUsers(t *testing.T) {
 		log.Fatalf("Error reading users data", err.Error())
 	}
 
-	c := service.NewContext()
+	c := service.NewContext(nil)
 	defer c.Close()
+
 	for _, one := range objects {
-		c.Input = one
+		c.Marshall(one)
 		if _, err := service.ImportUser(c); err != nil {
 			t.Fail()
 		}
 	}
 	//try the same set again and it shouldn't fail
 	for _, one := range objects {
-		c.Input = one
+		c.Marshall(one)
 		if _, err := service.ImportUser(c); err != nil {
 			t.Fail()
 		}
@@ -155,10 +159,11 @@ func TestImportComments(t *testing.T) {
 		log.Fatalf("Error reading comments data", err.Error())
 	}
 
-	c := service.NewContext()
+	c := service.NewContext(nil)
 	defer c.Close()
+
 	for _, one := range objects {
-		c.Input = one
+		c.Marshall(one)
 		if _, err := service.ImportComment(c); err != nil {
 			log.Fatalf("Error: %s\n", err)
 			t.Fail()
@@ -166,7 +171,7 @@ func TestImportComments(t *testing.T) {
 	}
 	//try the same set again and it shouldn't fail
 	for _, one := range objects {
-		c.Input = one
+		c.Marshall(one)
 		if _, err := service.ImportComment(c); err != nil {
 			log.Fatalf("Error: %s\n", err)
 			t.Fail()
@@ -186,10 +191,11 @@ func TestImportActions(t *testing.T) {
 		log.Fatalf("Error reading user data", err.Error())
 	}
 
-	c := service.NewContext()
+	c := service.NewContext(nil)
 	defer c.Close()
+
 	for _, one := range objects {
-		c.Input = one
+		c.Marshall(one)
 		if _, err := service.ImportAction(c); err != nil {
 			log.Fatalf("Error: %s\n", err)
 			t.Fail()
@@ -198,7 +204,7 @@ func TestImportActions(t *testing.T) {
 
 	//Try again with the same data and it should all fail
 	for _, one := range objects {
-		c.Input = one
+		c.Marshall(one)
 		if _, err := service.ImportAction(c); err == nil {
 			log.Fatalf("Error: %s\n", err)
 			t.Fail()
@@ -218,10 +224,11 @@ func TestCreateIndexes(t *testing.T) {
 		log.Fatalf("Error reading index data", err.Error())
 	}
 
-	c := service.NewContext()
+	c := service.NewContext(nil)
 	defer c.Close()
+
 	for _, one := range objects {
-		c.Input = one
+		c.Marshall(one)
 		if err := service.CreateIndex(c); err != nil {
 			log.Fatalf("Error: %s\n", err)
 			t.Fail()
@@ -241,10 +248,11 @@ func TestUpdateMetadata(t *testing.T) {
 		log.Fatalf("Error reading metadata ", err.Error())
 	}
 
-	c := service.NewContext()
+	c := service.NewContext(nil)
 	defer c.Close()
+
 	for _, one := range objects {
-		c.Input = one
+		c.Marshall(one)
 		if _, err := service.UpdateMetadata(c); err != nil {
 			log.Fatalf("Error: %s\n", err)
 			t.Fail()
@@ -264,10 +272,11 @@ func TestUserActions(t *testing.T) {
 		log.Fatalf("Error reading user-actions ", err.Error())
 	}
 
-	c := service.NewContext()
+	c := service.NewContext(nil)
 	defer c.Close()
+
 	for _, one := range objects {
-		c.Input = one
+		c.Marshall(one)
 		if err := service.CreateUserAction(c); err != nil {
 			log.Fatalf("Error: %s\n", err)
 			t.Fail()
@@ -287,10 +296,11 @@ func TestRenameTags(t *testing.T) {
 		log.Fatalf("Error reading tags ", err.Error())
 	}
 
-	c := service.NewContext()
+	c := service.NewContext(nil)
 	defer c.Close()
+
 	for _, one := range objects {
-		c.Input = one
+		c.Marshall(one)
 		if _, err := service.CreateUpdateTag(c); err != nil {
 			log.Fatalf("Error: %s\n", err)
 			t.Fail()

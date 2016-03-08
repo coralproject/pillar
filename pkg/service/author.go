@@ -8,7 +8,9 @@ import (
 
 // CreateUpdateAuthor creates/updates an author resource
 func CreateUpdateAuthor(context *AppContext) (*model.Author, *AppError) {
-	input := context.Input.(model.Author)
+	var input model.Author
+	context.Unmarshall(&input)
+
 	if input.ID == "" {
 		message := fmt.Sprintf("Invalid Author Id [%s]", input.ID)
 		return nil, &AppError{nil, message, http.StatusInternalServerError}

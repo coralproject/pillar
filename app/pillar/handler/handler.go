@@ -5,8 +5,15 @@ import (
 	"github.com/coralproject/pillar/app/pillar/config"
 	"github.com/coralproject/pillar/pkg/service"
 	"net/http"
-	"github.com/coralproject/pillar/pkg/model"
 )
+
+type AppHandlerFunc func(rw http.ResponseWriter, r *http.Request, c *service.AppContext)
+
+func (h AppHandlerFunc) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
+	c := service.NewContext(r.Body)
+	defer c.Close()
+	h(rw, r, c)
+}
 
 func doRespond(w http.ResponseWriter, object interface{}, appErr *service.AppError) {
 	if appErr != nil {
@@ -33,17 +40,13 @@ func doRespond(w http.ResponseWriter, object interface{}, appErr *service.AppErr
 	w.Write(payload)
 }
 
-func CreateIndex(w http.ResponseWriter, r *http.Request) {
-	var input model.Index
-	json.NewDecoder(r.Body).Decode(&input)
-	err := service.CreateIndex(GetAppContext(r, input))
+func CreateIndex(w http.ResponseWriter, r *http.Request, c *service.AppContext) {
+	err := service.CreateIndex(c)
 	doRespond(w, nil, err)
 }
 
-func HandleUserAction(w http.ResponseWriter, r *http.Request) {
-	var input model.Action
-	json.NewDecoder(r.Body).Decode(&input)
-	err := service.CreateUserAction(GetAppContext(r, input))
+func HandleUserAction(w http.ResponseWriter, r *http.Request, c *service.AppContext) {
+	err := service.CreateUserAction(c)
 	doRespond(w, nil, err)
 }
 

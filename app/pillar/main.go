@@ -11,9 +11,8 @@ func main() {
 	//new Negroni Middleware
 	n := negroni.Classic()
 
-	//Add CORS and custom AppHandler
+	//Add CORS
 	n.Use(handler.CORS())
-	n.Use(handler.AppHandler())
 
 	//Router at the end
 	n.UseHandler(route.NewRouter())

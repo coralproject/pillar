@@ -35,16 +35,16 @@ func CreateTagTargets(db *db.MongoDB, tags []string, tt *model.TagTarget) error 
 
 // CreateUpdateTag adds or updates a tag
 func CreateUpdateTag(context *AppContext) (*model.Tag, *AppError) {
-	db := context.DB
-	input := context.Input.(model.Tag)
+	var input model.Tag
+	context.Unmarshall(&input)
 
 	//old-name is empty, upsert one
 	if input.Old_Name == "" {
-		return upsertTag(db, &input)
+		return upsertTag(context.DB, &input)
 	}
 
 	//since old-name is passed, this implies a rename
-	return renameTag(db, &input)
+	return renameTag(context.DB, &input)
 }
 
 // creates a new Tag
@@ -133,18 +133,18 @@ func GetTags(context *AppContext) ([]model.Tag, *AppError) {
 
 // DeleteTag deletes a tag
 func DeleteTag(context *AppContext) *AppError {
-	db := context.DB
-	object := context.Input.(model.Tag)
+	var input model.Tag
+	context.Unmarshall(&input)
 
 	//we must have the tag name for deletion
-	if object.Name == "" {
-		message := fmt.Sprintf("Cannot delete an invalid tag [%v]", object)
+	if input.Name == "" {
+		message := fmt.Sprintf("Cannot delete an invalid tag [%v]", input)
 		return &AppError{nil, message, http.StatusInternalServerError}
 	}
 
 	//delete
-	if err := db.Tags.RemoveId(object.Name); err != nil {
-		message := fmt.Sprintf("Error deleting tag [%v]", object)
+	if err := context.DB.Tags.RemoveId(input.Name); err != nil {
+		message := fmt.Sprintf("Error deleting tag [%v]", input)
 		return &AppError{err, message, http.StatusInternalServerError}
 	}
 

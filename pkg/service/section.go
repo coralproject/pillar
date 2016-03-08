@@ -9,20 +9,21 @@ import (
 
 // CreateSection creates Section
 func CreateSection(context *AppContext) (*model.Section, *AppError) {
-	input := context.Input.(model.Section)
+	var input model.Section
+	context.Unmarshall(&input)
+
 	if input.Name == "" {
 		message := fmt.Sprintf("Invalid Section Name [%s]", input.Name)
 		return nil, &AppError{nil, message, http.StatusInternalServerError}
 	}
 
 	var dbEntity model.Section
-	db := context.DB
-	if db.Sections.FindId(input.Name).One(&dbEntity); dbEntity.Name == "" {
+	if context.DB.Sections.FindId(input.Name).One(&dbEntity); dbEntity.Name == "" {
 		input.DateCreated = time.Now()
 	}
 
 	input.DateUpdated = time.Now()
-	if _, err := db.Sections.UpsertId(input.Name, input); err != nil {
+	if _, err := context.DB.Sections.UpsertId(input.Name, input); err != nil {
 		message := fmt.Sprintf("Error creating/updating Section")
 		return nil, &AppError{err, message, http.StatusInternalServerError}
 	}

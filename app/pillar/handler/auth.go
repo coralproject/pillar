@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/coralproject/pillar/pkg/model"
 	"net/http"
+	"github.com/coralproject/pillar/pkg/service"
 )
 
 // About - about this application
@@ -21,7 +22,7 @@ func init() {
 }
 
 //AboutThisApp displays the about page
-func AboutThisApp(w http.ResponseWriter, r *http.Request) {
+func AboutThisApp(w http.ResponseWriter, r *http.Request, c *service.AppContext) {
 	doRespond(w, about, nil)
 }
 

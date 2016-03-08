@@ -132,7 +132,7 @@ func TestCreateTags(t *testing.T) {
 		fmt.Printf("Error reading tag data [%s]", err.Error())
 	}
 
-	objects := []model.Action{}
+	objects := []model.Tag{}
 	jsonParser := json.NewDecoder(file)
 	if err = jsonParser.Decode(&objects); err != nil {
 		fmt.Println("Error reading action data", err.Error())

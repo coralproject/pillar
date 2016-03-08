@@ -11,54 +11,52 @@ import (
 
 // ImportAction imports a new action resource
 func ImportAction(context *AppContext) (*model.Action, *AppError) {
-	db := context.DB
-	input := context.Input.(model.Action)
 
-	if err := setReferences(db, &input); err != nil {
+	var input model.Action
+	context.Unmarshall(&input)
+
+	if err := setReferences(context.DB, &input); err != nil {
 		message := fmt.Sprintf("Error setting action references [%s]", err)
 		return nil, &AppError{nil, message, http.StatusInternalServerError}
 	}
 
 	//return, if entity exists
-	if dbEntity := actionExists(db, &input); dbEntity != nil {
+	if dbEntity := actionExists(context.DB, &input); dbEntity != nil {
 		message := fmt.Sprintf("Action exists [%v]", input)
 		return nil, &AppError{nil, message, http.StatusInternalServerError}
 	}
 
-	return doCreateAction(db, &input)
+	return doCreateAction(context.DB, &input)
 }
 
 // CreateUpdateAction creates/updates an action
 func CreateUpdateAction(context *AppContext) (*model.Action, *AppError) {
-	input := context.Input.(model.Action)
+
+	var input model.Action
+	context.Unmarshall(&input)
+
 	if input.ID == "" {
-		return createAction(context)
+		return createAction(context.DB, &input)
 	}
 
-	return updateAction(context)
+	return updateAction(context.DB, &input)
 }
 
 // createAction creates a new action resource
-func createAction(context *AppContext) (*model.Action, *AppError) {
-
-	db := context.DB
-	input := context.Input.(model.Action)
+func createAction(db *db.MongoDB, input *model.Action) (*model.Action, *AppError) {
 
 	//return, if entity exists
-	if dbEntity := actionExists(db, &input); dbEntity != nil {
+	if dbEntity := actionExists(db, input); dbEntity != nil {
 		message := fmt.Sprintf("Action exists [%v]", input)
 		return nil, &AppError{nil, message, http.StatusInternalServerError}
 	}
 
-	return doCreateAction(db, &input)
+	return doCreateAction(db, input)
 }
 
 // updateAction updates an action resource
-func updateAction(context *AppContext) (*model.Action, *AppError) {
-	db := context.DB
-	input := context.Input.(model.Action)
+func updateAction(db *db.MongoDB, input *model.Action) (*model.Action, *AppError) {
 	var dbEntity model.Action
-
 	//entity not found, return
 	db.Actions.FindId(input.ID).One(&dbEntity)
 	if dbEntity.ID == "" {

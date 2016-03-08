@@ -12,41 +12,41 @@ import (
 // ImportUser imports a new user resource
 func ImportUser(context *AppContext) (*model.User, *AppError) {
 
-	db := context.DB
-	input := context.Input.(model.User)
-	var dbEntity model.User
+	var input model.User
+	context.Unmarshall(&input)
 
+	var dbEntity model.User
 	//upsert if entity exists with same source.id
-	db.Users.Find(bson.M{"source.id": input.Source.ID}).One(&dbEntity)
+	context.DB.Users.Find(bson.M{"source.id": input.Source.ID}).One(&dbEntity)
 	if dbEntity.ID != "" {
 		input.ID = dbEntity.ID
-		if _, err := db.Users.UpsertId(dbEntity.ID, &input); err != nil {
+		if _, err := context.DB.Users.UpsertId(dbEntity.ID, &input); err != nil {
 			message := fmt.Sprintf("Error updating existing User [%s]", input.Source.ID)
 			return nil, &AppError{err, message, http.StatusInternalServerError}
 		}
 		return &input, nil
 	}
 
-	return doCreateUser(db, &input)
+	return doCreateUser(context.DB, &input)
 }
 
 // CreateUpdateUser creates/updates a user resource
 func CreateUpdateUser(context *AppContext) (*model.User, *AppError) {
-	input := context.Input.(model.User)
+
+	var input model.User
+	context.Unmarshall(&input)
+
 	if input.ID == "" {
-		return createUser(context)
+		return createUser(context.DB, &input)
 	}
 
-	return updateUser(context)
+	return updateUser(context.DB, &input)
 }
 
 // createUser creates a new user resource
-func createUser(context *AppContext) (*model.User, *AppError) {
+func createUser(db *db.MongoDB, input *model.User) (*model.User, *AppError) {
 
-	db := context.DB
-	input := context.Input.(model.User)
 	var dbEntity model.User
-
 	//return, if exists
 	db.Users.FindId(input.ID).One(&dbEntity)
 	if dbEntity.ID != "" {
@@ -54,14 +54,11 @@ func createUser(context *AppContext) (*model.User, *AppError) {
 		return nil, &AppError{nil, message, http.StatusInternalServerError}
 	}
 
-	return doCreateUser(db, &input)
+	return doCreateUser(db, input)
 }
 
 // updateUser updates a user
-func updateUser(context *AppContext) (*model.User, *AppError) {
-
-	db := context.DB
-	input := context.Input.(model.User)
+func updateUser(db *db.MongoDB, input *model.User) (*model.User, *AppError) {
 
 	var dbEntity *model.User
 	//entity not found, return

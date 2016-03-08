@@ -11,33 +11,33 @@ import (
 // CreateNote creates a new note resource
 func CreateNote(context *AppContext) (*model.Note, *AppError) {
 
-	db := context.DB
-	object := context.Input.(model.Note)
+	var input model.Note
+	context.Unmarshall(&input)
 
 	// Insert Comment
-	if object.UserID == "" {
+	if input.UserID == "" {
 		//find user using source information and set the reference
 		var user model.User
-		db.Users.Find(bson.M{"source.id": object.Source.UserID}).One(&user)
+		context.DB.Users.Find(bson.M{"source.id": input.Source.UserID}).One(&user)
 		if user.ID == "" {
-			message := fmt.Sprintf("Invalid user with source ID [%s]\n", object.Source.UserID)
+			message := fmt.Sprintf("Invalid user with source ID [%s]\n", input.Source.UserID)
 			return nil, &AppError{nil, message, http.StatusInternalServerError}
 		}
-		object.UserID = user.ID
+		input.UserID = user.ID
 	}
 
 	//find target and set the reference
-	switch object.Target {
+	switch input.Target {
 	case model.Users:
-		addNoteToUser(db, &object)
+		addNoteToUser(context.DB, &input)
 		break
 
 	case model.Comments:
-		addNoteToComment(db, &object)
+		addNoteToComment(context.DB, &input)
 		break
 	}
 
-	return &object, nil
+	return &input, nil
 }
 
 func addNoteToComment(db *db.MongoDB, object *model.Note) (*model.Note, *AppError) {
