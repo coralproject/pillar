@@ -12,16 +12,18 @@ import (
 type HandlerFunc func(rw http.ResponseWriter, r *http.Request, c *AppContext)
 
 func (h HandlerFunc) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
-	c := NewContext(r.Body)
+	c := NewContext(r.Header, r.Body)
 	defer c.Close()
+
+	//delegates to the actual handler code
 	h(rw, r, c)
 }
 
 // AppContext encapsulates application specific runtime information
 type AppContext struct {
 	DB     *db.MongoDB
-	Body   io.ReadCloser
 	Header http.Header
+	Body   io.ReadCloser
 }
 
 func (c *AppContext) Close() {
@@ -43,8 +45,8 @@ func (c *AppContext) Marshall(j interface{}) {
 	c.Body = ioutil.NopCloser(bytes.NewReader(bytez))
 }
 
-func NewContext(body io.ReadCloser) *AppContext {
-	return &AppContext{db.NewMongoDB(), body, nil}
+func NewContext(header http.Header, body io.ReadCloser) *AppContext {
+	return &AppContext{db.NewMongoDB(), header, body}
 }
 
 // AppError encapsulates application specific error

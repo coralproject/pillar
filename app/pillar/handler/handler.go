@@ -3,14 +3,13 @@ package handler
 import (
 	"encoding/json"
 	"github.com/coralproject/pillar/app/pillar/config"
-	"github.com/coralproject/pillar/pkg/service"
 	"github.com/coralproject/pillar/pkg/web"
 	"net/http"
 )
 
 func doRespond(w http.ResponseWriter, object interface{}, appErr *web.AppError) {
 	if appErr != nil {
-		config.Logger.Printf("Call failed [%v]", appErr)
+		config.Logger().Printf("Call failed [%v]", appErr)
 		payload, err := json.Marshal(appErr)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -24,21 +23,11 @@ func doRespond(w http.ResponseWriter, object interface{}, appErr *web.AppError) 
 
 	payload, err := json.Marshal(object)
 	if err != nil {
-		config.Logger.Printf("Call failed [%v]", err)
+		config.Logger().Printf("Call failed [%v]", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
 	w.WriteHeader(http.StatusOK)
 	w.Write(payload)
-}
-
-func CreateIndex(w http.ResponseWriter, r *http.Request, c *web.AppContext) {
-	err := service.CreateIndex(c)
-	doRespond(w, nil, err)
-}
-
-func HandleUserAction(w http.ResponseWriter, r *http.Request, c *web.AppContext) {
-	err := service.CreateUserAction(c)
-	doRespond(w, nil, err)
 }

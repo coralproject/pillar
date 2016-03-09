@@ -29,9 +29,11 @@ var routes = []Route{
 	Route{"DELETE", "/api/tag", handler.DeleteTag},
 
 	//Manage User Activities
-	Route{"POST", "/api/cay/useraction", handler.HandleUserAction},
+	Route{"POST", "/api/cay/useraction", handler.CreateUserAction},
 
-	//Update Handlers
+	//Create/Update Handlers
+	Route{"POST", "/api/author", handler.CreateUpdateAuthor},
+	Route{"POST", "/api/section", handler.CreateUpdateSection},
 	Route{"POST", "/api/asset", handler.CreateUpdateAsset},
 	Route{"POST", "/api/user", handler.CreateUpdateUser},
 	Route{"POST", "/api/comment", handler.CreateUpdateComment},

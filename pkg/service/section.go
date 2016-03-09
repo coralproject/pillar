@@ -8,8 +8,8 @@ import (
 	"time"
 )
 
-// CreateSection creates Section
-func CreateSection(context *web.AppContext) (*model.Section, *web.AppError) {
+// CreateUpdateSection creates/updates a Section
+func CreateUpdateSection(context *web.AppContext) (*model.Section, *web.AppError) {
 	var input model.Section
 	context.Unmarshall(&input)
 

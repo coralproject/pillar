@@ -8,23 +8,29 @@ import (
 )
 
 const (
-	LogFile string = "pillar.log"
+	logFile string = "pillar.log"
 )
 
 var (
-	Logger *log.Logger
 	config *Config
 )
 
+//Config encapsulates application specific configuration
 type Config struct {
 	Home     string
-	LogFile  string
 	MongoURL string
+	Logger   *log.Logger
 	Address  string
 }
 
-func GetAddress() string {
+//Address returns the address where the app is running
+func Address() string {
 	return config.Address
+}
+
+//Logger returns the logger for this app
+func Logger() *log.Logger {
+	return config.Logger
 }
 
 func init() {
@@ -51,8 +57,8 @@ func init() {
 	}
 	fmt.Printf("Pillar log file: %s\n\n", logFile)
 
-	Logger = log.New(file, "Pillar: ", log.LstdFlags|log.Llongfile|log.Ldate|log.Ltime)
-	config = &Config{Home: home, Address: address, MongoURL: url, LogFile: logFile}
+	logger := log.New(file, "Pillar: ", log.LstdFlags|log.Llongfile|log.Ldate|log.Ltime)
+	config = &Config{Home: home, Address: address, MongoURL: url, Logger: logger}
 }
 
 func getLogFile(pillarHome string) string {
@@ -65,7 +71,7 @@ func getLogFile(pillarHome string) string {
 		os.MkdirAll(logPath, 0700)
 	}
 
-	return logPath + "/" + LogFile
+	return logPath + "/" + logFile
 }
 
 func isDir(path string) bool {

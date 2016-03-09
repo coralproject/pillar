@@ -10,6 +10,7 @@ import (
 
 const appContext string = "app-context"
 
+//CORS is a handler to take care of CORS
 func CORS() *cors.Cors {
 	return cors.New(cors.Options{
 		AllowedOrigins:   []string{"*"},
@@ -19,6 +20,7 @@ func CORS() *cors.Cors {
 	})
 }
 
+//AppHandler is a handler to inject gorilla context to the request.
 func AppHandler() negroni.Handler {
 	return negroni.HandlerFunc(func(rw http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
 
@@ -26,7 +28,7 @@ func AppHandler() negroni.Handler {
 		rw.Header().Set("Content-Type", "application/json")
 
 		//Create/Inject DB
-		c := web.NewContext(nil)
+		c := web.NewContext(r.Header, r.Body)
 		defer c.Close()
 
 		//Create/Inject AppContext for the Handlers to use
@@ -35,6 +37,7 @@ func AppHandler() negroni.Handler {
 	})
 }
 
+//GetAppContext returns an AppContext from the global gorilla context.
 func GetAppContext(r *http.Request, input interface{}) *web.AppContext {
 
 	rc := context.Get(r, appContext)
@@ -48,6 +51,7 @@ func GetAppContext(r *http.Request, input interface{}) *web.AppContext {
 	return c
 }
 
+//SetAppContext sets an AppContext to the global gorilla context.
 func SetAppContext(r *http.Request, val *web.AppContext) {
 	context.Set(r, appContext, val)
 }

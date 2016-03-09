@@ -33,7 +33,7 @@ func ImportAsset(context *web.AppContext) (*model.Asset, *web.AppError) {
 		return nil, &web.AppError{nil, message, http.StatusInternalServerError}
 	}
 
-	return doCreateAsset(context.DB, &input)
+	return doCreateAsset(context, &input)
 }
 
 // CreateUpdateAsset creates/updates an asset resource
@@ -43,37 +43,37 @@ func CreateUpdateAsset(context *web.AppContext) (*model.Asset, *web.AppError) {
 	context.Unmarshall(&input)
 
 	if input.ID == "" {
-		return createAsset(context.DB, &input)
+		return createAsset(context, &input)
 	}
 
-	return updateAsset(context.DB, &input)
+	return updateAsset(context, &input)
 }
 
 // createAsset creates a new asset resource
-func createAsset(db *db.MongoDB, input *model.Asset) (*model.Asset, *web.AppError) {
+func createAsset(context *web.AppContext, input *model.Asset) (*model.Asset, *web.AppError) {
 
 	//return, if entity exists
-	if dbEntity := assetExists(db, input); dbEntity != nil {
+	if dbEntity := assetExists(context.DB, input); dbEntity != nil {
 		message := fmt.Sprintf("Asset exists, id [%s] and url [%s] must be unique.", input.ID, input.URL)
 		return nil, &web.AppError{nil, message, http.StatusInternalServerError}
 	}
 
-	return doCreateAsset(db, input)
+	return doCreateAsset(context, input)
 }
 
 // UpdateAsset updates an existing asset
-func updateAsset(db *db.MongoDB, input *model.Asset) (*model.Asset, *web.AppError) {
+func updateAsset(context *web.AppContext, input *model.Asset) (*model.Asset, *web.AppError) {
 
 	var dbEntity model.Asset
 	//entity not found, return
-	db.Assets.FindId(input.ID).One(&dbEntity)
+	context.DB.Assets.FindId(input.ID).One(&dbEntity)
 	if dbEntity.ID == "" {
 		message := fmt.Sprintf("Asset not found [%s]\n", input.ID)
 		return nil, &web.AppError{nil, message, http.StatusInternalServerError}
 	}
 
 	dbEntity.Tags = input.Tags
-	if err := db.Assets.UpdateId(dbEntity.ID, bson.M{"$set": bson.M{"tags": dbEntity.Tags}}); err != nil {
+	if err := context.DB.Assets.UpdateId(dbEntity.ID, bson.M{"$set": bson.M{"tags": dbEntity.Tags}}); err != nil {
 		message := fmt.Sprintf("Error updating asset [%+v]\n", input)
 		return nil, &web.AppError{nil, message, http.StatusInternalServerError}
 	}
@@ -101,33 +101,30 @@ func assetExists(db *db.MongoDB, input *model.Asset) *model.Asset {
 }
 
 //inserts an asset to the db and any related post-processing
-func doCreateAsset(db *db.MongoDB, input *model.Asset) (*model.Asset, *web.AppError) {
+func doCreateAsset(context *web.AppContext, input *model.Asset) (*model.Asset, *web.AppError) {
 	//assign a new ObjectId
 	input.ID = bson.NewObjectId()
 
-	if err := db.Assets.Insert(input); err != nil {
+	if err := context.DB.Assets.Insert(input); err != nil {
 		message := fmt.Sprintf("Error creating asset [%s]", err)
 		return nil, &web.AppError{err, message, http.StatusInternalServerError}
 	}
 
 	//create/update authors, if any
-	c := web.NewContext(nil)
-	defer c.Close()
-
 	for _, one := range input.Authors {
-		c.Marshall(one)
-		if _, err := CreateUpdateAuthor(c); err != nil {
+		context.Marshall(one)
+		if _, err := CreateUpdateAuthor(context); err != nil {
 			//return nil, err
 		}
 	}
 
-	c.Marshall(model.Section{Name: input.Section})
-	if _, err := CreateSection(c); err != nil {
+	context.Marshall(model.Section{Name: input.Section})
+	if _, err := CreateUpdateSection(context); err != nil {
 		//return nil, err
 	}
 
 	tt := &model.TagTarget{Target: model.Assets, TargetID: input.ID}
-	if err := CreateTagTargets(db, input.Tags, tt); err != nil {
+	if err := CreateTagTargets(context.DB, input.Tags, tt); err != nil {
 		//message := fmt.Sprintf("Error creating TagStat [%s]", err)
 		//return nil, &AppError{nil, message, http.StatusInternalServerError}
 	}

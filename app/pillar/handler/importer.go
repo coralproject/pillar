@@ -35,9 +35,3 @@ func ImportNote(w http.ResponseWriter, r *http.Request, c *web.AppContext) {
 	dbObject, err := service.CreateNote(c)
 	doRespond(w, dbObject, err)
 }
-
-//UpdateMetadata updates metadata to various entities in the system
-func UpdateMetadata(w http.ResponseWriter, r *http.Request, c *web.AppContext) {
-	dbObject, err := service.UpdateMetadata(c)
-	doRespond(w, dbObject, err)
-}

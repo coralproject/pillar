@@ -53,12 +53,12 @@ func TestCreateSections(t *testing.T) {
 		log.Fatalf("Error reading tags ", err.Error())
 	}
 
-	c := web.NewContext(nil)
+	c := web.NewContext(nil, nil)
 	defer c.Close()
 
 	for _, one := range objects {
 		c.Marshall(one)
-		if _, err := service.CreateSection(c); err != nil {
+		if _, err := service.CreateUpdateSection(c); err != nil {
 			t.Fail()
 		}
 	}
@@ -76,7 +76,7 @@ func TestCreateTags(t *testing.T) {
 		log.Fatalf("Error reading tags ", err.Error())
 	}
 
-	c := web.NewContext(nil)
+	c := web.NewContext(nil, nil)
 	defer c.Close()
 
 	for _, one := range objects {
@@ -99,7 +99,7 @@ func TestImportAssets(t *testing.T) {
 		log.Fatalf("Error reading assets data", err.Error())
 	}
 
-	c := web.NewContext(nil)
+	c := web.NewContext(nil, nil)
 	defer c.Close()
 
 	for _, one := range objects {
@@ -130,7 +130,7 @@ func TestImportUsers(t *testing.T) {
 		log.Fatalf("Error reading users data", err.Error())
 	}
 
-	c := web.NewContext(nil)
+	c := web.NewContext(nil, nil)
 	defer c.Close()
 
 	for _, one := range objects {
@@ -160,7 +160,7 @@ func TestImportComments(t *testing.T) {
 		log.Fatalf("Error reading comments data", err.Error())
 	}
 
-	c := web.NewContext(nil)
+	c := web.NewContext(nil, nil)
 	defer c.Close()
 
 	for _, one := range objects {
@@ -192,7 +192,7 @@ func TestImportActions(t *testing.T) {
 		log.Fatalf("Error reading user data", err.Error())
 	}
 
-	c := web.NewContext(nil)
+	c := web.NewContext(nil, nil)
 	defer c.Close()
 
 	for _, one := range objects {
@@ -225,7 +225,7 @@ func TestCreateIndexes(t *testing.T) {
 		log.Fatalf("Error reading index data", err.Error())
 	}
 
-	c := web.NewContext(nil)
+	c := web.NewContext(nil, nil)
 	defer c.Close()
 
 	for _, one := range objects {
@@ -249,7 +249,7 @@ func TestUpdateMetadata(t *testing.T) {
 		log.Fatalf("Error reading metadata ", err.Error())
 	}
 
-	c := web.NewContext(nil)
+	c := web.NewContext(nil, nil)
 	defer c.Close()
 
 	for _, one := range objects {
@@ -273,7 +273,7 @@ func TestUserActions(t *testing.T) {
 		log.Fatalf("Error reading user-actions ", err.Error())
 	}
 
-	c := web.NewContext(nil)
+	c := web.NewContext(nil, nil)
 	defer c.Close()
 
 	for _, one := range objects {
@@ -297,7 +297,7 @@ func TestRenameTags(t *testing.T) {
 		log.Fatalf("Error reading tags ", err.Error())
 	}
 
-	c := web.NewContext(nil)
+	c := web.NewContext(nil, nil)
 	defer c.Close()
 
 	for _, one := range objects {

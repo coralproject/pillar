@@ -18,5 +18,5 @@ func main() {
 	n.UseHandler(route.NewRouter())
 
 	//run server
-	n.Run(config.GetAddress())
+	n.Run(config.Address())
 }
