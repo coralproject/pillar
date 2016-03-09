@@ -64,6 +64,7 @@ type Index struct {
 	Index  mgo.Index `json:"index" bson:"index" validate:"required"`
 }
 
+//CayUserAction denotes a user action from the user using the system.
 type CayUserAction struct {
 	ID      bson.ObjectId `json:"id" bson:"_id"`
 	Date    time.Time     `json:"date" bson:"date" validate:"required"`

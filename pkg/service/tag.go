@@ -40,7 +40,7 @@ func CreateUpdateTag(context *web.AppContext) (*model.Tag, *web.AppError) {
 	context.Unmarshall(&input)
 
 	//old-name is empty, upsert one
-	if input.Old_Name == "" {
+	if input.OldName == "" {
 		return upsertTag(context.DB, &input)
 	}
 
@@ -73,14 +73,14 @@ func upsertTag(db *db.MongoDB, object *model.Tag) (*model.Tag, *web.AppError) {
 func renameTag(db *db.MongoDB, object *model.Tag) (*model.Tag, *web.AppError) {
 
 	var dbEntity model.Tag
-	if db.Tags.FindId(object.Old_Name).One(&dbEntity); dbEntity.Name == "" {
-		message := fmt.Sprintf("Cannot update, tag not found: [%s]", object.Old_Name)
+	if db.Tags.FindId(object.OldName).One(&dbEntity); dbEntity.Name == "" {
+		message := fmt.Sprintf("Cannot update, tag not found: [%s]", object.OldName)
 		return nil, &web.AppError{nil, message, http.StatusInternalServerError}
 	}
 
 	var newTag model.Tag
 	newTag.Name = object.Name
-	newTag.Old_Name = object.Old_Name
+	newTag.OldName = object.OldName
 	newTag.Description = dbEntity.Description
 	if object.Description != "" {
 		newTag.Description = object.Description
@@ -89,8 +89,8 @@ func renameTag(db *db.MongoDB, object *model.Tag) (*model.Tag, *web.AppError) {
 	newTag.DateUpdated = time.Now()
 
 	//remove the old one
-	if err := db.Tags.RemoveId(object.Old_Name); err != nil {
-		message := fmt.Sprintf("Error removing old tag [%s]", object.Old_Name)
+	if err := db.Tags.RemoveId(object.OldName); err != nil {
+		message := fmt.Sprintf("Error removing old tag [%s]", object.OldName)
 		return nil, &web.AppError{err, message, http.StatusInternalServerError}
 	}
 
@@ -101,11 +101,11 @@ func renameTag(db *db.MongoDB, object *model.Tag) (*model.Tag, *web.AppError) {
 	}
 
 	var user model.User
-	iter := db.Users.Find(bson.M{"tags": object.Old_Name}).Iter()
+	iter := db.Users.Find(bson.M{"tags": object.OldName}).Iter()
 	for iter.Next(&user) {
 		tags := make([]string, len(user.Tags))
 		for _, one := range user.Tags {
-			if one != object.Old_Name {
+			if one != object.OldName {
 				tags = append(tags, one)
 			}
 		}

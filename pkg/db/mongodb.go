@@ -10,7 +10,7 @@ import (
 )
 
 const (
-	DefaultMongoUrl string = "mongodb://localhost:27017/coral"
+	defaultMongoURL string = "mongodb://localhost:27017/coral"
 )
 
 var (
@@ -36,6 +36,7 @@ func (m *MongoDB) Close() {
 	m.Session.Close()
 }
 
+//Upsert upserts a specific entity into the given collection
 func (m *MongoDB) Upsert(objectType string, id, object interface{}) error {
 	session := m.Session.Clone()
 	defer session.Close()
@@ -44,6 +45,7 @@ func (m *MongoDB) Upsert(objectType string, id, object interface{}) error {
 	return err
 }
 
+//Find finds from a collection using the query
 func (m *MongoDB) Find(objectType string, query map[string]interface{}) (iterator.Iterator, error) {
 	if err := model.ValidateObjectType(objectType); err != nil {
 		return nil, err
@@ -62,7 +64,7 @@ func (m *MongoDB) Find(objectType string, query map[string]interface{}) (iterato
 func init() {
 	url := os.Getenv("MONGODB_URL")
 	if url == "" {
-		log.Printf("$MONGODB_URL not found, trying to connect locally [%s]", DefaultMongoUrl)
+		log.Printf("$MONGODB_URL not found, trying to connect locally [%s]", defaultMongoURL)
 	}
 
 	session, err := mgo.Dial(url)

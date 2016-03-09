@@ -2,6 +2,7 @@ package model
 
 import "gopkg.in/mgo.v2"
 
+//Indicies defines all the indicies for Coral mongo database.
 var Indicies = []Index{
 
 	//Actions Indexes
