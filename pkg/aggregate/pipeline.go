@@ -1,7 +1,9 @@
 package aggregate
 
 import (
+	"fmt"
 	"log"
+	"math/rand"
 	"runtime"
 	"sync"
 
@@ -27,6 +29,7 @@ func Pipeline(
 	// each Go routine withine the pipeline.
 	newAccumulator func() Accumulator,
 ) Accumulator {
+	uid := fmt.Sprintf("%8X", rand.Uint32())
 
 	// Keep track of GOMAXPROCS accumulators using a slice.
 	gomaxprocs := runtime.GOMAXPROCS(-1)
@@ -53,7 +56,7 @@ func Pipeline(
 				accumulator.Accumulate(ctx, object)
 				total++
 				if total%1000 == 0 {
-					log.Printf("routine[%d] processed %d", i, total)
+					log.Printf("%s[%d] processed %d", uid, i, total)
 				}
 			}
 			waitGroup.Done()

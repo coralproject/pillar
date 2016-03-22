@@ -18,9 +18,22 @@ var (
 	indexMap = map[string][]mgo.Index{
 		"comments": []mgo.Index{
 			mgo.Index{
-				Key:      []string{"user_id"},
-				Unique:   false,
-				DropDups: false,
+				Key: []string{"user_id"},
+			},
+		},
+		"actions": []mgo.Index{
+			mgo.Index{
+				Key: []string{"user_id"},
+			},
+			mgo.Index{
+				Key: []string{"target", "target_id"},
+			},
+		},
+		"dimensions": []mgo.Index{
+			mgo.Index{
+				Key:      []string{"name"},
+				Unique:   true,
+				DropDups: true,
 			},
 		},
 	}
@@ -30,6 +43,7 @@ var (
 type MongoDBBackend struct {
 	database string
 	session  *mgo.Session
+	sem      chan struct{}
 }
 
 // NewMongoDBBackend creates a new MongoDBBackendBackend object using a
@@ -75,11 +89,24 @@ func NewMongoDBBackend(addrs []string, database, username, password string, ssl 
 	return m, nil
 }
 
+// type session struct {
+// 	session *mgo.Session
+// 	sem
+// }
+
 func (m *MongoDBBackend) newSession() *mgo.Session {
 	return m.session.Clone()
 }
 
-func (m *MongoDBBackend) Upsert(objectType string, id, object interface{}) error {
+func (m *MongoDBBackend) Upsert(objectType string, query map[string]interface{}, object interface{}) error {
+	session := m.newSession()
+	defer session.Close()
+
+	_, err := session.DB(m.database).C(objectType).Upsert(query, object)
+	return err
+}
+
+func (m *MongoDBBackend) UpsertID(objectType string, id, object interface{}) error {
 	session := m.newSession()
 	defer session.Close()
 
@@ -101,6 +128,12 @@ func (i *iter) Next() (interface{}, bool, error) {
 		// Get a new instance.
 		r := i.result()
 		i.done = !(i.iter.Next(r))
+
+		// Check for a timeout. If one occured, re-run Next (to theoretically
+		// reconnect).
+		if i.done && i.iter.Timeout() {
+			i.done = !(i.iter.Next(r))
+		}
 
 		// If ther iterator is done, we can close it and the underlying session.
 		var err error
@@ -128,6 +161,18 @@ func (m *MongoDBBackend) Find(objectType string, query map[string]interface{}) (
 			return model.ObjectTypeInstance(objectType)
 		},
 	}, nil
+}
+
+func (m *MongoDBBackend) FindID(objectType string, id interface{}) (interface{}, error) {
+	if err := model.ValidateObjectType(objectType); err != nil {
+		return nil, err
+	}
+
+	session := m.newSession()
+	defer session.Close()
+	result := model.ObjectTypeInstance(objectType)
+	err := session.DB(m.database).C(objectType).FindId(id).One(result)
+	return result, err
 }
 
 // Close closes the underlying session.
