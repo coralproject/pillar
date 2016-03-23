@@ -22,6 +22,7 @@ type MongoDB struct {
 	Session        *mgo.Session
 	Assets         *mgo.Collection
 	Users          *mgo.Collection
+	UserGroups        *mgo.Collection
 	Actions        *mgo.Collection
 	Comments       *mgo.Collection
 	Tags           *mgo.Collection
@@ -101,6 +102,7 @@ func NewMongoDB() *MongoDB {
 	db.Tags = db.Session.DB("").C(model.Tags)
 	db.TagTargets = db.Session.DB("").C(model.TagTargets)
 	db.CayUserActions = db.Session.DB("").C(model.CayUserActions)
+	db.UserGroups = db.Session.DB("").C(model.UserGroups)
 
 	return &db
 }

@@ -28,6 +28,11 @@ var routes = []Route{
 	Route{"POST", "/api/tag", handler.CreateUpdateTag},
 	Route{"DELETE", "/api/tag", handler.DeleteTag},
 
+	//UserGroup Handlers
+	Route{"GET", "/api/usergroups", handler.GetUserGroups},
+	Route{"POST", "/api/usergroup", handler.CreateUpdateUserGroup},
+	Route{"DELETE", "/api/usergroup", handler.DeleteUserGroup},
+
 	//Manage User Activities
 	Route{"POST", "/api/cay/useraction", handler.CreateUserAction},
 
