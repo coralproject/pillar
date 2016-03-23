@@ -71,3 +71,21 @@ func DeleteTag(w http.ResponseWriter, r *http.Request, c *web.AppContext) {
 	err := service.DeleteTag(c)
 	doRespond(w, nil, err)
 }
+
+//GetUserGroups end-point returns all available UserGroups in the system.
+func GetUserGroups(w http.ResponseWriter, r *http.Request, c *web.AppContext) {
+	dbObject, err := service.GetUserGroups(c)
+	doRespond(w, dbObject, err)
+}
+
+//CreateUpdateUserGroup end-point allows creation or updation of UserGroup.
+func CreateUpdateUserGroup(w http.ResponseWriter, r *http.Request, c *web.AppContext) {
+	dbObject, err := service.CreateUpdateUserGroup(c)
+	doRespond(w, dbObject, err)
+}
+
+//DeleteUserGroup end-point allows deletion of UserGroup.
+func DeleteUserGroup(w http.ResponseWriter, r *http.Request, c *web.AppContext) {
+	err := service.DeleteUserGroup(c)
+	doRespond(w, nil, err)
+}
