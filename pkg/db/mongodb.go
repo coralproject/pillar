@@ -65,6 +65,7 @@ func init() {
 	url := os.Getenv("MONGODB_URL")
 	if url == "" {
 		log.Printf("$MONGODB_URL not found, trying to connect locally [%s]", defaultMongoURL)
+		url = defaultMongoURL
 	}
 
 	session, err := mgo.Dial(url)

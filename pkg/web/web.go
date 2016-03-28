@@ -19,7 +19,7 @@ func (h HandlerFunc) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	h(rw, r, c)
 }
 
-// AppContext encapsulates application specific runtime information
+//AppContext encapsulates application specific runtime information
 type AppContext struct {
 	DB     *db.MongoDB
 	Header http.Header
