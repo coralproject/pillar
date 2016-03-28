@@ -20,7 +20,7 @@ func (h HandlerFunc) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	h(c)
 }
 
-// AppContext encapsulates application specific runtime information
+//AppContext encapsulates application specific runtime information
 type AppContext struct {
 	Writer http.ResponseWriter
 	Header http.Header
