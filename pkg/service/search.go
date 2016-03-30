@@ -7,6 +7,7 @@ import (
 	"gopkg.in/mgo.v2/bson"
 	"net/http"
 	"time"
+	"log"
 )
 
 // GetSearches returns the list of all Search items in the system
@@ -26,7 +27,6 @@ func CreateUpdateSearch(context *web.AppContext) (*model.Search, *web.AppError) 
 	var input model.Search
 	context.Unmarshall(&input)
 
-	fmt.Printf("Search: %v", input)
 	var dbEntity model.Search
 	//Upsert if entity exists with same ID
 	context.DB.Searches.Find(input.ID).One(&dbEntity)
@@ -43,7 +43,25 @@ func CreateUpdateSearch(context *web.AppContext) (*model.Search, *web.AppError) 
 		return nil, &web.AppError{err, message, http.StatusInternalServerError}
 	}
 
+	//save an entry in history
+	createSearchHistory(context, input)
+
 	return &input, nil
+}
+
+func createSearchHistory(context *web.AppContext, search model.Search) {
+	var sh model.SearchHistory
+	sh.ID = bson.NewObjectId()
+	if search.DateUpdated.IsZero() {
+		sh.Action = "create"
+	} else {
+		sh.Action = "update"
+	}
+	sh.Date = time.Now()
+	sh.Search = search
+	if err := context.DB.SearchHistory.Insert(sh); err != nil {
+		log.Printf("Error creating SearchHistory [%s]", err)
+	}
 }
 
 // DeleteSearch deletes a Search
