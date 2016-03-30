@@ -28,7 +28,7 @@ func AppHandler() negroni.Handler {
 		rw.Header().Set("Content-Type", "application/json")
 
 		//Create/Inject DB
-		c := web.NewContext(r.Header, r.Body)
+		c := web.NewContext(rw, r)
 		defer c.Close()
 
 		//Create/Inject AppContext for the Handlers to use
