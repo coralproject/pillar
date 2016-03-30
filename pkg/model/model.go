@@ -37,6 +37,7 @@ const (
 	Sections       string = "sections"
 	TagTargets     string = "tag_targets"
 	CayUserActions string = "cay_user_actions"
+	Searches       string = "searches"
 )
 
 // ImportSource encapsulates all original id from the source system

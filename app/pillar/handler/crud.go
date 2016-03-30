@@ -71,3 +71,21 @@ func DeleteTag(w http.ResponseWriter, r *http.Request, c *web.AppContext) {
 	err := service.DeleteTag(c)
 	doRespond(w, nil, err)
 }
+
+//GetSearches end-point returns all available Searches in the system.
+func GetSearches(w http.ResponseWriter, r *http.Request, c *web.AppContext) {
+	dbObject, err := service.GetSearches(c)
+	doRespond(w, dbObject, err)
+}
+
+//CreateUpdateSearch end-point allows creation or updation of Search.
+func CreateUpdateSearch(w http.ResponseWriter, r *http.Request, c *web.AppContext) {
+	dbObject, err := service.CreateUpdateSearch(c)
+	doRespond(w, dbObject, err)
+}
+
+//DeleteSearch end-point allows deletion of Search.
+func DeleteSearch(w http.ResponseWriter, r *http.Request, c *web.AppContext) {
+	err := service.DeleteSearch(c)
+	doRespond(w, nil, err)
+}
