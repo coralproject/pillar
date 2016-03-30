@@ -30,6 +30,7 @@ type MongoDB struct {
 	Sections       *mgo.Collection
 	TagTargets     *mgo.Collection
 	CayUserActions *mgo.Collection
+	SearchHistory  *mgo.Collection
 }
 
 //Close closes the mongodb session; must be called, else the session remains open
@@ -103,6 +104,7 @@ func NewMongoDB() *MongoDB {
 	db.TagTargets = db.Session.DB("").C(model.TagTargets)
 	db.CayUserActions = db.Session.DB("").C(model.CayUserActions)
 	db.Searches = db.Session.DB("").C(model.Searches)
+	db.SearchHistory = db.Session.DB("").C(model.SrchHistory)
 
 	return &db
 }
