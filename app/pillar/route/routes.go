@@ -32,7 +32,7 @@ var routes = []Route{
 	Route{"GET", "/api/searches", handler.GetSearches},
 	Route{"PUT", "/api/search", handler.CreateUpdateSearch},
 	Route{"POST", "/api/search", handler.CreateUpdateSearch},
-	Route{"DELETE", "/api/usergroup", handler.DeleteSearch},
+	Route{"DELETE", "/api/search", handler.DeleteSearch},
 
 	//Manage User Activities
 	Route{"POST", "/api/cay/useraction", handler.CreateUserAction},
