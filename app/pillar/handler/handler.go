@@ -7,27 +7,27 @@ import (
 	"net/http"
 )
 
-func doRespond(w http.ResponseWriter, object interface{}, appErr *web.AppError) {
+func doRespond(c *web.AppContext, object interface{}, appErr *web.AppError) {
 	if appErr != nil {
 		config.Logger().Printf("Call failed [%v]", appErr)
 		payload, err := json.Marshal(appErr)
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
+			http.Error(c.Writer, err.Error(), http.StatusInternalServerError)
 			return
 		}
 
-		w.WriteHeader(appErr.Code)
-		w.Write(payload)
+		c.Writer.WriteHeader(appErr.Code)
+		c.Writer.Write(payload)
 		return
 	}
 
 	payload, err := json.Marshal(object)
 	if err != nil {
 		config.Logger().Printf("Call failed [%v]", err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(c.Writer, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	w.WriteHeader(http.StatusOK)
-	w.Write(payload)
+	c.Writer.WriteHeader(http.StatusOK)
+	c.Writer.Write(payload)
 }

@@ -3,89 +3,88 @@ package handler
 import (
 	"github.com/coralproject/pillar/pkg/service"
 	"github.com/coralproject/pillar/pkg/web"
-	"net/http"
 )
 
 //CreateUpdateAsset end-point allows creation or updation of Asset.
-func CreateUpdateAsset(w http.ResponseWriter, r *http.Request, c *web.AppContext) {
+func CreateUpdateAsset(c *web.AppContext) {
 	dbObject, err := service.CreateUpdateAsset(c)
-	doRespond(w, dbObject, err)
+	doRespond(c, dbObject, err)
 }
 
 //CreateUpdateUser end-point allows creation or updation of User.
-func CreateUpdateUser(w http.ResponseWriter, r *http.Request, c *web.AppContext) {
+func CreateUpdateUser(c *web.AppContext) {
 	dbObject, err := service.CreateUpdateUser(c)
-	doRespond(w, dbObject, err)
+	doRespond(c, dbObject, err)
 }
 
 //CreateUpdateComment end-point allows creation or updation of Comment.
-func CreateUpdateComment(w http.ResponseWriter, r *http.Request, c *web.AppContext) {
+func CreateUpdateComment(c *web.AppContext) {
 	dbObject, err := service.CreateUpdateComment(c)
-	doRespond(w, dbObject, err)
+	doRespond(c, dbObject, err)
 }
 
 //CreateUpdateSection end-point allows creation or updation of Section.
-func CreateUpdateSection(w http.ResponseWriter, r *http.Request, c *web.AppContext) {
+func CreateUpdateSection(c *web.AppContext) {
 	dbObject, err := service.CreateUpdateSection(c)
-	doRespond(w, dbObject, err)
+	doRespond(c, dbObject, err)
 }
 
 //CreateUpdateAuthor end-point allows creation or updation of Author.
-func CreateUpdateAuthor(w http.ResponseWriter, r *http.Request, c *web.AppContext) {
+func CreateUpdateAuthor(c *web.AppContext) {
 	dbObject, err := service.CreateUpdateAuthor(c)
-	doRespond(w, dbObject, err)
+	doRespond(c, dbObject, err)
 }
 
 //CreateUserAction end-point allows registration of all events from front-end.
-func CreateUserAction(w http.ResponseWriter, r *http.Request, c *web.AppContext) {
+func CreateUserAction(c *web.AppContext) {
 	err := service.CreateUserAction(c)
-	doRespond(w, nil, err)
+	doRespond(c, nil, err)
 }
 
 //CreateIndex end-point allows creation of new database index.
-func CreateIndex(w http.ResponseWriter, r *http.Request, c *web.AppContext) {
+func CreateIndex(c *web.AppContext) {
 	err := service.CreateIndex(c)
-	doRespond(w, nil, err)
+	doRespond(c, nil, err)
 }
 
 //UpdateMetadata end-point allows updation of Metadata within an entity.
-func UpdateMetadata(w http.ResponseWriter, r *http.Request, c *web.AppContext) {
+func UpdateMetadata(c *web.AppContext) {
 	dbObject, err := service.UpdateMetadata(c)
-	doRespond(w, dbObject, err)
+	doRespond(c, dbObject, err)
 }
 
 //GetTags end-point returns all available tags in the system.
-func GetTags(w http.ResponseWriter, r *http.Request, c *web.AppContext) {
+func GetTags(c *web.AppContext) {
 	dbObject, err := service.GetTags(c)
-	doRespond(w, dbObject, err)
+	doRespond(c, dbObject, err)
 }
 
 //CreateUpdateTag end-point allows creation or updation of Tag.
-func CreateUpdateTag(w http.ResponseWriter, r *http.Request, c *web.AppContext) {
+func CreateUpdateTag(c *web.AppContext) {
 	dbObject, err := service.CreateUpdateTag(c)
-	doRespond(w, dbObject, err)
+	doRespond(c, dbObject, err)
 }
 
 //DeleteTag end-point allows deletion of Tag.
-func DeleteTag(w http.ResponseWriter, r *http.Request, c *web.AppContext) {
+func DeleteTag(c *web.AppContext) {
 	err := service.DeleteTag(c)
-	doRespond(w, nil, err)
+	doRespond(c, nil, err)
 }
 
 //GetSearches end-point returns all available Searches in the system.
-func GetSearches(w http.ResponseWriter, r *http.Request, c *web.AppContext) {
+func GetSearches(c *web.AppContext) {
 	dbObject, err := service.GetSearches(c)
-	doRespond(w, dbObject, err)
+	doRespond(c, dbObject, err)
 }
 
 //CreateUpdateSearch end-point allows creation or updation of Search.
-func CreateUpdateSearch(w http.ResponseWriter, r *http.Request, c *web.AppContext) {
+func CreateUpdateSearch(c *web.AppContext) {
 	dbObject, err := service.CreateUpdateSearch(c)
-	doRespond(w, dbObject, err)
+	doRespond(c, dbObject, err)
 }
 
 //DeleteSearch end-point allows deletion of Search.
-func DeleteSearch(w http.ResponseWriter, r *http.Request, c *web.AppContext) {
+func DeleteSearch(c *web.AppContext) {
 	err := service.DeleteSearch(c)
-	doRespond(w, nil, err)
+	doRespond(c, nil, err)
 }

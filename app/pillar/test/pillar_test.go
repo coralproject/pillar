@@ -25,23 +25,23 @@ func init() {
 }
 
 func TestCORS(t *testing.T) {
-	if r, _ := request(MethodOption, URLTag, nil); r.StatusCode != 200 {
+	if r, _ := request(MethodOption, getBaseURL()+URLTag, nil); r.StatusCode != 200 {
 		t.Fail()
 	}
 
-	if r, _ := request(MethodOption, URLTags, nil); r.StatusCode != 200 {
+	if r, _ := request(MethodOption, getBaseURL()+URLTags, nil); r.StatusCode != 200 {
 		t.Fail()
 	}
 
-	if r, _ := request(MethodOption, URLAsset, nil); r.StatusCode != 200 {
+	if r, _ := request(MethodOption, getBaseURL()+URLAsset, nil); r.StatusCode != 200 {
 		t.Fail()
 	}
 
-	if r, _ := request(MethodOption, URLUser, nil); r.StatusCode != 200 {
+	if r, _ := request(MethodOption, getBaseURL()+URLUser, nil); r.StatusCode != 200 {
 		t.Fail()
 	}
 
-	if r, _ := request(MethodOption, URLComment, nil); r.StatusCode != 200 {
+	if r, _ := request(MethodOption, getBaseURL()+URLComment, nil); r.StatusCode != 200 {
 		t.Fail()
 	}
 }
@@ -60,7 +60,7 @@ func TestCreateAssets(t *testing.T) {
 
 	for _, one := range objects {
 		data, _ := json.Marshal(one)
-		if r, _ := request(MethodPost, URLAsset, bytes.NewBuffer(data)); r.StatusCode != 200 {
+		if r, _ := request(MethodPost, getBaseURL()+URLAsset, bytes.NewBuffer(data)); r.StatusCode != 200 {
 			t.Fail()
 		}
 	}
@@ -80,7 +80,7 @@ func TestCreateUsers(t *testing.T) {
 
 	for _, one := range objects {
 		data, _ := json.Marshal(one)
-		if r, _ := request(MethodPost, URLUser, bytes.NewBuffer(data)); r.StatusCode != 200 {
+		if r, _ := request(MethodPost, getBaseURL()+URLUser, bytes.NewBuffer(data)); r.StatusCode != 200 {
 			t.Fail()
 		}
 	}
@@ -100,7 +100,7 @@ func TestCreateComments(t *testing.T) {
 
 	for _, one := range objects {
 		data, _ := json.Marshal(one)
-		if r, _ := request(MethodPost, URLComment, bytes.NewBuffer(data)); r.StatusCode != 200 {
+		if r, _ := request(MethodPost, getBaseURL()+URLComment, bytes.NewBuffer(data)); r.StatusCode != 200 {
 			t.Fail()
 		}
 	}
@@ -120,7 +120,7 @@ func TestCreateActions(t *testing.T) {
 
 	for _, one := range objects {
 		data, _ := json.Marshal(one)
-		if r, _ := request(MethodPost, URLAction, bytes.NewBuffer(data)); r.StatusCode != 200 {
+		if r, _ := request(MethodPost, getBaseURL()+URLAction, bytes.NewBuffer(data)); r.StatusCode != 200 {
 			t.Fail()
 		}
 	}
@@ -140,7 +140,7 @@ func TestCreateTags(t *testing.T) {
 
 	for _, one := range objects {
 		data, _ := json.Marshal(one)
-		if r, _ := request(MethodPost, URLTag, bytes.NewBuffer(data)); r.StatusCode != 200 {
+		if r, _ := request(MethodPost, getBaseURL()+URLTag, bytes.NewBuffer(data)); r.StatusCode != 200 {
 			t.Fail()
 		}
 	}
