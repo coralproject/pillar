@@ -19,3 +19,10 @@ type Search struct {
 	UserCreated string        `json:"user_created,omitempty" bson:"user_created,omitempty"`
 	UserUpdated string        `json:"user_updated,omitempty" bson:"user_updated,omitempty"`
 }
+
+type SearchHistory struct {
+	ID          bson.ObjectId `json:"id" bson:"_id"`
+	Action      string        `json:"action" bson:"action" validate:"required"`
+	Date        time.Time     `json:"date" bson:"date" validate:"required"`
+	Search      Search        `json:"search" bson:"search" validate:"required"`
+}
