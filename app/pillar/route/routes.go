@@ -30,6 +30,7 @@ var routes = []Route{
 
 	//Search Handlers
 	Route{"GET", "/api/searches", handler.GetSearches},
+	Route{"PUT", "/api/search", handler.CreateUpdateSearch},
 	Route{"POST", "/api/search", handler.CreateUpdateSearch},
 	Route{"DELETE", "/api/usergroup", handler.DeleteSearch},
 
