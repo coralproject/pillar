@@ -23,7 +23,7 @@ const (
 	dataMetadata    = "fixtures/crud/metadata.json"
 	dataNewTags     = "fixtures/crud/tags_rename.json"
 	dataUserActions = "fixtures/crud/user-actions.json"
-	dataUserGroups  = "fixtures/crud/user-groups.json"
+	dataSearches    = "fixtures/crud/searches.json"
 )
 
 func init() {
@@ -40,7 +40,7 @@ func init() {
 	db.Assets.RemoveAll(nil)
 	db.CayUserActions.RemoveAll(nil)
 	db.TagTargets.RemoveAll(nil)
-	db.UserGroups.RemoveAll(nil)
+	db.Searches.RemoveAll(nil)
 }
 
 func TestCreateSections(t *testing.T) {
@@ -89,13 +89,13 @@ func TestCreateTags(t *testing.T) {
 	}
 }
 
-func TestCreateUserGroups(t *testing.T) {
-	file, err := os.Open(dataUserGroups)
+func TestCreateSearches(t *testing.T) {
+	file, err := os.Open(dataSearches)
 	if err != nil {
 		log.Fatalf("opening config file", err.Error())
 	}
 
-	objects := []model.UserGroup{}
+	objects := []model.Search{}
 	jsonParser := json.NewDecoder(file)
 	if err = jsonParser.Decode(&objects); err != nil {
 		log.Fatalf("Error reading userGroups ", err.Error())
@@ -106,14 +106,14 @@ func TestCreateUserGroups(t *testing.T) {
 
 	for _, one := range objects {
 		c.Marshall(one)
-		if _, err := service.CreateUpdateUserGroup(c); err != nil {
+		if _, err := service.CreateUpdateSearch(c); err != nil {
 			t.Fail()
 		}
 	}
 
 	for _, one := range objects {
 		c.Marshall(one)
-		if _, err := service.CreateUpdateUserGroup(c); err != nil {
+		if _, err := service.CreateUpdateSearch(c); err != nil {
 			t.Fail()
 		}
 	}

@@ -72,20 +72,20 @@ func DeleteTag(w http.ResponseWriter, r *http.Request, c *web.AppContext) {
 	doRespond(w, nil, err)
 }
 
-//GetUserGroups end-point returns all available UserGroups in the system.
-func GetUserGroups(w http.ResponseWriter, r *http.Request, c *web.AppContext) {
-	dbObject, err := service.GetUserGroups(c)
+//GetSearches end-point returns all available Searches in the system.
+func GetSearches(w http.ResponseWriter, r *http.Request, c *web.AppContext) {
+	dbObject, err := service.GetSearches(c)
 	doRespond(w, dbObject, err)
 }
 
-//CreateUpdateUserGroup end-point allows creation or updation of UserGroup.
-func CreateUpdateUserGroup(w http.ResponseWriter, r *http.Request, c *web.AppContext) {
-	dbObject, err := service.CreateUpdateUserGroup(c)
+//CreateUpdateSearch end-point allows creation or updation of Search.
+func CreateUpdateSearch(w http.ResponseWriter, r *http.Request, c *web.AppContext) {
+	dbObject, err := service.CreateUpdateSearch(c)
 	doRespond(w, dbObject, err)
 }
 
-//DeleteUserGroup end-point allows deletion of UserGroup.
-func DeleteUserGroup(w http.ResponseWriter, r *http.Request, c *web.AppContext) {
-	err := service.DeleteUserGroup(c)
+//DeleteSearch end-point allows deletion of Search.
+func DeleteSearch(w http.ResponseWriter, r *http.Request, c *web.AppContext) {
+	err := service.DeleteSearch(c)
 	doRespond(w, nil, err)
 }
