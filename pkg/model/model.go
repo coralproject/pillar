@@ -29,7 +29,6 @@ const (
 
 	//Various Collections
 	Users          string = "users"
-	UserGroups     string = "user_groups"
 	Assets         string = "assets"
 	Actions        string = "actions"
 	Comments       string = "comments"
@@ -38,6 +37,7 @@ const (
 	Sections       string = "sections"
 	TagTargets     string = "tag_targets"
 	CayUserActions string = "cay_user_actions"
+	Searches       string = "searches"
 )
 
 // ImportSource encapsulates all original id from the source system

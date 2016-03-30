@@ -5,14 +5,15 @@ import (
 	"time"
 )
 
-// UserGroup denotes a group of users bound by the filters and tags here.
-type UserGroup struct {
+// Search denotes a search bound by a query and tag.
+type Search struct {
 	ID          bson.ObjectId `json:"id" bson:"_id"`
 	Name        string        `json:"name" bson:"name" validate:"required"`
-	Description string        `json:"description" bson:"description" validate:"required"`
-	Filters     []bson.M      `json:"filters,omitempty" bson:"filters,omitempty"`
-	IncludeTags []string      `json:"include_tags,omitempty" bson:"include_tags,omitempty"`
-	ExcludeTags []string      `json:"exclude_tags,omitempty" bson:"exclude_tags,omitempty"`
+	Description string        `json:"description,omitempty" bson:"description,omitempty"`
+	Query    	string        `json:"query" bson:"query" validate:"required"`
+	Tag     	string        `json:"tag" bson:"tag" validate:"required"`
+	Filters     []interface{} `json:"filters,omitempty" bson:"filters,omitempty"`
+	Results     []interface{} `json:"results,omitempty" bson:"results,omitempty"`
 	DateCreated time.Time     `json:"date_created" bson:"date_created" validate:"required"`
 	DateUpdated time.Time     `json:"date_updated,omitempty" bson:"date_updated,omitempty"`
 	UserCreated string        `json:"user_created,omitempty" bson:"user_created,omitempty"`
