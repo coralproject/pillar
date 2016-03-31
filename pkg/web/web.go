@@ -3,6 +3,7 @@ package web
 import (
 	"bytes"
 	"encoding/json"
+	"github.com/coralproject/pillar/pkg/amqp"
 	"github.com/coralproject/pillar/pkg/db"
 	"github.com/gorilla/mux"
 	"io"
@@ -27,6 +28,7 @@ type AppContext struct {
 	Body   io.ReadCloser
 	Vars   map[string]string
 	DB     *db.MongoDB
+	MQ     *amqp.MQ
 }
 
 func (c *AppContext) Close() {
@@ -54,11 +56,18 @@ func (c *AppContext) Marshall(j interface{}) {
 
 func NewContext(rw http.ResponseWriter, r *http.Request) *AppContext {
 
-	if r == nil {
-		return &AppContext{rw, nil, nil, mux.Vars(r), db.NewMongoDB()}
+	var c AppContext
+	c.Writer = rw
+	c.DB = db.NewMongoDB()
+	c.MQ = amqp.NewMQ("PillarMQ")
+
+	if r != nil {
+		c.Header = r.Header
+		c.Body = r.Body
+		c.Vars = mux.Vars(r)
 	}
 
-	return &AppContext{rw, r.Header, r.Body, mux.Vars(r), db.NewMongoDB()}
+	return &c
 }
 
 // AppError encapsulates application specific error
