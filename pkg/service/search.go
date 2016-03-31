@@ -22,6 +22,28 @@ func GetSearches(context *web.AppContext) ([]model.Search, *web.AppError) {
 	return all, nil
 }
 
+// GetSearch returns one Search
+func GetSearch(context *web.AppContext) (*model.Search, *web.AppError) {
+
+	idStr := context.GetValue("id")
+	//we must have an id to delete the search
+	if idStr == "" {
+		message := fmt.Sprintf("Cannot fetch Search. Invalid Id [%s]", idStr)
+		return nil, &web.AppError{nil, message, http.StatusInternalServerError}
+	}
+
+	//convert to an ObjectId
+	id := bson.ObjectIdHex(idStr)
+
+	var search model.Search
+	if err := context.DB.Searches.FindId(id).One(&search); err != nil {
+		message := fmt.Sprintf("Error fetching one Search [%s]", err)
+		return nil, &web.AppError{err, message, http.StatusInternalServerError}
+	}
+
+	return &search, nil
+}
+
 // CreateUpdateSearch upserts a Search
 func CreateUpdateSearch(context *web.AppContext) (*model.Search, *web.AppError) {
 	var input model.Search
@@ -66,18 +88,20 @@ func createSearchHistory(context *web.AppContext, search model.Search) {
 
 // DeleteSearch deletes a Search
 func DeleteSearch(context *web.AppContext) *web.AppError {
-	var input model.Search
-	context.Unmarshall(&input)
 
-	//we must have the tag name for deletion
-	if input.ID == "" {
-		message := fmt.Sprintf("Cannot delete Search with an empty ID [%v]", input)
+	idStr := context.GetValue("id")
+	//we must have an id to delete the search
+	if idStr == "" {
+		message := fmt.Sprintf("Cannot delete Search. Invalid Id [%s]", idStr)
 		return &web.AppError{nil, message, http.StatusInternalServerError}
 	}
 
+	//convert to an ObjectId
+	id := bson.ObjectIdHex(idStr)
+
 	//delete
-	if err := context.DB.Searches.RemoveId(input.ID); err != nil {
-		message := fmt.Sprintf("Error deleting Search [%v]", input)
+	if err := context.DB.Searches.RemoveId(id); err != nil {
+		message := fmt.Sprintf("Error deleting Search [%s]", id)
 		return &web.AppError{err, message, http.StatusInternalServerError}
 	}
 

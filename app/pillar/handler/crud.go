@@ -77,6 +77,12 @@ func GetSearches(c *web.AppContext) {
 	doRespond(c, dbObject, err)
 }
 
+//GetSearch end-point returns a single Search.
+func GetSearch(c *web.AppContext) {
+	dbObject, err := service.GetSearch(c)
+	doRespond(c, dbObject, err)
+}
+
 //CreateUpdateSearch end-point allows creation or updation of Search.
 func CreateUpdateSearch(c *web.AppContext) {
 	dbObject, err := service.CreateUpdateSearch(c)
