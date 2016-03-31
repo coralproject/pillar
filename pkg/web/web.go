@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"github.com/coralproject/pillar/pkg/db"
+	"github.com/gorilla/mux"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -24,11 +25,16 @@ type AppContext struct {
 	Writer http.ResponseWriter
 	Header http.Header
 	Body   io.ReadCloser
+	Vars   map[string]string
 	DB     *db.MongoDB
 }
 
 func (c *AppContext) Close() {
 	c.DB.Close()
+}
+
+func (c *AppContext) GetValue(key string) string {
+	return c.Vars[key]
 }
 
 //Unmarshall unmarshalls the Body to the passed object
@@ -47,11 +53,12 @@ func (c *AppContext) Marshall(j interface{}) {
 }
 
 func NewContext(rw http.ResponseWriter, r *http.Request) *AppContext {
+
 	if r == nil {
-		return &AppContext{rw, nil, nil, db.NewMongoDB()}
+		return &AppContext{rw, nil, nil, mux.Vars(r), db.NewMongoDB()}
 	}
 
-	return &AppContext{rw, r.Header, r.Body, db.NewMongoDB()}
+	return &AppContext{rw, r.Header, r.Body, mux.Vars(r), db.NewMongoDB()}
 }
 
 // AppError encapsulates application specific error
