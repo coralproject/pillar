@@ -14,7 +14,7 @@ var (
 	amqpConnection *amqp.Connection
 )
 
-func connect() {
+func init() {
 	url := os.Getenv("AMQP_URL")
 	if url == "" {
 		log.Printf("$AMQP_URL not found, trying to connect locally [%s]", defaultAMQP)
@@ -23,51 +23,52 @@ func connect() {
 
 	conn, err := amqp.Dial(url)
 	if err != nil {
-		log.Fatalf("Error connecting to AMQP: %s", err)
+		log.Printf("Error connecting to AMQP: %s", err)
 	}
 
 	//save the primary connection
 	amqpConnection = conn
 }
 
-//MQ denotes a wrapper structure around amqp.Connection and amqp.Channel
+//MQ denotes a wrapper structure around amqp.Exchange and amqp.Channel
 type MQ struct {
 	Exchange string
 	Channel  *amqp.Channel
 }
 
 func NewMQ(exchange string) *MQ {
+	mq := MQ{exchange, nil}
 	if amqpConnection == nil {
-		connect()
+		return &mq
 	}
 
-	ch, err := amqpConnection.Channel()
-	if err != nil {
-		log.Fatalf("Error creating channel and exchange: %s", err)
+	ch, _ := amqpConnection.Channel()
+	if ch != nil {
+		//declare exchange
+		ch.ExchangeDeclare(
+			exchange, // name
+			"fanout", // type
+			true,     // durable
+			false,    // auto-deleted
+			false,    // internal
+			false,    // no-wait
+			nil,      // arguments
+		)
+		mq.Channel = ch
 	}
-	err = ch.ExchangeDeclare(
-		exchange, // name
-		"fanout", // type
-		true,     // durable
-		false,    // auto-deleted
-		false,    // internal
-		false,    // no-wait
-		nil,      // arguments
-	)
-
-	mq := MQ{exchange, ch}
-//	mq.Channel = ch
-//	mq.Exchange = exchange
 
 	return &mq
 }
 
 func (m *MQ) Close() {
 	m.Channel.Close()
-	amqpConnection.Close()
 }
 
-func (m *MQ) Publish(message string) error {
+func (m *MQ) IsValid() bool {
+	return m.Channel != nil
+}
+
+func (m *MQ) Publish(payload []byte) error {
 	return m.Channel.Publish(
 		m.Exchange, // exchange
 		"",         // routing key
@@ -75,7 +76,7 @@ func (m *MQ) Publish(message string) error {
 		false,      // immediate
 		amqp.Publishing{
 			ContentType: "text/plain",
-			Body:        []byte(message),
+			Body:        payload,
 		})
 }
 

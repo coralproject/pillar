@@ -8,7 +8,23 @@ import (
 	"gopkg.in/mgo.v2/bson"
 	"net/http"
 	"time"
+	"github.com/coralproject/pillar/pkg/model/event"
 )
+
+func GetPayload(context *web.AppContext, object interface{}) interface{} {
+
+	switch object.(type) {
+	case *model.Comment:
+		comment := object.(*model.Comment)
+		var user model.User
+		context.DB.Users.FindId(comment.UserID).One(&user);
+		var asset model.Asset
+		context.DB.Assets.FindId(comment.AssetID).One(&asset);
+		return event.PayloadComment{*comment, asset, user}
+	default:
+		return nil
+	}
+}
 
 // UpdateMetadata updates metadata for an entity
 func UpdateMetadata(context *web.AppContext) (interface{}, *web.AppError) {
