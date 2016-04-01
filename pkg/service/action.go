@@ -173,3 +173,27 @@ func updateTargetOnAction(db *db.MongoDB, object *model.Action) error {
 
 	return nil
 }
+
+func getPayloadAction(context *web.AppContext, object interface{}) interface{} {
+	action := object.(*model.Action)
+
+	var payload model.PayloadAction
+	payload.Action = *action
+
+	var actor model.User
+	context.DB.Users.FindId(action.UserID).One(&actor)
+	payload.Actor = actor
+
+	switch action.Target {
+	case model.Users:
+		var user model.User
+		context.DB.Users.FindId(action.TargetID).One(&user)
+		payload.User = user
+	case model.Comments:
+		var comment model.Comment
+		context.DB.Users.FindId(action.TargetID).One(&comment)
+		payload.Comment = comment
+	}
+
+	return payload
+}

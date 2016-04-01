@@ -193,3 +193,14 @@ func updateCommentOnAction(db *db.MongoDB, object *model.Action) error {
 
 	return nil
 }
+
+func getPayloadComment(context *web.AppContext, object interface{}) interface{} {
+	comment := object.(*model.Comment)
+
+	var user model.User
+	context.DB.Users.FindId(comment.UserID).One(&user)
+	var asset model.Asset
+	context.DB.Assets.FindId(comment.AssetID).One(&asset)
+
+	return model.PayloadComment{*comment, asset, user}
+}
