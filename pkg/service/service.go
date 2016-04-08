@@ -10,6 +10,18 @@ import (
 	"time"
 )
 
+func GetPayload(context *web.AppContext, object interface{}) interface{} {
+
+	switch object.(type) {
+	case *model.Comment:
+		return getPayloadComment(context, object)
+	case *model.Action:
+		return getPayloadAction(context, object)
+	default:
+		return nil
+	}
+}
+
 // UpdateMetadata updates metadata for an entity
 func UpdateMetadata(context *web.AppContext) (interface{}, *web.AppError) {
 

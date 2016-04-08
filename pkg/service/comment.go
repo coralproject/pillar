@@ -70,16 +70,18 @@ func createComment(db *db.MongoDB, input *model.Comment) (*model.Comment, *web.A
 	var asset model.Asset
 	db.Assets.FindId(input.AssetID).One(&asset)
 	if asset.ID == "" {
-		message := fmt.Sprintf("Cannot create Comment, Asset not found [$s]\n", input.AssetID)
+		message := fmt.Sprintf("Cannot create Comment, Asset not found [%s]\n", input.AssetID)
 		return nil, &web.AppError{nil, message, http.StatusInternalServerError}
 	}
+	ref.asset = &asset
 
 	var user model.User
 	db.Users.FindId(input.UserID).One(&user)
 	if user.ID == "" {
-		message := fmt.Sprintf("Cannot create Comment, User not found [$s]\n", input.UserID)
+		message := fmt.Sprintf("Cannot create Comment, User not found [%s]\n", input.UserID)
 		return nil, &web.AppError{nil, message, http.StatusInternalServerError}
 	}
+	ref.user = &user
 
 	input.ID = bson.NewObjectId()
 	return doCreateComment(db, input)
@@ -190,4 +192,15 @@ func updateCommentOnAction(db *db.MongoDB, object *model.Action) error {
 	)
 
 	return nil
+}
+
+func getPayloadComment(context *web.AppContext, object interface{}) interface{} {
+	comment := object.(*model.Comment)
+
+	var user model.User
+	context.DB.Users.FindId(comment.UserID).One(&user)
+	var asset model.Asset
+	context.DB.Assets.FindId(comment.AssetID).One(&asset)
+
+	return model.PayloadComment{*comment, asset, user}
 }
