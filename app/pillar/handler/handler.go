@@ -18,6 +18,7 @@ func doRespond(c *web.AppContext, object interface{}, appErr *web.AppError) {
 			return
 		}
 
+		c.Writer.Header().Set("Content-Type", "application/json")
 		c.Writer.WriteHeader(appErr.Code)
 		c.Writer.Write(payload)
 		return
@@ -35,6 +36,7 @@ func doRespond(c *web.AppContext, object interface{}, appErr *web.AppError) {
 		publish(c, object)
 	}
 
+	c.Writer.Header().Set("Content-Type", "application/json")
 	c.Writer.WriteHeader(http.StatusOK)
 	c.Writer.Write(payload)
 }
