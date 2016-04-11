@@ -19,7 +19,7 @@ type User struct {
 	Tags        []string        `json:"tags,omitempty" bson:"tags,omitempty"`
 	Stats       bson.M          `json:"stats,omitempty" bson:"stats,omitempty"`
 	Metadata    bson.M          `json:"metadata,omitempty" bson:"metadata,omitempty"`
-	Source      ImportSource    `json:"source" bson:"source"`
+	Source      ImportSource    `json:"source,omitempty" bson:"source,omitempty"`
 }
 
 // Validate performs validation on a User value before it is processed.

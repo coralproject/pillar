@@ -15,7 +15,7 @@ type Asset struct {
 	Subsection string        `json:"subsection,omitempty" bson:"subsection,omitempty"`
 	Stats      bson.M        `json:"stats,omitempty" bson:"stats,omitempty"`
 	Metadata   bson.M        `json:"metadata,omitempty" bson:"metadata,omitempty"`
-	Source     ImportSource  `json:"source" bson:"source"`
+	Source     ImportSource  `json:"source,omitempty" bson:"source,omitempty"`
 }
 
 // Taxonomy holds all name-value pairs.

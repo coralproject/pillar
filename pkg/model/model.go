@@ -57,7 +57,7 @@ type Metadata struct {
 	Target   string        `json:"target" bson:"target" validate:"required"`
 	TargetID bson.ObjectId `json:"target_id" bson:"target_id" validate:"required"`
 	Metadata bson.M        `json:"metadata,omitempty" bson:"metadata,omitempty"`
-	Source   ImportSource  `json:"source" bson:"source"`
+	Source   ImportSource  `json:"source,omitempty" bson:"source,omitempty"`
 }
 
 // Index denotes a request to add Index to various entities.

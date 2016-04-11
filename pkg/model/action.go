@@ -17,5 +17,5 @@ type Action struct {
 	Date     time.Time     `json:"date" bson:"date" validate:"required"`
 	Value    string        `json:"value,omitempty" bson:"value,omitempty"`
 	Metadata bson.M        `json:"metadata,omitempty" bson:"metadata,omitempty"`
-	Source   ImportSource  `json:"source" bson:"source"`
+	Source   ImportSource  `json:"source,omitempty" bson:"source,omitempty"`
 }

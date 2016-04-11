@@ -12,5 +12,5 @@ type Note struct {
 	Date     time.Time     `json:"date" bson:"date" validate:"required"`
 	TargetID bson.ObjectId `json:"target_id" bson:"target_id" validate:"required"`
 	Target   string        `json:"target" bson:"target" validate:"required"`
-	Source   ImportSource  `json:"source" bson:"source"`
+	Source   ImportSource  `json:"source,omitempty" bson:"source,omitempty"`
 }
