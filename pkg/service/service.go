@@ -17,6 +17,8 @@ func GetPayload(context *web.AppContext, object interface{}) interface{} {
 		return getPayloadComment(context, object)
 	case *model.Action:
 		return getPayloadAction(context, object)
+	case *model.Asset:
+		return object
 	default:
 		return nil
 	}
