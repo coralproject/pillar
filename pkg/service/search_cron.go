@@ -8,11 +8,7 @@ import (
 	"github.com/stretchr/stew/objects"
 	"gopkg.in/mgo.v2/bson"
 	"reflect"
-)
-
-const (
-	XENIA_URL  string = "http://localhost:4000/1.0/exec/"
-	XENIA_AUTH string = "Basic <token>"
+	"os"
 )
 
 func UpdateSearch() {
@@ -114,11 +110,11 @@ func getNewUsers(db *db.MongoDB, search model.Search) map[bson.ObjectId]model.Us
 }
 
 func getUserIds(search model.Search) []string {
-	url := XENIA_URL + search.Query
+	url := os.Getenv("XENIA_URL") + search.Query
 
 	header := make(map[string]string)
 	header["Content-Type"] = "application/json"
-	header["Authorization"] = XENIA_AUTH
+	header["Authorization"] = os.Getenv("XENIA_AUTH")
 
 	response, _ := web.Request(web.GET, url, header, nil)
 	if response.StatusCode != 200 {
