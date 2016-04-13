@@ -6,11 +6,51 @@ import (
 	"fmt"
 	"github.com/coralproject/pillar/pkg/db"
 	"github.com/coralproject/pillar/pkg/model"
+	"github.com/coralproject/pillar/pkg/web"
+	"log"
 	"os"
 	"testing"
 )
 
+//various constants
+const (
+	MethodGet    string = "GET"
+	MethodPost   string = "POST"
+	MethodOption string = "OPTIONS"
+
+	URLUser    string = "api/import/user"
+	URLAsset   string = "api/import/asset"
+	URLAction  string = "api/import/action"
+	URLComment string = "api/import/comment"
+	URLTag     string = "api/tag"
+	URLTags    string = "api/tags"
+
+	DataUsers    = "fixtures/users.json"
+	DataAssets   = "fixtures/assets.json"
+	DataComments = "fixtures/comments.json"
+	DataActions  = "fixtures/actions.json"
+	DataTags     = "fixtures/tags.json"
+)
+
+var baseURL string
+
+func getBaseURL() string {
+	return baseURL
+}
+
+func getHeader() {
+	m := make(map[string]string)
+	m["Content-Type"] = "application/json"
+
+	return m
+}
+
 func init() {
+	baseURL = os.Getenv("PILLAR_URL")
+	if baseURL == "" {
+		log.Fatalf("Error connecting to Pillar: PILLAR_URL not found.")
+	}
+
 	db := db.NewMongoDB()
 	defer db.Close()
 
@@ -25,23 +65,28 @@ func init() {
 }
 
 func TestCORS(t *testing.T) {
-	if r, _ := request(MethodOption, getBaseURL()+URLTag, nil); r.StatusCode != 200 {
+	if r, _ := web.Request(MethodOption, getBaseURL()+URLTag,
+		getHeader(), nil); r.StatusCode != 200 {
 		t.Fail()
 	}
 
-	if r, _ := request(MethodOption, getBaseURL()+URLTags, nil); r.StatusCode != 200 {
+	if r, _ := web.Request(MethodOption, getBaseURL()+URLTags,
+		getHeader(), nil); r.StatusCode != 200 {
 		t.Fail()
 	}
 
-	if r, _ := request(MethodOption, getBaseURL()+URLAsset, nil); r.StatusCode != 200 {
+	if r, _ := web.Request(MethodOption, getBaseURL()+URLAsset,
+		getHeader(), nil); r.StatusCode != 200 {
 		t.Fail()
 	}
 
-	if r, _ := request(MethodOption, getBaseURL()+URLUser, nil); r.StatusCode != 200 {
+	if r, _ := web.Request(MethodOption, getBaseURL()+URLUser,
+		getHeader(), nil); r.StatusCode != 200 {
 		t.Fail()
 	}
 
-	if r, _ := request(MethodOption, getBaseURL()+URLComment, nil); r.StatusCode != 200 {
+	if r, _ := web.Request(MethodOption, getBaseURL()+URLComment,
+		getHeader(), nil); r.StatusCode != 200 {
 		t.Fail()
 	}
 }
@@ -60,7 +105,8 @@ func TestCreateAssets(t *testing.T) {
 
 	for _, one := range objects {
 		data, _ := json.Marshal(one)
-		if r, _ := request(MethodPost, getBaseURL()+URLAsset, bytes.NewBuffer(data)); r.StatusCode != 200 {
+		if r, _ := web.Request(MethodPost, getBaseURL()+URLAsset,
+			getHeader(), bytes.NewBuffer(data)); r.StatusCode != 200 {
 			t.Fail()
 		}
 	}
@@ -80,7 +126,8 @@ func TestCreateUsers(t *testing.T) {
 
 	for _, one := range objects {
 		data, _ := json.Marshal(one)
-		if r, _ := request(MethodPost, getBaseURL()+URLUser, bytes.NewBuffer(data)); r.StatusCode != 200 {
+		if r, _ := web.Request(MethodPost, getBaseURL()+URLUser,
+			getHeader(), bytes.NewBuffer(data)); r.StatusCode != 200 {
 			t.Fail()
 		}
 	}
@@ -100,7 +147,8 @@ func TestCreateComments(t *testing.T) {
 
 	for _, one := range objects {
 		data, _ := json.Marshal(one)
-		if r, _ := request(MethodPost, getBaseURL()+URLComment, bytes.NewBuffer(data)); r.StatusCode != 200 {
+		if r, _ := web.Request(MethodPost, getBaseURL()+URLComment,
+			getHeader(), bytes.NewBuffer(data)); r.StatusCode != 200 {
 			t.Fail()
 		}
 	}
@@ -120,7 +168,8 @@ func TestCreateActions(t *testing.T) {
 
 	for _, one := range objects {
 		data, _ := json.Marshal(one)
-		if r, _ := request(MethodPost, getBaseURL()+URLAction, bytes.NewBuffer(data)); r.StatusCode != 200 {
+		if r, _ := web.Request(MethodPost, getBaseURL()+URLAction,
+			getHeader(), bytes.NewBuffer(data)); r.StatusCode != 200 {
 			t.Fail()
 		}
 	}
@@ -140,7 +189,8 @@ func TestCreateTags(t *testing.T) {
 
 	for _, one := range objects {
 		data, _ := json.Marshal(one)
-		if r, _ := request(MethodPost, getBaseURL()+URLTag, bytes.NewBuffer(data)); r.StatusCode != 200 {
+		if r, _ := web.Request(MethodPost, getBaseURL()+URLTag,
+			getHeader(), bytes.NewBuffer(data)); r.StatusCode != 200 {
 			t.Fail()
 		}
 	}

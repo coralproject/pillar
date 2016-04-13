@@ -13,7 +13,7 @@ type Search struct {
 	Query       string        `json:"query" bson:"query" validate:"required"`
 	Tag         string        `json:"tag" bson:"tag" validate:"required"`
 	Filters     bson.M        `json:"filters,omitempty" bson:"filters,omitempty"`
-	Results     []interface{} `json:"results,omitempty" bson:"results,omitempty"`
+	Result     SearchResult  `json:"result,omitempty" bson:"result,omitempty"`
 	DateCreated time.Time     `json:"date_created" bson:"date_created" validate:"required"`
 	DateUpdated time.Time     `json:"date_updated,omitempty" bson:"date_updated,omitempty"`
 	UserCreated string        `json:"user_created,omitempty" bson:"user_created,omitempty"`
@@ -25,4 +25,10 @@ type SearchHistory struct {
 	Action string        `json:"action" bson:"action" validate:"required"`
 	Date   time.Time     `json:"date" bson:"date" validate:"required"`
 	Search Search        `json:"search" bson:"search" validate:"required"`
+}
+
+type SearchResult struct {
+	Count     string        `json:"count,omitempty" bson:"count,omitempty"`
+	Histogram []interface{} `json:"histogram,omitempty" bson:"histogram,omitempty"`
+	Users     []User        `json:"users,omitempty" bson:"users,omitempty"`
 }

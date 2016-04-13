@@ -2,6 +2,8 @@ package route
 
 import (
 	"github.com/gorilla/mux"
+	"github.com/coralproject/pillar/pkg/service"
+	"github.com/robfig/cron"
 )
 
 //NewRouter returns a new mux.Router
@@ -14,6 +16,10 @@ func NewRouter() *mux.Router {
 			Path(route.Pattern).
 			Handler(route.HandlerFunc)
 	}
+
+	c := cron.New()
+	c.AddFunc("@every 30m", service.UpdateSearch)
+	c.Start()
 
 	return router
 }
