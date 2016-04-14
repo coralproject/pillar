@@ -23,6 +23,11 @@
 			"revisionTime": "2015-11-11T18:35:30+08:00"
 		},
 		{
+			"path": "github.com/robfig/cron",
+			"revision": "0f39cf7ebc65a602f45692f9894bd6a193faf8fa",
+			"revisionTime": "2016-03-29T11:39:55-04:00"
+		},
+		{
 			"path": "github.com/rs/cors",
 			"revision": "5950cf11d77f8a61b432a25dd4d444b4ced01379",
 			"revisionTime": "2016-02-11T13:46:49-08:00"
@@ -36,6 +41,11 @@
 			"path": "github.com/streadway/amqp",
 			"revision": "2e25825abdbd7752ff08b270d313b93519a0a232",
 			"revisionTime": "2016-03-11T22:55:03+01:00"
+		},
+		{
+			"path": "github.com/stretchr/stew/objects",
+			"revision": "80ef0842b48b329a6120607c817a85aff5a2ec71",
+			"revisionTime": "2013-08-12T13:02:56-06:00"
 		},
 		{
 			"path": "golang.org/x/net/context",

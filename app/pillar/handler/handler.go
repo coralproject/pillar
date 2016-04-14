@@ -3,10 +3,9 @@ package handler
 import (
 	"encoding/json"
 	"github.com/coralproject/pillar/app/pillar/config"
+	"github.com/coralproject/pillar/pkg/service"
 	"github.com/coralproject/pillar/pkg/web"
 	"net/http"
-	"github.com/coralproject/pillar/pkg/service"
-	"log"
 )
 
 func doRespond(c *web.AppContext, object interface{}, appErr *web.AppError) {
@@ -31,29 +30,10 @@ func doRespond(c *web.AppContext, object interface{}, appErr *web.AppError) {
 		return
 	}
 
-	//Publish to MQ if there is one
-	if c.MQ.IsValid() {
-		publish(c, object)
-	}
+	//publish event before sending response
+	service.PublishEvent(c, object, nil)
 
 	c.Writer.Header().Set("Content-Type", "application/json")
 	c.Writer.WriteHeader(http.StatusOK)
 	c.Writer.Write(payload)
-}
-
-func publish(c *web.AppContext, object interface{}) {
-
-	payload := service.GetPayload(c, object)
-	if payload == nil {
-		log.Printf("MQ - nothing to send\n\n")
-		return
-	}
-
-	data, err := json.Marshal(payload)
-	if err != nil {
-		log.Printf("Error sending message: %s\n\n", err)
-		return
-	}
-
-	c.MQ.Publish(data)
 }
