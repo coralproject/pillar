@@ -8,9 +8,32 @@ import (
 	"gopkg.in/mgo.v2/bson"
 	"net/http"
 	"time"
+	"log"
 )
 
-func GetPayload(context *web.AppContext, object interface{}) interface{} {
+func PublishEvent(c *web.AppContext, object interface{}, payload interface{}) {
+
+	//return if the MQ is not valid
+	if !c.MQ.IsValid() {
+		return
+	}
+
+	if payload == nil {
+		payload = getPayload(c, object)
+	}
+
+	data, err := json.Marshal(payload)
+	if err != nil {
+		log.Printf("Invalid payload - error sending message: %s\n\n", err)
+		return
+	}
+
+	c.MQ.Publish(data)
+	log.Printf("Event pushed: %v\n\n", data)
+}
+
+
+func getPayload(context *web.AppContext, object interface{}) interface{} {
 
 	switch object.(type) {
 	case *model.Comment:

@@ -7,8 +7,8 @@ import (
 	"github.com/coralproject/pillar/pkg/web"
 	"github.com/stretchr/stew/objects"
 	"gopkg.in/mgo.v2/bson"
-	"reflect"
 	"os"
+	"reflect"
 )
 
 func UpdateSearch() {
@@ -20,14 +20,13 @@ func UpdateSearch() {
 	c.DB.Searches.Find(nil).All(&searches)
 
 	for _, one := range searches {
-		doUpdateSearch(c.DB, one)
+		doUpdateSearch(c, one)
 	}
 }
 
-
-func doUpdateSearch(db *db.MongoDB, search model.Search) {
+func doUpdateSearch(c *web.AppContext, search model.Search) {
 	//map of new users from search
-	m := getNewUsers(db, search)
+	m, a := getNewUsers(c.DB, search)
 	if m == nil {
 		fmt.Printf("Skipping this search [%s] - no new users!!!\n", search.Query)
 		return
@@ -36,19 +35,23 @@ func doUpdateSearch(db *db.MongoDB, search model.Search) {
 	//remove tag when user from old list are no longer in new list
 	for _, one := range search.Result.Users {
 		if _, ok := m[one.ID]; !ok {
-			if user := removeTag(db, one.ID, search.Tag); user != nil {
-				fmt.Printf("Tag removed: %s", user.ID)
-				//TODO: fire event
+			if user := removeTag(c.DB, one.ID, search.Tag); user != nil {
+				p := model.PayloadTag{model.EventTagRemoved, search.Tag, *user}
+				PublishEvent(c, nil, p)
 			}
 		}
 	}
 
 	for _, value := range m {
-		if user := addTag(db, value.ID, search.Tag); user != nil {
-			fmt.Printf("Tag added: %s", user.ID)
-			//TODO: fire event
+		if user := addTag(c.DB, value.ID, search.Tag); user != nil {
+			p := model.PayloadTag{model.EventTagAdded, search.Tag, *user}
+			PublishEvent(c, nil, p)
 		}
 	}
+
+	//save new users to search.results
+	r := model.SearchResult{Count: len(m), Users: a}
+	c.DB.Searches.UpdateId(search.ID, bson.M{"$set": bson.M{"result": r}})
 }
 
 func addTag(db *db.MongoDB, id bson.ObjectId, tag string) *model.User {
@@ -59,7 +62,7 @@ func addTag(db *db.MongoDB, id bson.ObjectId, tag string) *model.User {
 
 	for _, one := range user.Tags {
 		if one == tag {
-			return nil//return if the tag exists
+			return nil //return if the tag exists
 		}
 	}
 
@@ -68,7 +71,6 @@ func addTag(db *db.MongoDB, id bson.ObjectId, tag string) *model.User {
 	db.Users.UpdateId(id, bson.M{"$set": bson.M{"tags": tags}})
 	return &user
 }
-
 
 func removeTag(db *db.MongoDB, id bson.ObjectId, tag string) *model.User {
 	var user model.User
@@ -90,23 +92,24 @@ func removeTag(db *db.MongoDB, id bson.ObjectId, tag string) *model.User {
 }
 
 //returns new sets of users from the search
-func getNewUsers(db *db.MongoDB, search model.Search) map[bson.ObjectId]model.User {
+func getNewUsers(db *db.MongoDB, search model.Search) (map[bson.ObjectId]model.User, []model.User) {
 
 	ids := getUserIds(search)
 	if len(ids) == 0 {
-		return nil
+		return nil, nil
 	}
 
 	m := make(map[bson.ObjectId]model.User, len(ids))
+	a := make([]model.User, len(ids))
 	for i := 0; i < len(ids); i++ {
-		fmt.Printf("ID: %s", ids[i])
 		var user model.User
 		key := bson.ObjectIdHex(ids[i])
 		db.Users.FindId(key).One(&user)
 		m[key] = user
+		a[i] = user
 	}
 
-	return m
+	return m, a
 }
 
 func getUserIds(search model.Search) []string {
