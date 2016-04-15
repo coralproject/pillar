@@ -3,6 +3,7 @@ package model
 import (
 	"gopkg.in/mgo.v2/bson"
 	"time"
+	"fmt"
 )
 
 // Search denotes a search bound by a query and tag.
@@ -18,6 +19,16 @@ type Search struct {
 	DateUpdated time.Time     `json:"date_updated,omitempty" bson:"date_updated,omitempty"`
 	UserCreated string        `json:"user_created,omitempty" bson:"user_created,omitempty"`
 	UserUpdated string        `json:"user_updated,omitempty" bson:"user_updated,omitempty"`
+}
+
+// Validate validates this Model
+func (object Search) Validate() error {
+	errs := validate.Struct(object)
+	if errs != nil {
+		return fmt.Errorf("%v", errs)
+	}
+
+	return nil
 }
 
 type SearchHistory struct {

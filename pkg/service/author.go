@@ -10,7 +10,9 @@ import (
 // CreateUpdateAuthor creates/updates an author resource
 func CreateUpdateAuthor(context *web.AppContext) (*model.Author, *web.AppError) {
 	var input model.Author
-	context.Unmarshall(&input)
+	if err := UnmarshallAndValidate(context, &input); err != nil {
+		return nil, err
+	}
 
 	if input.ID == "" {
 		message := fmt.Sprintf("Invalid Author Id [%s]", input.ID)

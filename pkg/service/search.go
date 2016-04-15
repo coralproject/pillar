@@ -47,7 +47,9 @@ func GetSearch(context *web.AppContext) (*model.Search, *web.AppError) {
 // CreateUpdateSearch upserts a Search
 func CreateUpdateSearch(context *web.AppContext) (*model.Search, *web.AppError) {
 	var input model.Search
-	context.Unmarshall(&input)
+	if err := UnmarshallAndValidate(context, &input); err != nil {
+		return nil, err
+	}
 
 	var dbEntity model.Search
 	//Upsert if entity exists with same ID

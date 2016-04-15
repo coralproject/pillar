@@ -43,6 +43,7 @@ func init() {
 	db.Searches.RemoveAll(nil)
 }
 
+
 func TestCreateSections(t *testing.T) {
 	file, err := os.Open(dataSections)
 	if err != nil {

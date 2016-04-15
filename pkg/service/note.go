@@ -13,7 +13,9 @@ import (
 func CreateNote(context *web.AppContext) (*model.Note, *web.AppError) {
 
 	var input model.Note
-	context.Unmarshall(&input)
+	if err := UnmarshallAndValidate(context, &input); err != nil {
+		return nil, err
+	}
 
 	// Insert Comment
 	if input.UserID == "" {

@@ -41,6 +41,10 @@ const (
 	SrchHistory    string = "search_history"
 )
 
+type Model interface {
+	Validate() error
+}
+
 // ImportSource encapsulates all original id from the source system
 // this is a common struct used primarily for import purposes
 // client is responsible for passing in valid/correct source data

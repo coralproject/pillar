@@ -14,7 +14,9 @@ import (
 func ImportUser(context *web.AppContext) (*model.User, *web.AppError) {
 
 	var input model.User
-	context.Unmarshall(&input)
+	if err := UnmarshallAndValidate(context, &input); err != nil {
+		return nil, err
+	}
 
 	var dbEntity model.User
 	//upsert if entity exists with same source.id
@@ -35,7 +37,9 @@ func ImportUser(context *web.AppContext) (*model.User, *web.AppError) {
 func CreateUpdateUser(context *web.AppContext) (*model.User, *web.AppError) {
 
 	var input model.User
-	context.Unmarshall(&input)
+	if err := UnmarshallAndValidate(context, &input); err != nil {
+		return nil, err
+	}
 
 	if input.ID == "" {
 		return createUser(context.DB, &input)

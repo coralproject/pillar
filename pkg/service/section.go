@@ -11,7 +11,9 @@ import (
 // CreateUpdateSection creates/updates a Section
 func CreateUpdateSection(context *web.AppContext) (*model.Section, *web.AppError) {
 	var input model.Section
-	context.Unmarshall(&input)
+	if err := UnmarshallAndValidate(context, &input); err != nil {
+		return nil, err
+	}
 
 	if input.Name == "" {
 		message := fmt.Sprintf("Invalid Section Name [%s]", input.Name)

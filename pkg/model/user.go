@@ -22,9 +22,9 @@ type User struct {
 	Source      ImportSource    `json:"source,omitempty" bson:"source,omitempty"`
 }
 
-// Validate performs validation on a User value before it is processed.
-func (u User) Validate() error {
-	errs := validate.Struct(u)
+// Validate validates this Model
+func (object User) Validate() error {
+	errs := validate.Struct(object)
 	if errs != nil {
 		return fmt.Errorf("%v", errs)
 	}

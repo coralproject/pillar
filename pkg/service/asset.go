@@ -13,7 +13,9 @@ import (
 func ImportAsset(context *web.AppContext) (*model.Asset, *web.AppError) {
 
 	var input model.Asset
-	context.Unmarshall(&input)
+	if err := UnmarshallAndValidate(context, &input); err != nil {
+		return nil, err
+	}
 
 	var dbEntity model.Asset
 	//Upsert if entity exists with same source.id
@@ -40,7 +42,9 @@ func ImportAsset(context *web.AppContext) (*model.Asset, *web.AppError) {
 func CreateUpdateAsset(context *web.AppContext) (*model.Asset, *web.AppError) {
 
 	var input model.Asset
-	context.Unmarshall(&input)
+	if err := UnmarshallAndValidate(context, &input); err != nil {
+		return nil, err
+	}
 
 	if input.ID == "" {
 		return createAsset(context, &input)
