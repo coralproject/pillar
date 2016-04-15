@@ -37,7 +37,9 @@ func CreateTagTargets(db *db.MongoDB, tags []string, tt *model.TagTarget) error 
 // CreateUpdateTag adds or updates a tag
 func CreateUpdateTag(context *web.AppContext) (*model.Tag, *web.AppError) {
 	var input model.Tag
-	context.Unmarshall(&input)
+	if err := UnmarshallAndValidate(context, &input); err != nil {
+		return nil, err
+	}
 
 	//old-name is empty, upsert one
 	if input.OldName == "" {
@@ -135,7 +137,9 @@ func GetTags(context *web.AppContext) ([]model.Tag, *web.AppError) {
 // DeleteTag deletes a tag
 func DeleteTag(context *web.AppContext) *web.AppError {
 	var input model.Tag
-	context.Unmarshall(&input)
+	if err := UnmarshallAndValidate(context, &input); err != nil {
+		return err
+	}
 
 	//we must have the tag name for deletion
 	if input.Name == "" {

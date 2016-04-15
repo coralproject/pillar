@@ -14,7 +14,9 @@ import (
 func ImportAction(context *web.AppContext) (*model.Action, *web.AppError) {
 
 	var input model.Action
-	context.Unmarshall(&input)
+	if err := UnmarshallAndValidate(context, &input); err != nil {
+		return nil, err
+	}
 
 	if err := setReferences(context.DB, &input); err != nil {
 		message := fmt.Sprintf("Error setting action references [%s]", err)
@@ -34,7 +36,9 @@ func ImportAction(context *web.AppContext) (*model.Action, *web.AppError) {
 func CreateUpdateAction(context *web.AppContext) (*model.Action, *web.AppError) {
 
 	var input model.Action
-	context.Unmarshall(&input)
+	if err := UnmarshallAndValidate(context, &input); err != nil {
+		return nil, err
+	}
 
 	if input.ID == "" {
 		return createAction(context.DB, &input)

@@ -19,3 +19,13 @@ type Action struct {
 	Metadata bson.M        `json:"metadata,omitempty" bson:"metadata,omitempty"`
 	Source   ImportSource  `json:"source,omitempty" bson:"source,omitempty"`
 }
+
+// Validate validates this Model
+func (object Action) Validate() error {
+//	errs := validate.Struct(object)
+//	if errs != nil {
+//		return fmt.Errorf("%v", errs)
+//	}
+
+	return nil
+}

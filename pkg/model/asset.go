@@ -25,8 +25,8 @@ type Taxonomy struct {
 }
 
 // Validate performs validation on an Asset value before it is processed.
-func (a Asset) Validate() error {
-	errs := validate.Struct(a)
+func (object Asset) Validate() error {
+	errs := validate.Struct(object)
 	if errs != nil {
 		return fmt.Errorf("%v", errs)
 	}

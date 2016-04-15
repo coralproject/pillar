@@ -32,7 +32,6 @@ func PublishEvent(c *web.AppContext, object interface{}, payload interface{}) {
 	log.Printf("Event pushed: %v\n\n", data)
 }
 
-
 func getPayload(context *web.AppContext, object interface{}) interface{} {
 
 	switch object.(type) {
@@ -45,6 +44,20 @@ func getPayload(context *web.AppContext, object interface{}) interface{} {
 	default:
 		return nil
 	}
+}
+
+func UnmarshallAndValidate(context *web.AppContext, m model.Model) *web.AppError {
+	if err := context.Unmarshall(m); err != nil {
+		message := fmt.Sprintf("Error unmarshalling input [%v]", err)
+		return &web.AppError{nil, message, http.StatusInternalServerError}
+	}
+
+	if err := m.Validate(); err != nil {
+		message := fmt.Sprintf("Bad input [%v]", err)
+		return &web.AppError{nil, message, http.StatusInternalServerError}
+	}
+
+	return nil
 }
 
 // UpdateMetadata updates metadata for an entity

@@ -21,7 +21,9 @@ var ref reference
 func ImportComment(context *web.AppContext) (*model.Comment, *web.AppError) {
 
 	var input model.Comment
-	context.Unmarshall(&input)
+	if err := UnmarshallAndValidate(context, &input); err != nil {
+		return nil, err
+	}
 
 	var dbEntity model.Comment
 	// Find/Set comment references
@@ -47,7 +49,9 @@ func ImportComment(context *web.AppContext) (*model.Comment, *web.AppError) {
 // CreateUpdateComment creates/updates a comment resource
 func CreateUpdateComment(context *web.AppContext) (*model.Comment, *web.AppError) {
 	var input model.Comment
-	context.Unmarshall(&input)
+	if err := UnmarshallAndValidate(context, &input); err != nil {
+		return nil, err
+	}
 
 	if input.ID == "" {
 		return createComment(context.DB, &input)

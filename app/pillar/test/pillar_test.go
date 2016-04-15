@@ -38,7 +38,7 @@ func getBaseURL() string {
 	return baseURL
 }
 
-func getHeader() {
+func getHeader() map[string]string {
 	m := make(map[string]string)
 	m["Content-Type"] = "application/json"
 

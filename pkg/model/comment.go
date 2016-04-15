@@ -26,9 +26,9 @@ type Comment struct {
 	Source       ImportSource    `json:"source,omitempty" bson:"source,omitempty"`
 }
 
-// Validate performs validation on a Comment value before it is processed.
-func (com Comment) Validate() error {
-	errs := validate.Struct(com)
+// Validate validates this Model
+func (object Comment) Validate() error {
+	errs := validate.Struct(object)
 	if errs != nil {
 		return fmt.Errorf("%v", errs)
 	}
