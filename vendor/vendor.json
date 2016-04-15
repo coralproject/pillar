@@ -43,6 +43,11 @@
 			"revisionTime": "2016-03-11T22:55:03+01:00"
 		},
 		{
+			"path": "github.com/stretchr/signature",
+			"revision": "78854fe0e7853ac2d799afb0301e41fa48d7fca1",
+			"revisionTime": "2014-05-15T09:53:06-06:00"
+		},
+		{
 			"path": "github.com/stretchr/stew/objects",
 			"revision": "80ef0842b48b329a6120607c817a85aff5a2ec71",
 			"revisionTime": "2013-08-12T13:02:56-06:00"
