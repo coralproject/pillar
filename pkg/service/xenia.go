@@ -34,7 +34,8 @@ func getUserIds(search model.Search) []string {
 	header["Authorization"] = os.Getenv("XENIA_AUTH")
 
 	response, _ := web.Request(web.GET, url, header, nil)
-	if response.StatusCode != 200 {
+	if response == nil || response.StatusCode != 200 {
+		log.Printf("Error getting response from Xenia\n")
 		return nil
 	}
 

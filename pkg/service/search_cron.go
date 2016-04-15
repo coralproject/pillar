@@ -1,11 +1,11 @@
 package service
 
 import (
-	"fmt"
 	"github.com/coralproject/pillar/pkg/db"
 	"github.com/coralproject/pillar/pkg/model"
 	"github.com/coralproject/pillar/pkg/web"
 	"gopkg.in/mgo.v2/bson"
+	"log"
 )
 
 func UpdateSearch() {
@@ -24,8 +24,8 @@ func UpdateSearch() {
 func doUpdateSearch(c *web.AppContext, search model.Search) {
 	//map of new users from search
 	m, a := getNewUsers(c.DB, search)
-	if m == nil {
-		fmt.Printf("Skipping this search [%s] - no new users!!!\n", search.Query)
+	if m == nil || len(m) == 0 {
+		log.Printf("UpdateSearch - no new users, skipping [%s]\n", search.Query)
 		return
 	}
 
@@ -49,6 +49,7 @@ func doUpdateSearch(c *web.AppContext, search model.Search) {
 	//save new users to search.results
 	r := model.SearchResult{Count: len(m), Users: a}
 	c.DB.Searches.UpdateId(search.ID, bson.M{"$set": bson.M{"result": r}})
+	log.Printf("UpdateSearch successful [query: %v, count %d]\n", search.Query, len(m))
 }
 
 func addTag(db *db.MongoDB, id bson.ObjectId, tag string) *model.User {
