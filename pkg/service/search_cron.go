@@ -5,10 +5,7 @@ import (
 	"github.com/coralproject/pillar/pkg/db"
 	"github.com/coralproject/pillar/pkg/model"
 	"github.com/coralproject/pillar/pkg/web"
-	"github.com/stretchr/stew/objects"
 	"gopkg.in/mgo.v2/bson"
-	"os"
-	"reflect"
 )
 
 func UpdateSearch() {
@@ -112,58 +109,3 @@ func getNewUsers(db *db.MongoDB, search model.Search) (map[bson.ObjectId]model.U
 	return m, a
 }
 
-func getUserIds(search model.Search) []string {
-	url := os.Getenv("XENIA_URL") + search.Query
-
-	header := make(map[string]string)
-	header["Content-Type"] = "application/json"
-	header["Authorization"] = os.Getenv("XENIA_AUTH")
-
-	response, _ := web.Request(web.GET, url, header, nil)
-	if response.StatusCode != 200 {
-		//fmt.Printf("Error in xenia call %v", response)
-		return nil
-	}
-
-	m, err := objects.NewMapFromJSON(response.Body)
-	if err != nil {
-		//fmt.Printf("Error in call")
-		return nil
-	}
-	//get all items from Docs array as an array of objects.Map
-	d := getArray(m.Get("results"))[0].Get("Docs")
-	stats := getArray(d)
-	ids := make([]string, len(stats))
-	for i := 0; i < len(stats); i++ {
-		ids[i] = stats[i].Get("_id").(string)
-	}
-
-	return ids
-}
-
-//when the item is an array, we must convert it to a slice
-func getArray(list interface{}) []objects.Map {
-
-	var resultArray []objects.Map
-	if list == nil {
-		return resultArray
-	}
-
-	switch reflect.TypeOf(list).Kind() {
-	case reflect.Slice:
-		slice := reflect.ValueOf(list)
-
-		//must convert the Interface to map[string]interface{}
-		//so that it can be converted to an objects.Map
-		//fmt.Printf("Size of slice: %d\n\n", slice.Len())
-		for i := 0; i < slice.Len(); i++ {
-			//var m map[string]interface{}
-			//fmt.Printf("Item: %s\n\n", slice.Index(i))
-			resultArray = append(resultArray, slice.Index(i).Interface().(map[string]interface{}))
-		}
-
-		return resultArray
-	}
-
-	return nil
-}
