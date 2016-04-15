@@ -93,7 +93,7 @@ func removeTag(db *db.MongoDB, id bson.ObjectId, tag string) *model.User {
 func getNewUsers(db *db.MongoDB, search model.Search) (map[bson.ObjectId]model.User, []model.User) {
 
 	ids := getUserIds(search)
-	if len(ids) == 0 {
+	if ids == nil || len(ids) == 0 {
 		return nil, nil
 	}
 
