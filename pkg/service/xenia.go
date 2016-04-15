@@ -9,6 +9,10 @@ import (
 	"strings"
 )
 
+const (
+	MaxResults int = 20
+)
+
 type body struct {
 	Results []result `json:"results"`
 }
@@ -45,6 +49,9 @@ func getUserIds(search model.Search) []string {
 	ids := make([]string, len(docs))
 	for i := 0; i < len(b.Results[0].Docs); i++ {
 		ids[i] = docs[i].ID
+		if i == MaxResults-1 {
+			break;
+		}
 	}
 
 	return ids
