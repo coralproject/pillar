@@ -10,12 +10,27 @@ type MQ struct {
 	Channel  *amqp.Channel
 }
 
+var (
+	amqpConnection *amqp.Connection
+)
+
+func connect(url string) *amqp.Connection {
+
+	if amqpConnection != nil {
+		return amqpConnection
+	}
+
+	amqpConnection, _ := amqp.Dial(url)
+	return amqpConnection
+}
+
+
 func NewMQ(url string, exchange string) *MQ {
 
 	//create an MQ anyway
 	mq := MQ{exchange, nil}
 
-	conn, _ := amqp.Dial(url)
+	conn := connect(url)
 	if conn == nil {
 		return &mq
 	}
