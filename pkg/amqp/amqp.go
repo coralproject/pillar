@@ -2,33 +2,7 @@ package amqp
 
 import (
 	"github.com/streadway/amqp"
-	"log"
-	"os"
 )
-
-const (
-	defaultAMQP string = "amqp://guest:guest@localhost:5672/"
-)
-
-var (
-	amqpConnection *amqp.Connection
-)
-
-func init() {
-	url := os.Getenv("AMQP_URL")
-	if url == "" {
-		log.Printf("$AMQP_URL not found, trying to connect locally [%s]", defaultAMQP)
-		url = defaultAMQP
-	}
-
-	conn, err := amqp.Dial(url)
-	if err != nil {
-		log.Printf("Error connecting to AMQP: %s", err)
-	}
-
-	//save the primary connection
-	amqpConnection = conn
-}
 
 //MQ denotes a wrapper structure around amqp.Exchange and amqp.Channel
 type MQ struct {
@@ -36,13 +10,17 @@ type MQ struct {
 	Channel  *amqp.Channel
 }
 
-func NewMQ(exchange string) *MQ {
+func NewMQ(url string, exchange string) *MQ {
+
+	//create an MQ anyway
 	mq := MQ{exchange, nil}
-	if amqpConnection == nil {
+
+	conn, _ := amqp.Dial(url)
+	if conn == nil {
 		return &mq
 	}
 
-	ch, _ := amqpConnection.Channel()
+	ch, _ := conn.Channel()
 	if ch != nil {
 		//declare exchange
 		ch.ExchangeDeclare(

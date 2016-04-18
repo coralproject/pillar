@@ -9,6 +9,7 @@ import (
 	"io"
 	"io/ioutil"
 	"net/http"
+	"os"
 )
 
 type HandlerFunc func(c *AppContext)
@@ -59,7 +60,7 @@ func NewContext(rw http.ResponseWriter, r *http.Request) *AppContext {
 	var c AppContext
 	c.Writer = rw
 	c.DB = db.NewMongoDB()
-	c.MQ = amqp.NewMQ("PillarMQ")
+	c.MQ = amqp.NewMQ(os.Getenv("AMQP_URL"), os.Getenv("AMQP_EXCHANGE"))
 
 	if r != nil {
 		c.Header = r.Header
