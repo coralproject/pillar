@@ -2,9 +2,19 @@ package model
 
 //Various Events
 const (
-	EventTagAdded   string = "tag_added"
-	EventTagRemoved string = "tag_removed"
+	EventAssetAdded     string = "asset_added"
+	EventAssetUpdated   string = "asset_updated"
+	EventCommentAdded   string = "comment_added"
+	EventCommentUpdated string = "comment_updated"
+	EventTagAdded       string = "tag_added"
+	EventTagRemoved     string = "tag_removed"
 )
+
+//PayloadAsset denotes an message to be used when an Asset is added/updated
+type PayloadAsset struct {
+	Event string `json:"event" bson:"event"`
+	Asset Asset  `json:"asset" bson:"asset"`
+}
 
 //PayloadComment denotes a payload to be used when a comment is created/updated.
 type PayloadComment struct {

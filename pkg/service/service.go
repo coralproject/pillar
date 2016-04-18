@@ -40,7 +40,7 @@ func getPayload(context *web.AppContext, object interface{}) interface{} {
 	case *model.Action:
 		return getPayloadAction(context, object)
 	case *model.Asset:
-		return object
+		return model.PayloadAsset{model.EventAssetAdded, object.(model.Asset)}
 	default:
 		return nil
 	}
