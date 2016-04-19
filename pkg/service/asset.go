@@ -152,3 +152,7 @@ func updateAssetOnComment(db *db.MongoDB, asset *model.Asset) {
 		bson.M{"$set": bson.M{"stats": asset.Stats}},
 	)
 }
+
+func getPayloadAsset(context *web.AppContext, object interface{}) interface{} {
+	return model.Event{model.EventAssetAdded, object}
+}

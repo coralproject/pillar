@@ -29,7 +29,6 @@ func PublishEvent(c *web.AppContext, object interface{}, payload interface{}) {
 	}
 
 	c.MQ.Publish(data)
-	log.Printf("Event pushed: %v\n\n", data)
 }
 
 func getPayload(context *web.AppContext, object interface{}) interface{} {
@@ -40,9 +39,9 @@ func getPayload(context *web.AppContext, object interface{}) interface{} {
 	case *model.Action:
 		return getPayloadAction(context, object)
 	case *model.Asset:
-		return model.PayloadAsset{model.EventAssetAdded, object.(model.Asset)}
+		return getPayloadAsset(context, object)
 	default:
-		return nil
+		return object
 	}
 }
 

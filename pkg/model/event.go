@@ -10,10 +10,10 @@ const (
 	EventTagRemoved     string = "tag_removed"
 )
 
-//PayloadAsset denotes an message to be used when an Asset is added/updated
-type PayloadAsset struct {
-	Event string `json:"event" bson:"event"`
-	Asset Asset  `json:"asset" bson:"asset"`
+//Event denotes an event in Pillar
+type Event struct {
+	Name    string      `json:"event" bson:"event"`
+	Payload interface{} `json:"payload" bson:"payload"`
 }
 
 //PayloadComment denotes a payload to be used when a comment is created/updated.
