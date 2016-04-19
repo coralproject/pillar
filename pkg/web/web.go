@@ -34,6 +34,7 @@ type AppContext struct {
 
 func (c *AppContext) Close() {
 	c.DB.Close()
+	c.MQ.Close()
 }
 
 func (c *AppContext) GetValue(key string) string {

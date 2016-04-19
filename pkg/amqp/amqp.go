@@ -2,6 +2,7 @@ package amqp
 
 import (
 	"github.com/streadway/amqp"
+	"log"
 )
 
 //MQ denotes a wrapper structure around amqp.Exchange and amqp.Channel
@@ -20,7 +21,13 @@ func connect(url string) *amqp.Connection {
 		return amqpConnection
 	}
 
-	amqpConnection, _ := amqp.Dial(url)
+	c, err := amqp.Dial(url)
+	if err != nil {
+		log.Printf("Error connecting to AMQP: [%v]\n", err)
+		return nil
+	}
+
+	amqpConnection = c
 	return amqpConnection
 }
 
@@ -54,6 +61,10 @@ func NewMQ(url string, exchange string) *MQ {
 }
 
 func (m *MQ) Close() {
+	if m.Channel == nil {
+		return
+	}
+
 	m.Channel.Close()
 }
 
