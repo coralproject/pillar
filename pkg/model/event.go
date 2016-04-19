@@ -33,7 +33,6 @@ type PayloadAction struct {
 
 //PayloadTag denotes an message to be used when a tag is added/removed
 type PayloadTag struct {
-	Event string `json:"event" bson:"event"`
-	Tag   string `json:"tag" bson:"tag"`
-	User  User   `json:"user" bson:"user"`
+	Tag  string `json:"tag" bson:"tag"`
+	User User   `json:"user" bson:"user"`
 }

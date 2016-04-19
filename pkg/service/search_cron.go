@@ -33,7 +33,7 @@ func doUpdateSearch(c *web.AppContext, search model.Search) {
 	for _, one := range search.Result.Users {
 		if _, ok := m[one.ID]; !ok {
 			if user := removeTag(c.DB, one.ID, search.Tag); user != nil {
-				p := model.PayloadTag{model.EventTagRemoved, search.Tag, *user}
+				p := model.Event{model.EventTagRemoved, model.PayloadTag{search.Tag, *user}}
 				PublishEvent(c, nil, p)
 			}
 		}
@@ -41,7 +41,7 @@ func doUpdateSearch(c *web.AppContext, search model.Search) {
 
 	for _, value := range m {
 		if user := addTag(c.DB, value.ID, search.Tag); user != nil {
-			p := model.PayloadTag{model.EventTagAdded, search.Tag, *user}
+			p := model.Event{model.EventTagAdded, model.PayloadTag{search.Tag, *user}}
 			PublishEvent(c, nil, p)
 		}
 	}
