@@ -13,6 +13,11 @@ type Author struct {
 	Metadata bson.M `json:"metadata,omitempty" bson:"metadata,omitempty"`
 }
 
+// Id returns the ID for this Model
+func (object Author) Id() string {
+	return object.ID
+}
+
 // Validate validates this Model
 func (object Author) Validate() error {
 	//	errs := validate.Struct(object)

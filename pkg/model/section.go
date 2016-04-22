@@ -16,6 +16,11 @@ type Section struct {
 	Metadata    bson.M    `json:"metadata,omitempty" bson:"metadata,omitempty"`
 }
 
+// Id returns the ID for this Model
+func (object Section) Id() string {
+	return object.Name
+}
+
 // Validate validates this Model
 func (object Section) Validate() error {
 	errs := validate.Struct(object)

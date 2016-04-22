@@ -2,7 +2,6 @@ package amqp
 
 import (
 	"github.com/streadway/amqp"
-	"log"
 )
 
 //MQ denotes a wrapper structure around amqp.Exchange and amqp.Channel
@@ -23,7 +22,6 @@ func connect(url string) *amqp.Connection {
 
 	c, err := amqp.Dial(url)
 	if err != nil {
-		log.Printf("Error connecting to AMQP: [%v]\n", err)
 		return nil
 	}
 

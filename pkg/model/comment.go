@@ -26,6 +26,11 @@ type Comment struct {
 	Source       ImportSource    `json:"source,omitempty" bson:"source,omitempty"`
 }
 
+// Id returns the ID for this Model
+func (object Comment) Id() string {
+	return object.ID.Hex()
+}
+
 // Validate validates this Model
 func (object Comment) Validate() error {
 	errs := validate.Struct(object)

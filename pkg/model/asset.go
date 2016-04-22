@@ -29,6 +29,11 @@ type Taxonomy struct {
 	Value string `json:"value" bson:"value"`
 }
 
+// Id returns the ID for this Model
+func (object Asset) Id() string {
+	return object.ID.Hex()
+}
+
 // Validate performs validation on an Asset value before it is processed.
 func (object Asset) Validate() error {
 	errs := validate.Struct(object)

@@ -15,6 +15,11 @@ type Tag struct {
 	DateUpdated time.Time `json:"date_updated,omitempty" bson:"date_updated,omitempty"`
 }
 
+// Id returns the ID for this Model
+func (object Tag) Id() string {
+	return object.Name
+}
+
 // Validate validates this Model
 func (object Tag) Validate() error {
 	errs := validate.Struct(object)

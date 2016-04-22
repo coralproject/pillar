@@ -16,6 +16,11 @@ type Note struct {
 	Source   ImportSource  `json:"source,omitempty" bson:"source,omitempty"`
 }
 
+// Id returns the ID for this Model
+func (object Note) Id() string {
+	return ""
+}
+
 // Validate validates this Model
 func (object Note) Validate() error {
 	errs := validate.Struct(object)

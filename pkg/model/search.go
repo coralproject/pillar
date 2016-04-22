@@ -21,6 +21,11 @@ type Search struct {
 	UserUpdated string        `json:"user_updated,omitempty" bson:"user_updated,omitempty"`
 }
 
+// Id returns the ID for this Model
+func (object Search) Id() string {
+	return object.ID.Hex()
+}
+
 // Validate validates this Model
 func (object Search) Validate() error {
 	errs := validate.Struct(object)

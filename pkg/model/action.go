@@ -20,6 +20,11 @@ type Action struct {
 	Source   ImportSource  `json:"source,omitempty" bson:"source,omitempty"`
 }
 
+// Id returns the ID for this Model
+func (object Action) Id() string {
+	return object.ID.Hex()
+}
+
 // Validate validates this Model
 func (object Action) Validate() error {
 //	errs := validate.Struct(object)

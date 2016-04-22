@@ -42,6 +42,7 @@ const (
 )
 
 type Model interface {
+	Id() string
 	Validate() error
 }
 
