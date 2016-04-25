@@ -30,6 +30,7 @@ type AppContext struct {
 	Vars   map[string]string
 	DB     *db.MongoDB
 	MQ     *amqp.MQ
+	Event  string
 }
 
 func (c *AppContext) Close() {

@@ -3,34 +3,40 @@ package handler
 import (
 	"github.com/coralproject/pillar/pkg/service"
 	"github.com/coralproject/pillar/pkg/web"
+	"github.com/coralproject/pillar/pkg/model"
 )
 
 //CreateUpdateAsset end-point allows creation or updation of Asset.
 func CreateUpdateAsset(c *web.AppContext) {
+	c.Event = model.EventAssetAddUpdate
 	dbObject, err := service.CreateUpdateAsset(c)
 	doRespond(c, dbObject, err)
 }
 
 //CreateUpdateUser end-point allows creation or updation of User.
 func CreateUpdateUser(c *web.AppContext) {
+	c.Event = model.EventUserAddUpdate
 	dbObject, err := service.CreateUpdateUser(c)
 	doRespond(c, dbObject, err)
 }
 
 //CreateUpdateComment end-point allows creation or updation of Comment.
 func CreateUpdateComment(c *web.AppContext) {
+	c.Event = model.EventCommentAddUpdate
 	dbObject, err := service.CreateUpdateComment(c)
 	doRespond(c, dbObject, err)
 }
 
 //CreateUpdateSection end-point allows creation or updation of Section.
 func CreateUpdateSection(c *web.AppContext) {
+	c.Event = model.EventSectionAddUpdate
 	dbObject, err := service.CreateUpdateSection(c)
 	doRespond(c, dbObject, err)
 }
 
 //CreateUpdateAuthor end-point allows creation or updation of Author.
 func CreateUpdateAuthor(c *web.AppContext) {
+	c.Event = model.EventAuthorAddUpdate
 	dbObject, err := service.CreateUpdateAuthor(c)
 	doRespond(c, dbObject, err)
 }
@@ -85,6 +91,7 @@ func GetSearch(c *web.AppContext) {
 
 //CreateUpdateSearch end-point allows creation or updation of Search.
 func CreateUpdateSearch(c *web.AppContext) {
+	c.Event = model.EventSearchAddUpdate
 	dbObject, err := service.CreateUpdateSearch(c)
 	doRespond(c, dbObject, err)
 }

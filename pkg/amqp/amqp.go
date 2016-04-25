@@ -19,7 +19,6 @@ func connect(url string) *amqp.Connection {
 	if amqpConnection != nil {
 		return amqpConnection
 	}
-
 	c, err := amqp.Dial(url)
 	if err != nil {
 		return nil

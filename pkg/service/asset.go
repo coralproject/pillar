@@ -154,5 +154,5 @@ func updateAssetOnComment(db *db.MongoDB, asset *model.Asset) {
 }
 
 func getPayloadAsset(context *web.AppContext, object interface{}) interface{} {
-	return model.Event{model.EventAssetAdded, object}
+	return model.Event{model.EventAssetAddUpdate, object}
 }

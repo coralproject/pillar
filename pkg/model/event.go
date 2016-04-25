@@ -2,12 +2,23 @@ package model
 
 //Various Events
 const (
-	EventAssetAdded     string = "asset_added"
-	EventAssetUpdated   string = "asset_updated"
-	EventCommentAdded   string = "comment_added"
-	EventCommentUpdated string = "comment_updated"
-	EventTagAdded       string = "tag_added"
-	EventTagRemoved     string = "tag_removed"
+	EventUserImport       string = "user_import"
+	EventAssetImport      string = "asset_import"
+	EventActionImport     string = "action_import"
+	EventCommentImport    string = "comment_import"
+	EventNoteImport       string = "note_import"
+
+	EventUserAddUpdate    string = "user_add_update"
+	EventAssetAddUpdate   string = "asset_add_update"
+	EventActionAddUpdate  string = "action_add_update"
+	EventCommentAddUpdate string = "comment_add_update"
+	EventNoteAddUpdate    string = "note_add_update"
+	EventSearchAddUpdate  string = "search_add_update"
+	EventAuthorAddUpdate  string = "author_add_update"
+	EventSectionAddUpdate string = "section_add_update"
+
+	EventTagAdded         string = "tag_added"
+	EventTagRemoved       string = "tag_removed"
 )
 
 //Event denotes an event in Pillar
