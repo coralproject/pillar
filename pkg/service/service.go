@@ -19,7 +19,8 @@ func PublishEvent(c *web.AppContext, object interface{}, payload interface{}) {
 	}
 
 	if payload == nil {
-		payload = getPayload(c, object)
+		payload = model.Event{Name:c.Event, Payload:object}
+		//payload = getPayload(c, object)
 	}
 
 	data, err := json.Marshal(payload)

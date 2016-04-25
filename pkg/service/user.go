@@ -113,7 +113,7 @@ func updateUserOnAction(db *db.MongoDB, object *model.Action) error {
 	}
 
 	user.Stats[object.Type] = user.Stats[object.Type].(int) + 1
-	db.Comments.Update(
+	db.Users.Update(
 		bson.M{"_id": user.ID},
 		bson.M{"$set": bson.M{"actions": actions, "stats": user.Stats}},
 	)
