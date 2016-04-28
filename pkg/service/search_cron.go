@@ -14,7 +14,7 @@ func UpdateSearch() {
 	defer c.Close()
 
 	searches := []model.Search{}
-	c.DB.Searches.Find(nil).All(&searches)
+	c.MDB.DB.C(model.Searches).Find(nil).All(&searches)
 
 	for _, one := range searches {
 		doUpdateSearch(c, one)
@@ -23,7 +23,7 @@ func UpdateSearch() {
 
 func doUpdateSearch(c *web.AppContext, search model.Search) {
 	//map of new users from search
-	m, a := getNewUsers(c.DB, search)
+	m, a := getNewUsers(c.MDB, search)
 	if m == nil || len(m) == 0 {
 		log.Printf("UpdateSearch - no new users, skipping [%s]\n", search.Query)
 		return
@@ -32,7 +32,7 @@ func doUpdateSearch(c *web.AppContext, search model.Search) {
 	//remove tag when user from old list are no longer in new list
 	for _, one := range search.Result.Users {
 		if _, ok := m[one.ID]; !ok {
-			if user := removeTag(c.DB, one.ID, search.Tag); user != nil {
+			if user := removeTag(c.MDB, one.ID, search.Tag); user != nil {
 				p := model.Event{model.EventTagRemoved, model.PayloadTag{search.Tag, *user}}
 				PublishEvent(c, nil, p)
 			}
@@ -40,7 +40,7 @@ func doUpdateSearch(c *web.AppContext, search model.Search) {
 	}
 
 	for _, value := range m {
-		if user := addTag(c.DB, value.ID, search.Tag); user != nil {
+		if user := addTag(c.MDB, value.ID, search.Tag); user != nil {
 			p := model.Event{model.EventTagAdded, model.PayloadTag{search.Tag, *user}}
 			PublishEvent(c, nil, p)
 		}
@@ -48,13 +48,13 @@ func doUpdateSearch(c *web.AppContext, search model.Search) {
 
 	//save new users to search.results
 	r := model.SearchResult{Count: len(m), Users: a}
-	c.DB.Searches.UpdateId(search.ID, bson.M{"$set": bson.M{"result": r}})
+	c.MDB.DB.C(model.Searches).UpdateId(search.ID, bson.M{"$set": bson.M{"result": r}})
 	log.Printf("UpdateSearch successful [query: %v, count %d]\n", search.Query, len(m))
 }
 
 func addTag(db *db.MongoDB, id bson.ObjectId, tag string) *model.User {
 	var user model.User
-	if err := db.Users.FindId(id).One(&user); err != nil {
+	if err := db.DB.C(model.Users).FindId(id).One(&user); err != nil {
 		return nil
 	}
 
@@ -66,13 +66,13 @@ func addTag(db *db.MongoDB, id bson.ObjectId, tag string) *model.User {
 
 	//add the new tag
 	tags := append(user.Tags, tag)
-	db.Users.UpdateId(id, bson.M{"$set": bson.M{"tags": tags}})
+	db.DB.C(model.Users).UpdateId(id, bson.M{"$set": bson.M{"tags": tags}})
 	return &user
 }
 
 func removeTag(db *db.MongoDB, id bson.ObjectId, tag string) *model.User {
 	var user model.User
-	if err := db.Users.FindId(id).One(&user); err != nil {
+	if err := db.DB.C(model.Users).FindId(id).One(&user); err != nil {
 		return nil
 	}
 
@@ -85,7 +85,7 @@ func removeTag(db *db.MongoDB, id bson.ObjectId, tag string) *model.User {
 		tags = append(tags, one)
 	}
 
-	db.Users.UpdateId(id, bson.M{"$set": bson.M{"tags": tags}})
+	db.DB.C(model.Users).UpdateId(id, bson.M{"$set": bson.M{"tags": tags}})
 	return &user
 }
 
@@ -102,7 +102,7 @@ func getNewUsers(db *db.MongoDB, search model.Search) (map[bson.ObjectId]model.U
 	for i := 0; i < len(ids); i++ {
 		var user model.User
 		key := bson.ObjectIdHex(ids[i])
-		db.Users.FindId(key).One(&user)
+		db.DB.C(model.Users).FindId(key).One(&user)
 		m[key] = user
 		a[i] = user
 	}

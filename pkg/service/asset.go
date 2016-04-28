@@ -19,10 +19,10 @@ func ImportAsset(context *web.AppContext) (*model.Asset, *web.AppError) {
 
 	var dbEntity model.Asset
 	//Upsert if entity exists with same source.id
-	context.DB.Assets.Find(bson.M{"source.id": input.Source.ID}).One(&dbEntity)
+	context.MDB.DB.C(model.Assets).Find(bson.M{"source.id": input.Source.ID}).One(&dbEntity)
 	if dbEntity.ID != "" {
 		input.ID = dbEntity.ID
-		if _, err := context.DB.Assets.UpsertId(dbEntity.ID, &input); err != nil {
+		if _, err := context.MDB.DB.C(model.Assets).UpsertId(dbEntity.ID, &input); err != nil {
 			message := fmt.Sprintf("Error updating existing Asset [%s]", input.Source.ID)
 			return nil, &web.AppError{err, message, http.StatusInternalServerError}
 		}
@@ -30,7 +30,7 @@ func ImportAsset(context *web.AppContext) (*model.Asset, *web.AppError) {
 	}
 
 	//return, if entity exists
-	if dbEntity := assetExists(context.DB, &input); dbEntity != nil {
+	if dbEntity := assetExists(context.MDB, &input); dbEntity != nil {
 		message := fmt.Sprintf("Asset exists, id [%s] and url [%s] must be unique.", input.ID, input.URL)
 		return nil, &web.AppError{nil, message, http.StatusInternalServerError}
 	}
@@ -57,7 +57,7 @@ func CreateUpdateAsset(context *web.AppContext) (*model.Asset, *web.AppError) {
 func createAsset(context *web.AppContext, input *model.Asset) (*model.Asset, *web.AppError) {
 
 	//return, if entity exists
-	if dbEntity := assetExists(context.DB, input); dbEntity != nil {
+	if dbEntity := assetExists(context.MDB, input); dbEntity != nil {
 		message := fmt.Sprintf("Asset exists, id [%s] and url [%s] must be unique.", input.ID, input.URL)
 		return nil, &web.AppError{nil, message, http.StatusInternalServerError}
 	}
@@ -70,14 +70,14 @@ func updateAsset(context *web.AppContext, input *model.Asset) (*model.Asset, *we
 
 	var dbEntity model.Asset
 	//entity not found, return
-	context.DB.Assets.FindId(input.ID).One(&dbEntity)
+	context.MDB.DB.C(model.Assets).FindId(input.ID).One(&dbEntity)
 	if dbEntity.ID == "" {
 		message := fmt.Sprintf("Asset not found [%s]\n", input.ID)
 		return nil, &web.AppError{nil, message, http.StatusInternalServerError}
 	}
 
 	dbEntity.Tags = input.Tags
-	if err := context.DB.Assets.UpdateId(dbEntity.ID, bson.M{"$set": bson.M{"tags": dbEntity.Tags}}); err != nil {
+	if err := context.MDB.DB.C(model.Assets).UpdateId(dbEntity.ID, bson.M{"$set": bson.M{"tags": dbEntity.Tags}}); err != nil {
 		message := fmt.Sprintf("Error updating asset [%+v]\n", input)
 		return nil, &web.AppError{nil, message, http.StatusInternalServerError}
 	}
@@ -90,13 +90,13 @@ func assetExists(db *db.MongoDB, input *model.Asset) *model.Asset {
 	var dbEntity model.Asset
 
 	//return, if exists
-	db.Assets.FindId(input.ID).One(&dbEntity)
+	db.DB.C(model.Assets).FindId(input.ID).One(&dbEntity)
 	if dbEntity.ID != "" {
 		return &dbEntity
 	}
 
 	//return, if entity exists with same url
-	db.Assets.Find(bson.M{"url": input.URL}).One(&dbEntity)
+	db.DB.C(model.Assets).Find(bson.M{"url": input.URL}).One(&dbEntity)
 	if dbEntity.ID != "" {
 		return &dbEntity
 	}
@@ -109,7 +109,7 @@ func doCreateAsset(context *web.AppContext, input *model.Asset) (*model.Asset, *
 	//assign a new ObjectId
 	input.ID = bson.NewObjectId()
 
-	if err := context.DB.Assets.Insert(input); err != nil {
+	if err := context.MDB.DB.C(model.Assets).Insert(input); err != nil {
 		message := fmt.Sprintf("Error creating asset [%s]", err)
 		return nil, &web.AppError{err, message, http.StatusInternalServerError}
 	}
@@ -128,7 +128,7 @@ func doCreateAsset(context *web.AppContext, input *model.Asset) (*model.Asset, *
 	}
 
 	tt := &model.TagTarget{Target: model.Assets, TargetID: input.ID}
-	if err := CreateTagTargets(context.DB, input.Tags, tt); err != nil {
+	if err := CreateTagTargets(context.MDB, input.Tags, tt); err != nil {
 		//message := fmt.Sprintf("Error creating TagStat [%s]", err)
 		//return nil, &AppError{nil, message, http.StatusInternalServerError}
 	}
@@ -147,7 +147,7 @@ func updateAssetOnComment(db *db.MongoDB, asset *model.Asset) {
 	}
 
 	asset.Stats[model.StatsComments] = asset.Stats[model.StatsComments].(int) + 1
-	db.Assets.Update(
+	db.DB.C(model.Assets).Update(
 		bson.M{"_id": asset.ID},
 		bson.M{"$set": bson.M{"stats": asset.Stats}},
 	)

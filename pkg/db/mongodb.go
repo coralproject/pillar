@@ -1,41 +1,33 @@
 package db
 
 import (
-	"gopkg.in/mgo.v2"
-
 	"github.com/coralproject/pillar/pkg/backend/iterator"
 	"github.com/coralproject/pillar/pkg/model"
+	"gopkg.in/mgo.v2"
 	"log"
-	"os"
-)
-
-const (
-	defaultMongoURL string = "mongodb://localhost:27017/coral"
 )
 
 var (
 	mgoSession *mgo.Session
 )
 
-// MongoDB encapsulates a mongo session with all relevant collections
+// MongoDB encapsulates a mongo database and session
 type MongoDB struct {
-	Session        *mgo.Session
-	Assets         *mgo.Collection
-	Users          *mgo.Collection
-	Searches       *mgo.Collection
-	Actions        *mgo.Collection
-	Comments       *mgo.Collection
-	Tags           *mgo.Collection
-	Authors        *mgo.Collection
-	Sections       *mgo.Collection
-	TagTargets     *mgo.Collection
-	CayUserActions *mgo.Collection
-	SearchHistory  *mgo.Collection
+	Session *mgo.Session
+	DB      *mgo.Database
 }
 
 //Close closes the mongodb session; must be called, else the session remains open
 func (m *MongoDB) Close() {
+	if m.Session == nil {
+		return
+	}
 	m.Session.Close()
+}
+
+//IsValid returns true for a valid session, false otherwise
+func (m *MongoDB) IsValid() bool {
+	return m.Session != nil
 }
 
 //Upsert upserts a specific entity into the given collection
@@ -63,16 +55,15 @@ func (m *MongoDB) Find(objectType string, query map[string]interface{}) (iterato
 	}, nil
 }
 
-func init() {
-	url := os.Getenv("MONGODB_URL")
-	if url == "" {
-		log.Printf("$MONGODB_URL not found, trying to connect locally [%s]", defaultMongoURL)
-		url = defaultMongoURL
+func connect(url string) *mgo.Session {
+	if mgoSession != nil {
+		return mgoSession
 	}
 
 	session, err := mgo.Dial(url)
 	if err != nil {
-		log.Fatalf("Error connecting to mongo database: %s", err)
+		log.Printf("Error connecting to mongo database: %v", err)
+		return nil
 	}
 
 	// Ensure indicies are built.
@@ -83,29 +74,19 @@ func init() {
 		}
 	}
 
-	//keep it for reuse
+	//save the main session for reuse
 	mgoSession = session
+	return mgoSession
 }
 
-//NewMongoDB returns a cloned MongoDB Session
-func NewMongoDB() *MongoDB {
-	//	if mgoSession == nil {
-	//		initDB()
-	//	}
-	//
+func NewMongoDB(url string) *MongoDB {
 	db := MongoDB{}
-	db.Session = mgoSession.Clone() //must clone
-	db.Users = db.Session.DB("").C(model.Users)
-	db.Assets = db.Session.DB("").C(model.Assets)
-	db.Actions = db.Session.DB("").C(model.Actions)
-	db.Comments = db.Session.DB("").C(model.Comments)
-	db.Authors = db.Session.DB("").C(model.Authors)
-	db.Sections = db.Session.DB("").C(model.Sections)
-	db.Tags = db.Session.DB("").C(model.Tags)
-	db.TagTargets = db.Session.DB("").C(model.TagTargets)
-	db.CayUserActions = db.Session.DB("").C(model.CayUserActions)
-	db.Searches = db.Session.DB("").C(model.Searches)
-	db.SearchHistory = db.Session.DB("").C(model.SrchHistory)
+
+	s := connect(url)
+	if s != nil {
+		db.Session = s.Clone() //must clone
+		db.DB = s.DB("")
+	}
 
 	return &db
 }

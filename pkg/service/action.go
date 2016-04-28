@@ -18,18 +18,18 @@ func ImportAction(context *web.AppContext) (*model.Action, *web.AppError) {
 		return nil, err
 	}
 
-	if err := setReferences(context.DB, &input); err != nil {
+	if err := setReferences(context.MDB, &input); err != nil {
 		message := fmt.Sprintf("Error setting action references [%s]", err)
 		return nil, &web.AppError{nil, message, http.StatusInternalServerError}
 	}
 
 	//return, if entity exists
-	if dbEntity := actionExists(context.DB, &input); dbEntity != nil {
+	if dbEntity := actionExists(context.MDB, &input); dbEntity != nil {
 		message := fmt.Sprintf("Action exists [%v]", input)
 		return nil, &web.AppError{nil, message, http.StatusInternalServerError}
 	}
 
-	return doCreateAction(context.DB, &input)
+	return doCreateAction(context.MDB, &input)
 }
 
 // CreateUpdateAction creates/updates an action
@@ -41,10 +41,10 @@ func CreateUpdateAction(context *web.AppContext) (*model.Action, *web.AppError) 
 	}
 
 	if input.ID == "" {
-		return createAction(context.DB, &input)
+		return createAction(context.MDB, &input)
 	}
 
-	return updateAction(context.DB, &input)
+	return updateAction(context.MDB, &input)
 }
 
 // createAction creates a new action resource
@@ -63,7 +63,7 @@ func createAction(db *db.MongoDB, input *model.Action) (*model.Action, *web.AppE
 func updateAction(db *db.MongoDB, input *model.Action) (*model.Action, *web.AppError) {
 	var dbEntity model.Action
 	//entity not found, return
-	db.Actions.FindId(input.ID).One(&dbEntity)
+	db.DB.C(model.Actions).FindId(input.ID).One(&dbEntity)
 	if dbEntity.ID == "" {
 		message := fmt.Sprintf("Action not found [%s]\n", input.ID)
 		return nil, &web.AppError{nil, message, http.StatusInternalServerError}
@@ -75,7 +75,7 @@ func updateAction(db *db.MongoDB, input *model.Action) (*model.Action, *web.AppE
 }
 
 func doCreateAction(db *db.MongoDB, input *model.Action) (*model.Action, *web.AppError) {
-	if err := db.Actions.Insert(input); err != nil {
+	if err := db.DB.C(model.Actions).Insert(input); err != nil {
 		message := fmt.Sprintf("Error creating action [%s]", err)
 		return nil, &web.AppError{err, message, http.StatusInternalServerError}
 	}
@@ -93,13 +93,13 @@ func actionExists(db *db.MongoDB, input *model.Action) *model.Action {
 	var dbEntity model.Action
 
 	//return, if exists
-	db.Actions.FindId(input.ID).One(&dbEntity)
+	db.DB.C(model.Actions).FindId(input.ID).One(&dbEntity)
 	if dbEntity.ID != "" {
 		return &dbEntity
 	}
 
 	//do not allow duplicate action from this user on the same target
-	db.Actions.Find(bson.M{"user_id": input.UserID, "target_id": input.TargetID,
+	db.DB.C(model.Actions).Find(bson.M{"user_id": input.UserID, "target_id": input.TargetID,
 		"target": input.Target, "type": input.Type}).One(&dbEntity)
 	if dbEntity.ID != "" {
 		return &dbEntity
@@ -116,7 +116,7 @@ func setReferences(db *db.MongoDB, object *model.Action) error {
 	//set user_id
 	if object.UserID == "" {
 		var user model.User
-		db.Users.Find(bson.M{"source.id": object.Source.UserID}).One(&user)
+		db.DB.C(model.Users).Find(bson.M{"source.id": object.Source.UserID}).One(&user)
 		if user.ID == "" {
 			err := errors.New("Cannot find user from source: " + object.Source.UserID)
 			return err
@@ -140,7 +140,7 @@ func setTarget(db *db.MongoDB, object *model.Action) error {
 	switch object.Target {
 	case model.Users:
 		var user model.User
-		db.Users.Find(bson.M{"source.id": object.Source.TargetID}).One(&user)
+		db.DB.C(model.Users).Find(bson.M{"source.id": object.Source.TargetID}).One(&user)
 		if user.ID == "" {
 			return errors.New("Cannot find user from source: " + object.Source.TargetID)
 		}
@@ -150,7 +150,7 @@ func setTarget(db *db.MongoDB, object *model.Action) error {
 
 	case model.Comments:
 		var comment model.Comment
-		db.Comments.Find(bson.M{"source.id": object.Source.TargetID}).One(&comment)
+		db.DB.C(model.Comments).Find(bson.M{"source.id": object.Source.TargetID}).One(&comment)
 		if comment.ID == "" {
 			return errors.New("Cannot find comment from source: " + object.Source.TargetID)
 		}
@@ -185,17 +185,17 @@ func getPayloadAction(context *web.AppContext, object interface{}) interface{} {
 	payload.Action = *action
 
 	var actor model.User
-	context.DB.Users.FindId(action.UserID).One(&actor)
+	context.MDB.DB.C(model.Users).FindId(action.UserID).One(&actor)
 	payload.Actor = actor
 
 	switch action.Target {
 	case model.Users:
 		var user model.User
-		context.DB.Users.FindId(action.TargetID).One(&user)
+		context.MDB.DB.C(model.Users).FindId(action.TargetID).One(&user)
 		payload.User = user
 	case model.Comments:
 		var comment model.Comment
-		context.DB.Users.FindId(action.TargetID).One(&comment)
+		context.MDB.DB.C(model.Users).FindId(action.TargetID).One(&comment)
 		payload.Comment = comment
 	}
 

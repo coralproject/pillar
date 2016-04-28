@@ -21,12 +21,12 @@ func CreateUpdateSection(context *web.AppContext) (*model.Section, *web.AppError
 	}
 
 	var dbEntity model.Section
-	if context.DB.Sections.FindId(input.Name).One(&dbEntity); dbEntity.Name == "" {
+	if context.MDB.DB.C(model.Sections).FindId(input.Name).One(&dbEntity); dbEntity.Name == "" {
 		input.DateCreated = time.Now()
 	}
 
 	input.DateUpdated = time.Now()
-	if _, err := context.DB.Sections.UpsertId(input.Name, input); err != nil {
+	if _, err := context.MDB.DB.C(model.Sections).UpsertId(input.Name, input); err != nil {
 		message := fmt.Sprintf("Error creating/updating Section")
 		return nil, &web.AppError{err, message, http.StatusInternalServerError}
 	}
@@ -38,7 +38,7 @@ func CreateUpdateSection(context *web.AppContext) (*model.Section, *web.AppError
 func GetSections(context *web.AppContext) ([]model.Section, *web.AppError) {
 
 	all := make([]model.Section, 0)
-	if err := context.DB.Sections.Find(nil).All(&all); err != nil {
+	if err := context.MDB.DB.C(model.Sections).Find(nil).All(&all); err != nil {
 		message := fmt.Sprintf("Error fetching Sections")
 		return nil, &web.AppError{err, message, http.StatusInternalServerError}
 	}

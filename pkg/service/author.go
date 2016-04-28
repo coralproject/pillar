@@ -19,8 +19,7 @@ func CreateUpdateAuthor(context *web.AppContext) (*model.Author, *web.AppError) 
 		return nil, &web.AppError{nil, message, http.StatusInternalServerError}
 	}
 
-	db := context.DB
-	if _, err := db.Authors.UpsertId(input.ID, input); err != nil {
+	if _, err := context.MDB.DB.C(model.Authors).UpsertId(input.ID, input); err != nil {
 		message := fmt.Sprintf("Error creating/updating Author")
 		return nil, &web.AppError{err, message, http.StatusInternalServerError}
 	}

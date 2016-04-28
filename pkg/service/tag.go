@@ -21,12 +21,12 @@ func CreateTagTargets(db *db.MongoDB, tags []string, tt *model.TagTarget) error 
 
 		//skip the same entry, if exists
 		dbEntity := model.TagTarget{}
-		db.TagTargets.Find(bson.M{"target_id": tt.TargetID, "name": name, "target": tt.Target}).One(&dbEntity)
+		db.DB.C(model.TagTargets).Find(bson.M{"target_id": tt.TargetID, "name": name, "target": tt.Target}).One(&dbEntity)
 		if dbEntity.ID != "" {
 			continue
 		}
 
-		if err := db.TagTargets.Insert(tt); err != nil {
+		if err := db.DB.C(model.TagTargets).Insert(tt); err != nil {
 			return err
 		}
 	}
@@ -43,11 +43,11 @@ func CreateUpdateTag(context *web.AppContext) (*model.Tag, *web.AppError) {
 
 	//old-name is empty, upsert one
 	if input.OldName == "" {
-		return upsertTag(context.DB, &input)
+		return upsertTag(context.MDB, &input)
 	}
 
 	//since old-name is passed, this implies a rename
-	return renameTag(context.DB, &input)
+	return renameTag(context.MDB, &input)
 }
 
 // creates a new Tag
@@ -58,12 +58,12 @@ func upsertTag(db *db.MongoDB, object *model.Tag) (*model.Tag, *web.AppError) {
 	}
 
 	var dbEntity model.Tag
-	if db.Tags.FindId(object.Name).One(&dbEntity); dbEntity.Name == "" {
+	if db.DB.C(model.Tags).FindId(object.Name).One(&dbEntity); dbEntity.Name == "" {
 		object.DateCreated = time.Now()
 	}
 
 	object.DateUpdated = time.Now()
-	if _, err := db.Tags.UpsertId(object.Name, object); err != nil {
+	if _, err := db.DB.C(model.Tags).UpsertId(object.Name, object); err != nil {
 		message := fmt.Sprintf("Error creating tag [%+v]", object)
 		return nil, &web.AppError{err, message, http.StatusInternalServerError}
 	}
@@ -75,7 +75,7 @@ func upsertTag(db *db.MongoDB, object *model.Tag) (*model.Tag, *web.AppError) {
 func renameTag(db *db.MongoDB, object *model.Tag) (*model.Tag, *web.AppError) {
 
 	var dbEntity model.Tag
-	if db.Tags.FindId(object.OldName).One(&dbEntity); dbEntity.Name == "" {
+	if db.DB.C(model.Tags).FindId(object.OldName).One(&dbEntity); dbEntity.Name == "" {
 		message := fmt.Sprintf("Cannot update, tag not found: [%s]", object.OldName)
 		return nil, &web.AppError{nil, message, http.StatusInternalServerError}
 	}
@@ -91,19 +91,19 @@ func renameTag(db *db.MongoDB, object *model.Tag) (*model.Tag, *web.AppError) {
 	newTag.DateUpdated = time.Now()
 
 	//remove the old one
-	if err := db.Tags.RemoveId(object.OldName); err != nil {
+	if err := db.DB.C(model.Tags).RemoveId(object.OldName); err != nil {
 		message := fmt.Sprintf("Error removing old tag [%s]", object.OldName)
 		return nil, &web.AppError{err, message, http.StatusInternalServerError}
 	}
 
 	//insert new tag
-	if err := db.Tags.Insert(newTag); err != nil {
+	if err := db.DB.C(model.Tags).Insert(newTag); err != nil {
 		message := fmt.Sprintf("Error creating tag [%+v]", newTag)
 		return nil, &web.AppError{err, message, http.StatusInternalServerError}
 	}
 
 	var user model.User
-	iter := db.Users.Find(bson.M{"tags": object.OldName}).Iter()
+	iter := db.DB.C(model.Users).Find(bson.M{"tags": object.OldName}).Iter()
 	for iter.Next(&user) {
 		tags := make([]string, len(user.Tags))
 		for _, one := range user.Tags {
@@ -112,7 +112,7 @@ func renameTag(db *db.MongoDB, object *model.Tag) (*model.Tag, *web.AppError) {
 			}
 		}
 		tags = append(tags, object.Name)
-		db.Users.Update(
+		db.DB.C(model.Users).Update(
 			bson.M{"_id": user.ID},
 			bson.M{"$set": bson.M{"tags": tags}},
 		)
@@ -126,7 +126,7 @@ func GetTags(context *web.AppContext) ([]model.Tag, *web.AppError) {
 
 	//set created-date for the new ones
 	all := make([]model.Tag, 0)
-	if err := context.DB.Tags.Find(nil).All(&all); err != nil {
+	if err := context.MDB.DB.C(model.Tags).Find(nil).All(&all); err != nil {
 		message := fmt.Sprintf("Error fetching tags")
 		return nil, &web.AppError{err, message, http.StatusInternalServerError}
 	}
@@ -148,7 +148,7 @@ func DeleteTag(context *web.AppContext) *web.AppError {
 	}
 
 	//delete
-	if err := context.DB.Tags.RemoveId(input.Name); err != nil {
+	if err := context.MDB.DB.C(model.Tags).RemoveId(input.Name); err != nil {
 		message := fmt.Sprintf("Error deleting tag [%v]", input)
 		return &web.AppError{err, message, http.StatusInternalServerError}
 	}

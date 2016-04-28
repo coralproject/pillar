@@ -14,7 +14,7 @@ import (
 func PublishEvent(c *web.AppContext, object interface{}, payload interface{}) {
 
 	//return if the MQ is not valid
-	if !c.MQ.IsValid() {
+	if !c.RMQ.IsValid() {
 		return
 	}
 
@@ -29,7 +29,7 @@ func PublishEvent(c *web.AppContext, object interface{}, payload interface{}) {
 		return
 	}
 
-	c.MQ.Publish(data)
+	c.RMQ.Publish(data)
 }
 
 func getPayload(context *web.AppContext, object interface{}) interface{} {
@@ -63,7 +63,7 @@ func UnmarshallAndValidate(context *web.AppContext, m model.Model) *web.AppError
 // UpdateMetadata updates metadata for an entity
 func UpdateMetadata(context *web.AppContext) (interface{}, *web.AppError) {
 
-	db := context.DB
+	db := context.MDB
 	var input model.Metadata
 	json.NewDecoder(context.Body).Decode(&input)
 
@@ -90,7 +90,7 @@ func UpdateMetadata(context *web.AppContext) (interface{}, *web.AppError) {
 // CreateIndex creates indexes to various entities
 func CreateIndex(context *web.AppContext) *web.AppError {
 
-	db := context.DB
+	db := context.MDB
 	var input model.Index
 	json.NewDecoder(context.Body).Decode(&input)
 
@@ -106,7 +106,7 @@ func CreateIndex(context *web.AppContext) *web.AppError {
 // CreateUserAction inserts an activity by the user
 func CreateUserAction(context *web.AppContext) *web.AppError {
 
-	db := context.DB
+	db := context.MDB
 	var input model.CayUserAction
 	json.NewDecoder(context.Body).Decode(&input)
 
@@ -115,7 +115,7 @@ func CreateUserAction(context *web.AppContext) *web.AppError {
 	if input.Release == "" {
 		input.Release = "0.1.0"
 	}
-	err := db.CayUserActions.Insert(input)
+	err := db.DB.C(model.CayUserActions).Insert(input)
 	if err != nil {
 		message := fmt.Sprintf("Error creating user-action [%s]", err)
 		return &web.AppError{err, message, http.StatusInternalServerError}

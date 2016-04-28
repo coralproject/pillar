@@ -27,23 +27,23 @@ func ImportComment(context *web.AppContext) (*model.Comment, *web.AppError) {
 
 	var dbEntity model.Comment
 	// Find/Set comment references
-	if err := setCommentReferences(context.DB, &input); err != nil {
+	if err := setCommentReferences(context.MDB, &input); err != nil {
 		message := fmt.Sprintf("Error setting comment references [%s]", err)
 		return nil, &web.AppError{nil, message, http.StatusInternalServerError}
 	}
 
 	//upsert if entity exists with same source.id
-	context.DB.Comments.Find(bson.M{"source.id": input.Source.ID}).One(&dbEntity)
+	context.MDB.DB.C(model.Comments).Find(bson.M{"source.id": input.Source.ID}).One(&dbEntity)
 	if dbEntity.ID != "" {
 		input.ID = dbEntity.ID
-		if _, err := context.DB.Comments.UpsertId(dbEntity.ID, input); err != nil {
+		if _, err := context.MDB.DB.C(model.Comments).UpsertId(dbEntity.ID, input); err != nil {
 			message := fmt.Sprintf("Error updating existing Comment [%s]", input.Source.ID)
 			return nil, &web.AppError{err, message, http.StatusInternalServerError}
 		}
 		return &input, nil
 	}
 
-	return doCreateComment(context.DB, &input)
+	return doCreateComment(context.MDB, &input)
 }
 
 // CreateUpdateComment creates/updates a comment resource
@@ -54,10 +54,10 @@ func CreateUpdateComment(context *web.AppContext) (*model.Comment, *web.AppError
 	}
 
 	if input.ID == "" {
-		return createComment(context.DB, &input)
+		return createComment(context.MDB, &input)
 	}
 
-	return updateComment(context.DB, &input)
+	return updateComment(context.MDB, &input)
 }
 
 // CreateComment creates a new comment resource
@@ -65,14 +65,14 @@ func createComment(db *db.MongoDB, input *model.Comment) (*model.Comment, *web.A
 
 	var dbEntity model.Comment
 	//return, if exists
-	db.Comments.FindId(input.ID).One(&dbEntity)
+	db.DB.C(model.Comments).FindId(input.ID).One(&dbEntity)
 	if dbEntity.ID != "" {
 		message := fmt.Sprintf("Comment exists with ID [%s]\n", input.ID)
 		return nil, &web.AppError{nil, message, http.StatusInternalServerError}
 	}
 
 	var asset model.Asset
-	db.Assets.FindId(input.AssetID).One(&asset)
+	db.DB.C(model.Assets).FindId(input.AssetID).One(&asset)
 	if asset.ID == "" {
 		message := fmt.Sprintf("Cannot create Comment, Asset not found [%s]\n", input.AssetID)
 		return nil, &web.AppError{nil, message, http.StatusInternalServerError}
@@ -80,7 +80,7 @@ func createComment(db *db.MongoDB, input *model.Comment) (*model.Comment, *web.A
 	ref.asset = &asset
 
 	var user model.User
-	db.Users.FindId(input.UserID).One(&user)
+	db.DB.C(model.Users).FindId(input.UserID).One(&user)
 	if user.ID == "" {
 		message := fmt.Sprintf("Cannot create Comment, User not found [%s]\n", input.UserID)
 		return nil, &web.AppError{nil, message, http.StatusInternalServerError}
@@ -96,14 +96,14 @@ func updateComment(db *db.MongoDB, input *model.Comment) (*model.Comment, *web.A
 
 	var dbEntity *model.Comment
 	//entity not found, return
-	db.Comments.FindId(input.ID).One(&dbEntity)
+	db.DB.C(model.Comments).FindId(input.ID).One(&dbEntity)
 	if dbEntity.ID == "" {
 		message := fmt.Sprintf("Comment not found [%+v]\n", input)
 		return nil, &web.AppError{nil, message, http.StatusInternalServerError}
 	}
 
 	dbEntity.Tags = input.Tags
-	if err := db.Comments.UpdateId(dbEntity.ID, bson.M{"$set": bson.M{"tags": dbEntity.Tags}}); err != nil {
+	if err := db.DB.C(model.Comments).UpdateId(dbEntity.ID, bson.M{"$set": bson.M{"tags": dbEntity.Tags}}); err != nil {
 		message := fmt.Sprintf("Error updating comment [%+v]\n", input)
 		return nil, &web.AppError{nil, message, http.StatusInternalServerError}
 	}
@@ -113,7 +113,7 @@ func updateComment(db *db.MongoDB, input *model.Comment) (*model.Comment, *web.A
 
 //inserts a new comment to the db and any related post-processing
 func doCreateComment(db *db.MongoDB, input *model.Comment) (*model.Comment, *web.AppError) {
-	if err := db.Comments.Insert(input); err != nil {
+	if err := db.DB.C(model.Comments).Insert(input); err != nil {
 		message := fmt.Sprintf("Error creating comments [%s]", err)
 		return nil, &web.AppError{nil, message, http.StatusInternalServerError}
 	}
@@ -135,9 +135,9 @@ func setCommentReferences(db *db.MongoDB, input *model.Comment) error {
 
 	//find asset and add the reference to it
 	var asset model.Asset
-	db.Assets.Find(bson.M{"source.id": input.Source.AssetID}).One(&asset)
+	db.DB.C(model.Assets).Find(bson.M{"source.id": input.Source.AssetID}).One(&asset)
 	if asset.ID == "" {
-		db.Assets.Find(bson.M{"url": input.Source.AssetID}).One(&asset)
+		db.DB.C(model.Assets).Find(bson.M{"url": input.Source.AssetID}).One(&asset)
 	}
 	if asset.ID == "" {
 		return errors.New("Cannot find asset from source: " + input.Source.AssetID)
@@ -147,7 +147,7 @@ func setCommentReferences(db *db.MongoDB, input *model.Comment) error {
 
 	//find user and add the reference to it
 	var user model.User
-	db.Users.Find(bson.M{"source.id": input.Source.UserID}).One(&user)
+	db.DB.C(model.Users).Find(bson.M{"source.id": input.Source.UserID}).One(&user)
 	if user.ID == "" {
 		err := errors.New("Cannot find user from source: " + input.Source.UserID)
 		return err
@@ -158,12 +158,12 @@ func setCommentReferences(db *db.MongoDB, input *model.Comment) error {
 	//find parent and add the reference to it
 	if input.Source.ID != input.Source.ParentID {
 		var parent model.Comment
-		db.Comments.Find(bson.M{"source.parent_id": input.Source.ParentID}).One(&parent)
+		db.DB.C(model.Comments).Find(bson.M{"source.parent_id": input.Source.ParentID}).One(&parent)
 		if parent.ID != "" {
 			input.ParentID = parent.ID
 			//add this as a child for the parent comment
 			children := append(parent.Children, input.ID)
-			db.Comments.Update(bson.M{"_id": parent.ID},
+			db.DB.C(model.Comments).Update(bson.M{"_id": parent.ID},
 				bson.M{"$set": bson.M{"children": children}})
 		}
 	}
@@ -175,7 +175,7 @@ func setCommentReferences(db *db.MongoDB, input *model.Comment) error {
 func updateCommentOnAction(db *db.MongoDB, object *model.Action) error {
 
 	var comment model.Comment
-	if db.Comments.FindId(object.TargetID).One(&comment); comment.ID == "" {
+	if db.DB.C(model.Comments).FindId(object.TargetID).One(&comment); comment.ID == "" {
 		return errors.New("Cannot update comment stats, invalid comment " + object.TargetID.String())
 	}
 
@@ -190,7 +190,7 @@ func updateCommentOnAction(db *db.MongoDB, object *model.Action) error {
 	}
 
 	comment.Stats[object.Type] = comment.Stats[object.Type].(int) + 1
-	db.Comments.Update(
+	db.DB.C(model.Comments).Update(
 		bson.M{"_id": comment.ID},
 		bson.M{"$set": bson.M{"actions": actions, "stats": comment.Stats}},
 	)
@@ -202,9 +202,9 @@ func getPayloadComment(context *web.AppContext, object interface{}) interface{} 
 	comment := object.(*model.Comment)
 
 	var user model.User
-	context.DB.Users.FindId(comment.UserID).One(&user)
+	context.MDB.DB.C(model.Users).FindId(comment.UserID).One(&user)
 	var asset model.Asset
-	context.DB.Assets.FindId(comment.AssetID).One(&asset)
+	context.MDB.DB.C(model.Assets).FindId(comment.AssetID).One(&asset)
 
 	return model.PayloadComment{*comment, asset, user}
 }
