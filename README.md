@@ -1,101 +1,84 @@
 # Pillar Server
-Pillar is a REST based web-service module written in golang. It provides the following services:
+Pillar is a REST based WebService written in `Golang`. It provides the following services:
 
-* Imports external data into the coral data model
-* Allows CRUD operation on coral data model
-* Provides simple queries on coral data model
-
-**Important**
-You can configure the server using three environment variables. See ```config/dev.cfg``` file as an example. Make changes to the config file as needed and source it as follows
-
-~~~
-> source config/dev.cfg
-~~~
+* Imports external data into Coral data model
+* Allows CRUD operation on Coral data model
+* Provides simple queries on Coral data model
 
 
-## End-Points
-Server provides the following end-points:
+## Key Points
 
-* /api/import/asset
-* /api/import/user
-* /api/import/comment
+* Pillar APIs strongly adhere to [REST style](https://en.wikipedia.org/wiki/Representational_state_transfer).
 
-Here is a generic example how you might use these end-points:
+* Pillar APIs only work with [JSON](http://www.json.org/) data.
 
-~~~
-> curl -i -H "Accept: application/json" -X POST -d '{"source.id": "original_id", "url": "url of the asset"}' http://localhost:8080/api/import/asset
+* Regular `CRUD` API pattern is `/api/*`, where as import API pattern is `/api/import/*`.
 
-HTTP/1.1 200 OK
-Content-Type: application/json
-Date: Tue, 20 Oct 2015 15:25:12 GMT
-Content-Length: 173
+* Import related APIs allow you to import data into Coral from an existing Source system. The key to a successful import and tracking lies in `ImportSource`. This structure keeps the original identifiers. Most top-level model e.g. `User` or `Comment` embeds this source data in a field named `Source`.
 
-{"id":"a5efbb05-6ed7-455e-bc4c-37236614ac14","source.id": "original_id", "url": "url of the asset"}> 
-~~~
+* We understand that an import process can be challenging, hence all import APIs `upsert` data. By doing so, each time you import it overwrites existing entries.
 
-### /api/import/asset
-Imports an ```Asset``` from an external system and the caller must pass a json payload for an ```Asset``` in the following format:
 
-~~~
-{
-  "source.id" : "42f215a2-066c-11e5-a428-c984eb077d4e",
-  "url" : "http://washingtonpost.com/world/national-security/some-nsa-surveillance-powers-set-to-expire-sunday-unless-senate-acts/2015/05/31/42f215a2-066c-11e5-a428-c984eb077d4e_story.html"
-}
-~~~
+## Running Pillar
+Pillar interacts with **Mongo** database as a data-store and  **RabbitMQ** for messaging. All this information can be passed to Pillar through `environment` variables. For convenience, we have an [example](https://github.com/coralproject/pillar/blob/master/config/dev.cfg.sample) file for you. Make a copy of this and `source` the file before running.
 
-### /api/import/user
-Imports a ```User``` from an external system and the caller must pass a json payload for a ```User``` in the following format:
+####Build Command
+```
+> cd $GOPATH/src
+> go install github.com/coralproject/pillar/app/pillar/
+```
+
+####Run Command
+```
+> source <path>/myenv.cfg
+> $GOPATH/bin/pillar
+```
+
+## Using Pillar End-Points
+
+Here is a generic example of how you might use these end-points. See [model](https://github.com/coralproject/pillar/tree/master/pkg/model) for the structure of data to be passed for various APIs.
 
 ~~~
-{
-  "source.id" : "u6qTe%2BFQ%2BFli6rmbWJ6BEP%2BLRzrUEvutviR1VYa5PdNoGeVxxhJF5A%3D%3D",
-  "user_name" : "sazcrin",
-  "avatar" : "https://wpidentity.s3.amazonaws.com/assets/images/avatar-default.png",
-  "status" : "ModeratorApproved"
-}
+> curl -i -H "Accept: application/json" -XPOST -d '  {
+    "name" : "IamSam",
+    "avatar" : "https://wpidentity.s3.amazonaws.com/assets/images/avatar-default.png",
+    "status" : "New",
+    "source" : {
+      "id":"original-id-for-iam-sam"
+    },
+    "tags" : ["top_commentor", "powerball"]
+  }
+' http://localhost:8080/api/import/user
 ~~~
 
-### /api/import/comment
-Imports a ```Comment``` from an external system and the caller must pass a json payload for a ```Comment ``` in the following format:
+Here is a list of end-points
 
-~~~
-{
-  "body":"Drinking alcohol isn't an explicit constitutional right.  Better would be these prior restraints on writing an editorial, joining a congregation, or registering to vote.\n\nAll of which will come if these people have their way.",
-  "status": "Untouched",
-  "source": {
-    "id":"f2582294-a4c1-461a-982f-9e63dffbae6a",
-    "asset_id":"http://washingtonpost.com/world/national-security/some-nsa-surveillance-powers-set-to-expire-sunday-unless-senate-acts/2015/05/31/42f215a2-066c-11e5-a428-c984eb077d4e_story.html",
-    "user_id":"u6qTe%2BFQ%2BFli6rmbWJ6BEP%2BLRzrUEvutviR1VYa5PdNoGeVxxhJF5A%3D%3D"
-  },
-  "date_created": "2015-11-10T00:00:02.626Z",
-  "date_updated": "2015-11-10T00:00:02.626Z"
-}
-~~~
+| Model         | Import                   | CRUD            |
+|:------------- |:-------------------------|:----------------|
+| User          |/api/import/user          |/api/user        |
+| Asset         |/api/import/asset         |/api/asset       |
+| Action        |/api/import/action        |/api/action      |
+| Comment       |/api/import/comment       |/api/comment     |
+| Tag           |None                      |/api/tag         |
+| Search        |None                      |/api/search      |
 
 
-## Pillar Server as a Docker Container
+## Install Pillar as a Docker Container
 Skip this section if you're not familiar or comfortable with Docker. This section helps you build and run a docker image of the Pillar Server.
-
 
 ### Create a Server Docker Image (Optional)
 
 ~~~
 > cd $GOPATH/src/github.com/coralproject/pillar
-> docker build -t pillar-server:1.0 .
+> docker build -t pillar-server:0.1 .
 ~~~
 
-### Run Server Container
+### Run Pillar as a Container
 Find the Docker Image with tag pillar-server:0.1 and run the IMAGE_ID.
 
-You must pass the environment variables needed to run Pillar, using the env.list file. See ```config/dev.cfg``` file as an example. 
+You must pass the `environment` variables needed to run Pillar, using the env.list file. See ```config/dev.cfg.sample``` file as an example. 
 
-~~~
-export PILLAR_ADDRESS=:8080
-export PILLAR_HOME=/opt/pillar
-export MONGODB_URL=mongodb://user:password@host:port/coral
-~~~
-
-Find the image id for ```pillar-server``` and run using the command below:
+Now, find the image id for ```pillar-server``` and run using the command below:
 
 ~~~
 > docker images
