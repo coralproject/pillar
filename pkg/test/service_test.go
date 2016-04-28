@@ -27,20 +27,20 @@ const (
 )
 
 func init() {
-	db := db.NewMongoDB()
+	db := db.NewMongoDB(os.Getenv("MONGODB_URL"))
 	defer db.Close()
 
 	//Empty all test data
-	db.Tags.RemoveAll(nil)
-	db.Sections.RemoveAll(nil)
-	db.Authors.RemoveAll(nil)
-	db.Actions.RemoveAll(nil)
-	db.Comments.RemoveAll(nil)
-	db.Users.RemoveAll(nil)
-	db.Assets.RemoveAll(nil)
-	db.CayUserActions.RemoveAll(nil)
-	db.TagTargets.RemoveAll(nil)
-	db.Searches.RemoveAll(nil)
+	db.DB.C(model.Tags).RemoveAll(nil)
+	db.DB.C(model.Sections).RemoveAll(nil)
+	db.DB.C(model.Authors).RemoveAll(nil)
+	db.DB.C(model.Actions).RemoveAll(nil)
+	db.DB.C(model.Comments).RemoveAll(nil)
+	db.DB.C(model.Users).RemoveAll(nil)
+	db.DB.C(model.Assets).RemoveAll(nil)
+	db.DB.C(model.CayUserActions).RemoveAll(nil)
+	db.DB.C(model.TagTargets).RemoveAll(nil)
+	db.DB.C(model.Searches).RemoveAll(nil)
 }
 
 

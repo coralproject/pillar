@@ -28,14 +28,14 @@ type AppContext struct {
 	Header http.Header
 	Body   io.ReadCloser
 	Vars   map[string]string
-	DB     *db.MongoDB
-	MQ     *amqp.MQ
+	MDB    *db.MongoDB
+	RMQ    *amqp.MQ
 	Event  string
 }
 
 func (c *AppContext) Close() {
-	c.DB.Close()
-	c.MQ.Close()
+	c.MDB.Close()
+	c.RMQ.Close()
 }
 
 func (c *AppContext) GetValue(key string) string {
@@ -61,8 +61,8 @@ func NewContext(rw http.ResponseWriter, r *http.Request) *AppContext {
 
 	var c AppContext
 	c.Writer = rw
-	c.DB = db.NewMongoDB()
-	c.MQ = amqp.NewMQ(os.Getenv("AMQP_URL"), os.Getenv("AMQP_EXCHANGE"))
+	c.MDB = db.NewMongoDB(os.Getenv("MONGODB_URL"))
+	c.RMQ = amqp.NewMQ(os.Getenv("AMQP_URL"), os.Getenv("AMQP_EXCHANGE"))
 
 	if r != nil {
 		c.Header = r.Header

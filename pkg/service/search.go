@@ -14,7 +14,7 @@ import (
 func GetSearches(context *web.AppContext) ([]model.Search, *web.AppError) {
 
 	all := make([]model.Search, 0)
-	if err := context.DB.Searches.Find(nil).All(&all); err != nil {
+	if err := context.MDB.DB.C(model.Searches).Find(nil).All(&all); err != nil {
 		message := fmt.Sprintf("Error fetching searches")
 		return nil, &web.AppError{err, message, http.StatusInternalServerError}
 	}
@@ -36,7 +36,7 @@ func GetSearch(context *web.AppContext) (*model.Search, *web.AppError) {
 	id := bson.ObjectIdHex(idStr)
 
 	var search model.Search
-	if err := context.DB.Searches.FindId(id).One(&search); err != nil {
+	if err := context.MDB.DB.C(model.Searches).FindId(id).One(&search); err != nil {
 		message := fmt.Sprintf("Error fetching one Search [%s]", err)
 		return nil, &web.AppError{err, message, http.StatusInternalServerError}
 	}
@@ -53,7 +53,7 @@ func CreateUpdateSearch(context *web.AppContext) (*model.Search, *web.AppError) 
 
 	var dbEntity model.Search
 	//Upsert if entity exists with same ID
-	context.DB.Searches.Find(input.ID).One(&dbEntity)
+	context.MDB.DB.C(model.Searches).Find(input.ID).One(&dbEntity)
 	if dbEntity.ID == "" { //new
 		input.ID = bson.NewObjectId()
 		input.DateCreated = time.Now()
@@ -61,7 +61,7 @@ func CreateUpdateSearch(context *web.AppContext) (*model.Search, *web.AppError) 
 		input.DateUpdated = time.Now()
 	}
 
-	if _, err := context.DB.Searches.UpsertId(input.ID, &input); err != nil {
+	if _, err := context.MDB.DB.C(model.Searches).UpsertId(input.ID, &input); err != nil {
 		fmt.Printf("Error: %s", err)
 		message := fmt.Sprintf("Error updating existing Search [%v]", input)
 		return nil, &web.AppError{err, message, http.StatusInternalServerError}
@@ -83,7 +83,7 @@ func createSearchHistory(context *web.AppContext, search model.Search) {
 	}
 	sh.Date = time.Now()
 	sh.Search = search
-	if err := context.DB.SearchHistory.Insert(sh); err != nil {
+	if err := context.MDB.DB.C(model.SrchHistory).Insert(sh); err != nil {
 		log.Printf("Error creating SearchHistory [%s]", err)
 	}
 }
@@ -102,7 +102,7 @@ func DeleteSearch(context *web.AppContext) *web.AppError {
 	id := bson.ObjectIdHex(idStr)
 
 	//delete
-	if err := context.DB.Searches.RemoveId(id); err != nil {
+	if err := context.MDB.DB.C(model.Searches).RemoveId(id); err != nil {
 		message := fmt.Sprintf("Error deleting Search [%s]", id)
 		return &web.AppError{err, message, http.StatusInternalServerError}
 	}
