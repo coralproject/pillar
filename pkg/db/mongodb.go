@@ -11,7 +11,7 @@ var (
 	mgoSession *mgo.Session
 )
 
-// MongoDB encapsulates a mongo session with all relevant collections
+// MongoDB encapsulates a mongo database and session
 type MongoDB struct {
 	Session *mgo.Session
 	DB      *mgo.Database
