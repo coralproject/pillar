@@ -160,7 +160,13 @@ func setCommentReferences(db *db.MongoDB, input *model.Comment) error {
 		var parent model.Comment
 		db.DB.C(model.Comments).Find(bson.M{"source.parent_id": input.Source.ParentID}).One(&parent)
 		if parent.ID != "" {
-			input.ParentID = parent.ID
+			//prepend immediate parent, followed by parents from hierarchy
+			parents := append([]bson.ObjectId{parent.ID}, parent.Parents...)
+			input.Parents = parents
+			if len(parents) > 0 {
+				input.RootID = parents[len(parents)-1]
+			}
+
 			//add this as a child for the parent comment
 			children := append(parent.Children, input.ID)
 			db.DB.C(model.Comments).Update(bson.M{"_id": parent.ID},
@@ -179,7 +185,7 @@ func updateCommentOnAction(db *db.MongoDB, object *model.Action) error {
 		return errors.New("Cannot update comment stats, invalid comment " + object.TargetID.String())
 	}
 
-	actions := append(comment.Actions, object.ID)
+	actions := append(comment.Actions, *object)
 
 	if comment.Stats == nil {
 		comment.Stats = make(map[string]interface{})
