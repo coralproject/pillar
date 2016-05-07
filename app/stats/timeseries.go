@@ -6,7 +6,7 @@ import (
 
 	"github.com/ardanlabs/kit/log"
 
-	"github.com/coralproject/pillar/server/model"
+	"github.com/coralproject/pillar/pkg/model"
 
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"

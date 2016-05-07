@@ -5,9 +5,11 @@ import (
 	//	"github.com/ardanlabs/kit/log"
 
 	//	"gopkg.in/mgo.v2"
+	"github.com/coralproject/pillar/pkg/model"
 	"gopkg.in/mgo.v2/bson"
 )
 
+// Stats structs is the stats we are calculating
 type Stats struct {
 	Comments          map[string]int `bson:"comments" json:"comments"`
 	Sections          map[string]int `bson:"sections" json:"sections"`

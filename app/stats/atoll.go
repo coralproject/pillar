@@ -8,7 +8,7 @@ import (
 	"io/ioutil"
 	"net/http"
 
-	"github.com/coralproject/pillar/server/model"
+	"github.com/coralproject/pillar/pkg/model"
 )
 
 type atollPayloadWrapper struct {

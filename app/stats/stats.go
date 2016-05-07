@@ -9,7 +9,7 @@ import (
 
 	"golang.org/x/net/context"
 
-	"github.com/coralproject/pillar/app/stats/calc"
+	ca "github.com/coralproject/pillar/app/stats/calc"
 	"github.com/coralproject/pillar/pkg/backend"
 	"github.com/coralproject/pillar/pkg/backend/mongodb"
 )
@@ -70,8 +70,9 @@ func main() {
 		log.Fatal(err.Error())
 	}
 
+	log.Printf("Calculating stats")
 	ctx := backend.NewBackendContext(context.Background(), backend.NewIdentityMap(b))
-	if err := calc.CalculateUserStatistics(ctx); err != nil {
+	if err := ca.CalculateUserStatistics(ctx); err != nil {
 		log.Fatal(err)
 	}
 }

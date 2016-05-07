@@ -4,7 +4,7 @@ import (
 	//"fmt"
 
 	"github.com/ardanlabs/kit/log"
-	"github.com/coralproject/pillar/server/model"
+	"github.com/coralproject/pillar/pkg/model"
 
 	"github.com/stretchr/stew/objects"
 	"gopkg.in/mgo.v2/bson"
