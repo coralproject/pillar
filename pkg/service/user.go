@@ -107,7 +107,7 @@ func updateUserOnAction(db *db.MongoDB, object *model.Action) error {
 		return errors.New("Cannot update user stats, invalid user " + object.TargetID.String())
 	}
 
-	actions := append(user.Actions, object.ID)
+	actions := append(user.Actions, *object)
 	if user.Stats[object.Type] == nil {
 		user.Stats[object.Type] = 0
 	}

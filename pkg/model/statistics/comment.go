@@ -61,9 +61,9 @@ func (a *CommentStatisticsAccumulator) Accumulate(ctx context.Context, object in
 		a.Counts.Add("word_count", len(strings.Split(comment.Body, " ")))
 
 		// Handle replied.
-		if comment.ParentID.Hex() != "" {
+		if comment.RootID.Hex() != "" {
 			a.Counts.Add("replied_count", 1)
-			a.RepliedComments.Add(comment.ParentID.Hex(), 1)
+			a.RepliedComments.Add(comment.RootID.Hex(), 1)
 		}
 
 		// Handle reply.
