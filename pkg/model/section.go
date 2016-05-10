@@ -21,6 +21,11 @@ func (object Section) Id() string {
 	return object.Name
 }
 
+// ImportSource returns the Source model
+func (object Section) ImportSource() *ImportSource {
+	return nil
+}
+
 // Validate validates this Model
 func (object Section) Validate() error {
 	errs := validate.Struct(object)

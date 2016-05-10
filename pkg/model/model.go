@@ -44,6 +44,7 @@ const (
 type Model interface {
 	Id() string
 	Validate() error
+	ImportSource() *ImportSource
 }
 
 // ImportSource encapsulates all original id from the source system
@@ -55,6 +56,7 @@ type ImportSource struct {
 	TargetID string `json:"target_id,omitempty" bson:"target_id,omitempty"`
 	AssetID  string `json:"asset_id,omitempty" bson:"asset_id,omitempty"`
 	ParentID string `json:"parent_id,omitempty" bson:"parent_id,omitempty"`
+	User     *User  `json:"user,omitempty" bson:"user,omitempty"`
 }
 
 // Metadata denotes a request to add/update Metadata for an entity

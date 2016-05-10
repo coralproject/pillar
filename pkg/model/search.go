@@ -26,6 +26,11 @@ func (object Search) Id() string {
 	return object.ID.Hex()
 }
 
+// ImportSource returns the Source model
+func (object Search) ImportSource() *ImportSource {
+	return nil
+}
+
 // Validate validates this Model
 func (object Search) Validate() error {
 	errs := validate.Struct(object)
