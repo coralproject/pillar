@@ -8,6 +8,7 @@ import (
 	"github.com/coralproject/pillar/pkg/web"
 	"gopkg.in/mgo.v2/bson"
 	"net/http"
+	"log"
 )
 
 type reference struct {
@@ -23,6 +24,10 @@ func ImportComment(context *web.AppContext) (*model.Comment, *web.AppError) {
 	var input model.Comment
 	if err := UnmarshallAndValidate(context, &input); err != nil {
 		return nil, err
+	}
+
+	if err := createEmbeddedUser(context, input.Source); err != nil {
+		log.Printf("Error creating embedded user [%v]", err)
 	}
 
 	var dbEntity model.Comment

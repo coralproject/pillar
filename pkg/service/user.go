@@ -137,3 +137,29 @@ func updateUserOnComment(db *db.MongoDB, user *model.User) {
 		bson.M{"$set": bson.M{"stats": user.Stats}},
 	)
 }
+
+//An easy way to allow creation of embedded user coming in as part of a bigger document
+//e.g. Comment or Action. This user will come in through the Source field.
+func createEmbeddedUser(context *web.AppContext, source *model.ImportSource) error {
+
+	user := source.User
+	if user == nil {
+		return nil
+	}
+
+	if err := user.Validate(); err != nil {
+		return err
+	}
+
+	c := context.Clone() //do not close a cloned context
+	c.Marshall(user)
+
+	if _, err := ImportUser(c); err != nil {
+		return err.Error
+	}
+
+	//must make this nil - I guess because of the recursive nature
+	source.User = nil
+
+	return nil
+}

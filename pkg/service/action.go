@@ -8,6 +8,7 @@ import (
 	"github.com/coralproject/pillar/pkg/web"
 	"gopkg.in/mgo.v2/bson"
 	"net/http"
+	"log"
 )
 
 // ImportAction imports a new action resource
@@ -16,6 +17,10 @@ func ImportAction(context *web.AppContext) (*model.Action, *web.AppError) {
 	var input model.Action
 	if err := UnmarshallAndValidate(context, &input); err != nil {
 		return nil, err
+	}
+
+	if err := createEmbeddedUser(context, input.Source); err != nil {
+		log.Printf("Error creating embedded user [%v]", err)
 	}
 
 	if err := setReferences(context.MDB, &input); err != nil {
