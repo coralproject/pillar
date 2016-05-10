@@ -42,6 +42,16 @@ func (c *AppContext) GetValue(key string) string {
 	return c.Vars[key]
 }
 
+//Returns a cloned context with db and mq resources
+//A cloned context must not be closed
+func (c *AppContext) Clone() *AppContext {
+	var ac AppContext
+	ac.MDB = c.MDB
+	ac.RMQ = c.RMQ
+
+	return &ac
+}
+
 //Unmarshall unmarshalls the Body to the passed object
 func (c *AppContext) Unmarshall(input interface{}) error {
 	bytez, _ := ioutil.ReadAll(c.Body)
