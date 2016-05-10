@@ -51,17 +51,17 @@ func init() {
 		log.Fatalf("Error connecting to Pillar: PILLAR_URL not found.")
 	}
 
-	db := db.NewMongoDB()
+	db := db.NewMongoDB(os.Getenv("MONGODB_URL"))
 	defer db.Close()
 
 	//Empty all test data
-	db.TagTargets.RemoveAll(nil)
-	db.Tags.RemoveAll(nil)
-	db.Actions.RemoveAll(nil)
-	db.Comments.RemoveAll(nil)
-	db.Users.RemoveAll(nil)
-	db.Assets.RemoveAll(nil)
-	db.CayUserActions.RemoveAll(nil)
+	db.DB.C(model.TagTargets).RemoveAll(nil)
+	db.DB.C(model.Tags).RemoveAll(nil)
+	db.DB.C(model.Actions).RemoveAll(nil)
+	db.DB.C(model.Comments).RemoveAll(nil)
+	db.DB.C(model.Users).RemoveAll(nil)
+	db.DB.C(model.Assets).RemoveAll(nil)
+	db.DB.C(model.CayUserActions).RemoveAll(nil)
 }
 
 func TestCORS(t *testing.T) {

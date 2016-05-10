@@ -4,7 +4,7 @@
         "target": "comments",
         "date": "2015-07-01T00:45:03.000Z",
         "source": {
-            "user_id": "http://washingtonpost.com/u6qTe%2BFQ%2BFli6rmbWJ6BEP%2BLRzrUEvutviR1VYa5PdNoGeVxxhJF5A%3D%3D/",
+            "user_id": "u6qTe%2BFQ%2BFli6rmbWJ6BEP%2BLRzrUEvutviR1VYa5PdNoGeVxxhJF5A%3D%3D",
             "target_id": "f2582294-a4c1-461a-982f-9e63dffbae6a"
         }
     },
@@ -13,7 +13,7 @@
         "target": "comments",
         "date": "2015-06-30T16:14:11.000Z",
         "source": {
-            "user_id": "http://washingtonpost.com/2k5EMOH4o1EAkq9Fb0zxksgoWI6YUHMFVlNQOUtKBgd/tT03sC7QkQ%3D%3D/",
+            "user_id": "2k5EMOH4o1EAkq9Fb0zxksgoWI6YUHMFVlNQOUtKBgd/tT03sC7QkQ%3D%3D",
             "target_id": "f2582294-a4c1-461a-982f-9e63dffbae6a"
         }
     },
@@ -22,8 +22,15 @@
         "target": "comments",
         "date": "2015-06-30T15:06:08.000Z",
         "source": {
-            "user_id": "http://washingtonpost.com/DbG3YQhvTOTbgmccXKF4LXrE7VgS76krNWZjM5N3fM%2B%2B%2BfrlKkwhFQ%3D%3D/",
-            "target_id": "f2582294-a4c1-461a-982f-9e63dffbae6a"
+            "target_id": "f2582294-a4c1-461a-982f-9e63dffbae6a",
+            "user" :   {
+                "status" : "ModeratorApproved",
+                "name" : "hola",
+                "avatar" : "https://wpidentity.s3.amazonaws.com/assets/images/avatar-default.png",
+                "source" : {
+                    "id" : "this-user-did-not-exist-before"
+                }
+            }
         }
     }
 ]
