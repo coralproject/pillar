@@ -28,7 +28,8 @@ func PublishEvent(c *web.AppContext, object interface{}, payload interface{}) {
 		log.Printf("Invalid payload - error sending message: %s\n\n", err)
 		return
 	}
-
+        
+        log.Printf("Event pushed [%+v]\n\n", payload)
 	c.RMQ.Publish(data)
 }
 
