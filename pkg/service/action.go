@@ -30,8 +30,8 @@ func ImportAction(context *web.AppContext) (*model.Action, *web.AppError) {
 
 	//return, if entity exists
 	if dbEntity := actionExists(context.MDB, &input); dbEntity != nil {
-		message := fmt.Sprintf("Action exists [%v]", input)
-		return nil, &web.AppError{nil, message, http.StatusInternalServerError}
+		//message := fmt.Sprintf("Action exists [%v]", input)
+		return dbEntity, nil
 	}
 
 	return doCreateAction(context.MDB, &input)
