@@ -27,10 +27,27 @@
                 "status" : "ModeratorApproved",
                 "name" : "hola",
                 "avatar" : "https://wpidentity.s3.amazonaws.com/assets/images/avatar-default.png",
+                "tags" : ["top_commentor", "powerball"],
                 "source" : {
                     "id" : "this-user-did-not-exist-before"
                 }
             }
         }
+    },
+    {
+        "date":"2015-09-25T16:25:42Z",
+        "source":{
+            "target_id":"f2582294-a4c1-461a-982f-9e63dffbae6a",
+            "user":{
+                "name":"apbtgirl",
+                "status" : "Untouched",
+                "tags" : ["top_commentor", "powerball"],
+                "source":{
+                    "id":"some-new-user"
+                }
+            }
+        },
+        "target":"comments",
+        "type":"likes"
     }
 ]
