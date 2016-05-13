@@ -20,7 +20,7 @@ type Asset struct {
 	DatePublished time.Time   `json:"date_published,omitempty" bson:"date_published,omitempty"`
 	Stats       bson.M        `json:"stats,omitempty" bson:"stats,omitempty"`
 	Metadata    bson.M        `json:"metadata,omitempty" bson:"metadata,omitempty"`
-	Source      ImportSource  `json:"source,omitempty" bson:"source,omitempty"`
+	Source      *ImportSource  `json:"source,omitempty" bson:"source,omitempty"`
 }
 
 // Taxonomy holds all name-value pairs.
@@ -32,6 +32,11 @@ type Taxonomy struct {
 // Id returns the ID for this Model
 func (object Asset) Id() string {
 	return object.ID.Hex()
+}
+
+// ImportSource returns the Source model
+func (object Asset) ImportSource() *ImportSource {
+	return object.Source
 }
 
 // Validate performs validation on an Asset value before it is processed.

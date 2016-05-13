@@ -24,7 +24,7 @@ type Comment struct {
 	Roles       []string        `json:"roles,omitempty" bson:"roles,omitempty"`
 	Stats       bson.M          `json:"stats,omitempty" bson:"stats,omitempty"`
 	Metadata    bson.M          `json:"metadata,omitempty" bson:"metadata,omitempty"`
-	Source      ImportSource    `json:"source,omitempty" bson:"source,omitempty"`
+	Source      *ImportSource    `json:"source,omitempty" bson:"source,omitempty"`
 }
 
 // Content encapsulates content-type and its data.
@@ -45,6 +45,11 @@ type CommentHistory struct {
 // Id returns the ID for this Model
 func (object Comment) Id() string {
 	return object.ID.Hex()
+}
+
+// ImportSource returns the Source model
+func (object Comment) ImportSource() *ImportSource {
+	return object.Source
 }
 
 // Validate validates this Model

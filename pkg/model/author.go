@@ -18,6 +18,11 @@ func (object Author) Id() string {
 	return object.ID
 }
 
+// ImportSource returns the Source model
+func (object Author) ImportSource() *ImportSource {
+	return nil
+}
+
 // Validate validates this Model
 func (object Author) Validate() error {
 	//	errs := validate.Struct(object)

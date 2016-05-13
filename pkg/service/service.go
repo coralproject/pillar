@@ -58,6 +58,14 @@ func UnmarshallAndValidate(context *web.AppContext, m model.Model) *web.AppError
 		return &web.AppError{nil, message, http.StatusInternalServerError}
 	}
 
+	s := m.ImportSource()
+	if s == nil {
+		return nil
+	}
+	user := m.ImportSource().User
+	if user != nil {
+		s.UserID = user.Source.ID
+	}
 	return nil
 }
 

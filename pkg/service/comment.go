@@ -8,6 +8,7 @@ import (
 	"github.com/coralproject/pillar/pkg/web"
 	"gopkg.in/mgo.v2/bson"
 	"net/http"
+	"log"
 )
 
 type reference struct {
@@ -25,22 +26,21 @@ func ImportComment(context *web.AppContext) (*model.Comment, *web.AppError) {
 		return nil, err
 	}
 
+	if err := createEmbeddedUser(context, input.Source); err != nil {
+		log.Printf("Error creating embedded user [%v]", err)
+	}
+
+	//upsert if entity exists with same source.id
 	var dbEntity model.Comment
+	context.MDB.DB.C(model.Comments).Find(bson.M{"source.id": input.Source.ID}).One(&dbEntity)
+	if dbEntity.ID != "" {
+		return updateComment(context.MDB, &input, &dbEntity)
+	}
+
 	// Find/Set comment references
 	if err := setCommentReferences(context.MDB, &input); err != nil {
 		message := fmt.Sprintf("Error setting comment references [%s]", err)
 		return nil, &web.AppError{nil, message, http.StatusInternalServerError}
-	}
-
-	//upsert if entity exists with same source.id
-	context.MDB.DB.C(model.Comments).Find(bson.M{"source.id": input.Source.ID}).One(&dbEntity)
-	if dbEntity.ID != "" {
-		input.ID = dbEntity.ID
-		if _, err := context.MDB.DB.C(model.Comments).UpsertId(dbEntity.ID, input); err != nil {
-			message := fmt.Sprintf("Error updating existing Comment [%s]", input.Source.ID)
-			return nil, &web.AppError{err, message, http.StatusInternalServerError}
-		}
-		return &input, nil
 	}
 
 	return doCreateComment(context.MDB, &input)
@@ -57,7 +57,7 @@ func CreateUpdateComment(context *web.AppContext) (*model.Comment, *web.AppError
 		return createComment(context.MDB, &input)
 	}
 
-	return updateComment(context.MDB, &input)
+	return updateComment(context.MDB, &input, nil)
 }
 
 // CreateComment creates a new comment resource
@@ -92,22 +92,24 @@ func createComment(db *db.MongoDB, input *model.Comment) (*model.Comment, *web.A
 }
 
 // updateComment updates a comment
-func updateComment(db *db.MongoDB, input *model.Comment) (*model.Comment, *web.AppError) {
+func updateComment(db *db.MongoDB, input *model.Comment, dbEntity *model.Comment) (*model.Comment, *web.AppError) {
 
-	var dbEntity *model.Comment
-	//entity not found, return
-	db.DB.C(model.Comments).FindId(input.ID).One(&dbEntity)
-	if dbEntity.ID == "" {
-		message := fmt.Sprintf("Comment not found [%+v]\n", input)
-		return nil, &web.AppError{nil, message, http.StatusInternalServerError}
+	if dbEntity == nil {
+		//entity not found, return
+		db.DB.C(model.Comments).FindId(input.ID).One(&dbEntity)
+		if dbEntity.ID == "" {
+			message := fmt.Sprintf("Comment not found [%+v]\n", input)
+			return nil, &web.AppError{nil, message, http.StatusInternalServerError}
+		}
 	}
 
+	dbEntity.Body = input.Body
+	dbEntity.Status = input.Status
 	dbEntity.Tags = input.Tags
-	if err := db.DB.C(model.Comments).UpdateId(dbEntity.ID, bson.M{"$set": bson.M{"tags": dbEntity.Tags}}); err != nil {
-		message := fmt.Sprintf("Error updating comment [%+v]\n", input)
-		return nil, &web.AppError{nil, message, http.StatusInternalServerError}
+	if _, err := db.DB.C(model.Comments).UpsertId(dbEntity.ID, dbEntity); err != nil {
+		message := fmt.Sprintf("Error updating existing Comment [%s]", input.Source.ID)
+		return nil, &web.AppError{err, message, http.StatusInternalServerError}
 	}
-
 	return dbEntity, nil
 }
 
@@ -158,7 +160,7 @@ func setCommentReferences(db *db.MongoDB, input *model.Comment) error {
 	//find parent and add the reference to it
 	if input.Source.ID != input.Source.ParentID {
 		var parent model.Comment
-		db.DB.C(model.Comments).Find(bson.M{"source.parent_id": input.Source.ParentID}).One(&parent)
+		db.DB.C(model.Comments).Find(bson.M{"source.id": input.Source.ParentID}).One(&parent)
 		if parent.ID != "" {
 			//prepend immediate parent, followed by parents from hierarchy
 			parents := append([]bson.ObjectId{parent.ID}, parent.Parents...)

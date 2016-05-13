@@ -20,6 +20,11 @@ func (object Tag) Id() string {
 	return object.Name
 }
 
+// ImportSource returns the Source model
+func (object Tag) ImportSource() *ImportSource {
+	return nil
+}
+
 // Validate validates this Model
 func (object Tag) Validate() error {
 	errs := validate.Struct(object)

@@ -8,6 +8,7 @@ import (
 	"github.com/coralproject/pillar/pkg/web"
 	"gopkg.in/mgo.v2/bson"
 	"net/http"
+	"log"
 )
 
 // ImportAction imports a new action resource
@@ -18,6 +19,10 @@ func ImportAction(context *web.AppContext) (*model.Action, *web.AppError) {
 		return nil, err
 	}
 
+	if err := createEmbeddedUser(context, input.Source); err != nil {
+		log.Printf("Error creating embedded user [%v]", err)
+	}
+
 	if err := setReferences(context.MDB, &input); err != nil {
 		message := fmt.Sprintf("Error setting action references [%s]", err)
 		return nil, &web.AppError{nil, message, http.StatusInternalServerError}
@@ -25,8 +30,8 @@ func ImportAction(context *web.AppContext) (*model.Action, *web.AppError) {
 
 	//return, if entity exists
 	if dbEntity := actionExists(context.MDB, &input); dbEntity != nil {
-		message := fmt.Sprintf("Action exists [%v]", input)
-		return nil, &web.AppError{nil, message, http.StatusInternalServerError}
+		//message := fmt.Sprintf("Action exists [%v]", input)
+		return dbEntity, nil
 	}
 
 	return doCreateAction(context.MDB, &input)

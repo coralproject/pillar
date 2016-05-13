@@ -236,10 +236,10 @@ func TestImportActions(t *testing.T) {
 		}
 	}
 
-	//Try again with the same data and it should all fail
+	//Try again with the same data and it shouldn't fail
 	for _, one := range objects {
 		c.Marshall(one)
-		if _, err := service.ImportAction(c); err == nil {
+		if _, err := service.ImportAction(c); err != nil {
 			log.Fatalf("Error: %s\n", err)
 			t.Fail()
 		}
