@@ -33,13 +33,6 @@ type AppContext struct {
 	Event  string
 }
 
-func (c *AppContext) Clone() *AppContext {
-	var ac AppContext
-	ac.MDB = c.MDB
-	ac.RMQ = c.RMQ
-	return &ac
-}
-
 func (c *AppContext) Close() {
 	c.MDB.Close()
 	c.RMQ.Close()
@@ -55,7 +48,6 @@ func (c *AppContext) Clone() *AppContext {
 	var ac AppContext
 	ac.MDB = c.MDB
 	ac.RMQ = c.RMQ
-
 	return &ac
 }
 
