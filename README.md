@@ -20,7 +20,7 @@ Pillar is a REST based WebService written in `Golang`. It provides the following
 
 
 ## Running Pillar
-Pillar interacts with **Mongo** database as a data-store and  **RabbitMQ** for messaging. All this information can be passed to Pillar through `environment` variables. For convenience, we have an [example](https://github.com/coralproject/pillar/blob/master/config/dev.cfg.sample) file for you. Make a copy of this and `source` the file before running.
+Pillar interacts with **Mongo** database as a data-store and  **RabbitMQ** for messaging. All this information can be passed to Pillar through `environment` variables. For convenience, we have an [example](https://github.com/coralproject/pillar/blob/master/config/pillar.cfg) file for you. Make a copy of this and `source` the file before running.
 
 ####Build Command
 ```
