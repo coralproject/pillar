@@ -62,7 +62,7 @@ func connect(url string) *mgo.Session {
 
 	session, err := mgo.Dial(url)
 	if err != nil {
-		log.Printf("Error connecting to mongo database: %v", err)
+		log.Printf("Error connecting to Mongo Database [%v]", err)
 		return nil
 	}
 
