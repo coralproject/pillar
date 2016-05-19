@@ -23,7 +23,7 @@ const (
 
 //Event denotes an event in Pillar
 type Event struct {
-	Name    string      `json:"event" bson:"event"`
+	Name    string      `json:"name" bson:"name"`
 	Payload interface{} `json:"payload" bson:"payload"`
 }
 

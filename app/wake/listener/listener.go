@@ -11,7 +11,12 @@ import (
 )
 
 func Listen() {
-	mq := amqp.NewMQ(os.Getenv("AMQP_URL"), os.Getenv("AMQP_EXCHANGE"))
+	mq := amqp.NewMQ(os.Getenv("PILLAR_AMQP_URL"), os.Getenv("PILLAR_AMQP_EXCHANGE"))
+	if !mq.IsValid() {
+		log.Printf("Error - invalid MQ, check the connection settings\n")
+		return
+	}
+
 	defer mq.Close()
 
 	msgs, err := mq.Receive()
@@ -22,7 +27,12 @@ func Listen() {
 		for d := range msgs {
 
 			var event model.Event
-			json.Unmarshal(d.Body, &event)
+			if err := json.Unmarshal(d.Body, &event); err != nil {
+				log.Printf("Error unmarshalling event [%v]\n", err)
+				continue
+			}
+			log.Printf("Event Received [%+v]\n", event)
+
 			switch event.Name {
 			case model.EventAssetImport, model.EventAssetAddUpdate:
 				worker.UpdateAsset(event)
