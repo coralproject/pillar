@@ -1,11 +1,6 @@
 package main
 
-import
-
-//	"github.com/ardanlabs/kit/log"
-
-//	"gopkg.in/mgo.v2"
-"github.com/coralproject/pillar/pkg/model"
+import "github.com/coralproject/pillar/pkg/model"
 
 // Stats structs is the stats we are calculating
 type Stats struct {
@@ -35,7 +30,7 @@ func calc(cs []model.Comment) Stats {
 		//db.C("user").Find(bson.M{"_id": comment.UserID}).One(&user)
 
 		// comments status
-		// refactor with the Categorical Data Type / translation <-- This is very NYT specific
+		// refactor with the Categorical Data Type / translation <-- This is very NYT specific - To Do
 		d.Comments["total"]++
 		switch comment.Status {
 		case "1":
@@ -63,7 +58,6 @@ func calc(cs []model.Comment) Stats {
 		// if asset.Metadata.Section.DisplayName != "" {
 		// 	d.Sections[asset.Metadata.Section.DisplayName]++
 		// }
-
 	}
 
 	if d.Comments["total"] > 0 {
