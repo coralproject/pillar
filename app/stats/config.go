@@ -6,8 +6,6 @@ import (
 
 	//"github.com/coralproject/pillar/server/model"
 
-	"gopkg.in/mgo.v2"
-
 	"github.com/ardanlabs/kit/log"
 )
 
@@ -28,7 +26,7 @@ func getDurations() map[string]time.Duration {
 
 		d, err := time.ParseDuration(v)
 		if err != nil {
-			log.Error(context, "initDurations", errors.New("Could not parse Duration"), "Could not parse duration %+v", d)
+			log.Error(uid, "initDurations", errors.New("Could not parse Duration"), "Could not parse duration %+v", d)
 		} else {
 
 			ds[k] = d
@@ -40,12 +38,12 @@ func getDurations() map[string]time.Duration {
 
 }
 
-func getCollections() map[string]*mgo.Collection {
-
-	collections := map[string]*mgo.Collection{
-		"comment": db.C("comment"),
-	}
-
-	return collections
-
-}
+// func getCollections() map[string]*mgo.Collection {
+//
+// 	collections := map[string]*mgo.Collection{
+// 		"comment": db.C("comment"),
+// 	}
+//
+// 	return collections
+//
+// }

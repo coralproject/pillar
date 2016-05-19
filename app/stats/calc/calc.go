@@ -12,6 +12,7 @@ import (
 	"github.com/coralproject/pillar/pkg/model/statistics"
 )
 
+// CalculateUserStatistics calculates User Statistics , creating a collection user_statistics with a document per user
 func CalculateUserStatistics(ctx context.Context) error {
 
 	// Look for a backen in the context and return an error if one is not

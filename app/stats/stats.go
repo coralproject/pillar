@@ -3,15 +3,21 @@ package main
 import (
 	"flag"
 	"io/ioutil"
-	"log"
 	"os"
 	"strings"
 
+	"github.com/ardanlabs/kit/cfg"
+	"github.com/ardanlabs/kit/log"
+	"github.com/pborman/uuid"
 	"golang.org/x/net/context"
 
 	ca "github.com/coralproject/pillar/app/stats/calc"
 	"github.com/coralproject/pillar/pkg/backend"
 	"github.com/coralproject/pillar/pkg/backend/mongodb"
+)
+
+const (
+	cfgLoggingLevel = "LOGGING_LEVEL"
 )
 
 var (
@@ -21,9 +27,24 @@ var (
 			ssl                                               bool
 		}
 	}
+
+	uid string
 )
 
 func init() {
+
+	// Initialize logging
+	logLevel := func() int {
+		ll, err := cfg.Int(cfgLoggingLevel)
+		if err != nil {
+			return log.USER
+		}
+		return ll
+	}
+	log.Init(os.Stderr, logLevel, log.USER)
+
+	// Generate UUID to use with the logs
+	uid = uuid.New()
 
 	// Flag information and defaults.
 	flag.StringVar(&config.mongodb.addrs, "mongodb-address", "127.0.0.1:27017", "comma-seperated list of mongodb host:port pairs")
@@ -42,10 +63,10 @@ func main() {
 
 	// Check if a password file was provided.
 	if config.mongodb.passwordFile != "" {
-		log.Printf("Reading MongoDB password from %s", config.mongodb.passwordFile)
+		log.User(uid, "main", "Reading MongoDB password from %s", config.mongodb.passwordFile)
 		passwordBytes, err := ioutil.ReadFile(config.mongodb.passwordFile)
 		if err != nil {
-			log.Fatal(err.Error())
+			log.Error(uid, "main", err, "Unable to read password's file.")
 		}
 
 		config.mongodb.password = string(passwordBytes)
@@ -56,23 +77,23 @@ func main() {
 	if config.mongodb.password == "" {
 		config.mongodb.password = os.Getenv("MONGODB_PASSWORD")
 		if config.mongodb.username != "" && config.mongodb.password == "" {
-			log.Printf("Warning: a username is in use without a password")
+			log.Dev(uid, "main", "Warning: a username is in use without a password")
 		}
 	}
 
 	if config.mongodb.ssl {
-		log.Printf("Using TLS for MongoDB connections")
+		log.User(uid, "main", "Using TLS for MongoDB connections")
 	}
 
-	log.Printf("Connecting to MongoDB at %s", addrs)
+	log.User(uid, "main", "Connecting to MongoDB at %s/%s", addrs, config.mongodb.database)
 	b, err := mongodb.NewMongoDBBackend(addrs, config.mongodb.database, config.mongodb.username, config.mongodb.password, config.mongodb.ssl)
 	if err != nil {
-		log.Fatal(err.Error())
+		log.Error(uid, "main", err, "Failed on connecting to MongoDB.")
 	}
 
-	log.Printf("Calculating stats")
+	log.User(uid, "main", "Calculating stats")
 	ctx := backend.NewBackendContext(context.Background(), backend.NewIdentityMap(b))
 	if err := ca.CalculateUserStatistics(ctx); err != nil {
-		log.Fatal(err)
+		log.Error(uid, "main", err, "Failed on calculating stats.")
 	}
 }

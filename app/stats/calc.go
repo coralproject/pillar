@@ -1,13 +1,11 @@
 package main
 
-import (
+import
 
-	//	"github.com/ardanlabs/kit/log"
+//	"github.com/ardanlabs/kit/log"
 
-	//	"gopkg.in/mgo.v2"
-	"github.com/coralproject/pillar/pkg/model"
-	"gopkg.in/mgo.v2/bson"
-)
+//	"gopkg.in/mgo.v2"
+"github.com/coralproject/pillar/pkg/model"
 
 // Stats structs is the stats we are calculating
 type Stats struct {
@@ -23,7 +21,7 @@ type Stats struct {
 
 func calc(cs []model.Comment) Stats {
 
-	d := model.Stats{
+	d := Stats{
 		Comments: make(map[string]int),
 		Sections: make(map[string]int),
 		Authors:  make(map[string]int),
@@ -37,7 +35,7 @@ func calc(cs []model.Comment) Stats {
 		//db.C("user").Find(bson.M{"_id": comment.UserID}).One(&user)
 
 		// comments status
-		// refactor with the Categorical Data Type / translation
+		// refactor with the Categorical Data Type / translation <-- This is very NYT specific
 		d.Comments["total"]++
 		switch comment.Status {
 		case "1":
@@ -53,18 +51,18 @@ func calc(cs []model.Comment) Stats {
 
 		d.Replies += len(comment.Children)
 
-		var asset model.Asset
-		db.C("asset").Find(bson.M{"_id": comment.AssetID}).One(&asset)
-
-		for _, author := range asset.Metadata.Authors {
-			if author.Title_case_name != "" {
-				d.Authors[author.Title_case_name]++
-			}
-		}
-
-		if asset.Metadata.Section.DisplayName != "" {
-			d.Sections[asset.Metadata.Section.DisplayName]++
-		}
+		// var asset model.Asset
+		// db.C("asset").Find(bson.M{"_id": comment.AssetID}).One(&asset)
+		//
+		// for _, author := range asset.Metadata.Authors {
+		// 	if author.Title_case_name != "" {
+		// 		d.Authors[author.Title_case_name]++
+		// 	}
+		// }
+		//
+		// if asset.Metadata.Section.DisplayName != "" {
+		// 	d.Sections[asset.Metadata.Section.DisplayName]++
+		// }
 
 	}
 
