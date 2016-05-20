@@ -10,6 +10,7 @@ import (
 
 func UpdateSearch() {
 
+	log.Printf("New scheduled job - UpdateSearch!\n")
 	c := web.NewContext(nil, nil)
 	defer c.Close()
 
