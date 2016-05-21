@@ -6,7 +6,13 @@ import (
 	"github.com/coralproject/pillar/pkg/web"
 	"gopkg.in/mgo.v2/bson"
 	"log"
+	"os"
 )
+
+func init() {
+	log.Printf("Xenia URL: %s\n", os.Getenv("XENIA_URL"))
+	log.Printf("Xenia Auth: %s\n", os.Getenv("XENIA_AUTH"))
+}
 
 func UpdateSearch() {
 
@@ -110,4 +116,3 @@ func getNewUsers(db *db.MongoDB, search model.Search) (map[bson.ObjectId]model.U
 
 	return m, a
 }
-
