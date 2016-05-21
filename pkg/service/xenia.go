@@ -26,6 +26,11 @@ type doc struct {
 	ID string `json:"_id"`
 }
 
+func init() {
+	log.Printf("Xenia URL: %s\n", os.Getenv("XENIA_URL"))
+	log.Printf("Xenia Auth: %s\n", os.Getenv("XENIA_AUTH"))
+}
+
 func getUserIds(search model.Search) []string {
 	url := os.Getenv("XENIA_URL") + search.Query
 
