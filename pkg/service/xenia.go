@@ -27,7 +27,7 @@ type doc struct {
 }
 
 func getUserIds(search model.Search) []string {
-	url := os.Getenv("XENIA_URL") + search.Query
+	url := os.Getenv("XENIA_URL") + search.Query + os.Getenv("XENIA_QUERY_PARAM")
 
 	header := make(map[string]string)
 	header["Content-Type"] = "application/json"
