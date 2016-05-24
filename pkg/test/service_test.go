@@ -24,6 +24,8 @@ const (
 	dataNewTags     = "fixtures/crud/tags_rename.json"
 	dataUserActions = "fixtures/crud/user-actions.json"
 	dataSearches    = "fixtures/crud/searches.json"
+
+	dataForms = "fixtures/crud/forms.json"
 )
 
 func init() {
@@ -31,6 +33,7 @@ func init() {
 	defer db.Close()
 
 	//Empty all test data
+	db.DB.C(model.Forms).RemoveAll(nil)
 	db.DB.C(model.Tags).RemoveAll(nil)
 	db.DB.C(model.Sections).RemoveAll(nil)
 	db.DB.C(model.Authors).RemoveAll(nil)
@@ -43,6 +46,28 @@ func init() {
 	db.DB.C(model.Searches).RemoveAll(nil)
 }
 
+func TestCreateForms(t *testing.T) {
+	file, err := os.Open(dataForms)
+	if err != nil {
+		log.Fatalf("opening config file", err.Error())
+	}
+
+	objects := []model.Form{}
+	jsonParser := json.NewDecoder(file)
+	if err = jsonParser.Decode(&objects); err != nil {
+		log.Fatalf("Error reading forms ", err.Error())
+	}
+
+	c := web.NewContext(nil, nil)
+	defer c.Close()
+
+	for _, one := range objects {
+		c.Marshall(one)
+		if _, err := service.CreateUpdateForm(c); err != nil {
+			t.Fail()
+		}
+	}
+}
 
 func TestCreateSections(t *testing.T) {
 	file, err := os.Open(dataSections)

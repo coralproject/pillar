@@ -39,6 +39,9 @@ const (
 	CayUserActions string = "cay_user_actions"
 	Searches       string = "searches"
 	SrchHistory    string = "search_history"
+
+	// Ask collections
+	Forms string = "forms"
 )
 
 type Model interface {

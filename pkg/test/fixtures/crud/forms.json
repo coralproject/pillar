@@ -1,0 +1,42 @@
+[
+    {
+        "settings": {
+            "saveDestination": "",
+            "showFieldNumbers": true
+        },
+        "header": {
+            "title": "This is the first form",
+            "description": "of the rest of your life"
+        },
+        "footer": {
+            "conditions": "lots of conditions"
+        },
+        "finishedScreen": {
+            "title": "thanks",
+            "description": "for your submission"
+        },
+        "steps": [
+            {
+                "id": 1,
+                "name": "Hello?",
+                "widgets": [
+                    {
+                        "id": 1,
+                        "type": "field",
+                        "component": "Text",
+                        "title": "Is there anybody out there?",
+                        "wrapper" : {
+                            "a":"B",
+                            "c":4
+                        },
+
+                        "props": {
+                            "a":"B",
+                            "c":4
+                        }
+                    }
+                ]
+            }
+        ]
+    }
+]

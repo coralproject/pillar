@@ -4,8 +4,8 @@ import (
 
 	//	"github.com/ardanlabs/kit/log"
 
-	//	"gopkg.in/mgo.v2"
 	"github.com/coralproject/pillar/pkg/model"
+	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 )
 
