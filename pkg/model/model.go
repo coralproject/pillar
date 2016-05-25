@@ -41,7 +41,8 @@ const (
 	SrchHistory    string = "search_history"
 
 	// Ask collections
-	Forms string = "forms"
+	Forms           string = "forms"
+	FormSubmissions string = "form_submissions"
 )
 
 type Model interface {

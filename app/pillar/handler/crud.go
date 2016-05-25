@@ -121,3 +121,23 @@ func DeleteForm(c *web.AppContext) {
 	err := service.DeleteSearch(c)
 	doRespond(c, nil, err)
 }
+
+func CreateFormSubmission(c *web.AppContext) {
+	dbObject, err := service.CreateFormSubmission(c)
+	doRespond(c, dbObject, err)
+}
+
+func GetFormSubmissionsByForm(c *web.AppContext) {
+	dbObject, err := service.GetFormSubmissionsByForm(c)
+	doRespond(c, dbObject, err)
+}
+
+func GetFormSubmission(c *web.AppContext) {
+	dbObject, err := service.GetFormSubmission(c)
+	doRespond(c, dbObject, err)
+}
+
+func DeleteFormSubmission(c *web.AppContext) {
+	err := service.DeleteSearch(c)
+	doRespond(c, nil, err)
+}

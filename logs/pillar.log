@@ -47,3 +47,4 @@ Pillar: 2016/05/24 22:05:32 /Users/jde/dev/go/src/github.com/coralproject/pillar
 Pillar: 2016/05/24 22:09:04 /Users/jde/dev/go/src/github.com/coralproject/pillar/app/pillar/handler/handler.go:13: Call failed [&{not found Error deleting Search [ObjectIdHex("5744fdb79460a7936fe585bf")] 500}]
 Pillar: 2016/05/24 22:15:30 /Users/jde/dev/go/src/github.com/coralproject/pillar/app/pillar/handler/handler.go:13: Call failed [&{not found Error deleting Search [ObjectIdHex("5744fdb79460a7936fe585bf")] 500}]
 Pillar: 2016/05/24 22:15:49 /Users/jde/dev/go/src/github.com/coralproject/pillar/app/pillar/handler/handler.go:13: Call failed [&{not found Error deleting Search [ObjectIdHex("5744fdb79460a7936fe585bf")] 500}]
+Pillar: 2016/05/25 14:01:33 /Users/jde/dev/go/src/github.com/coralproject/pillar/app/pillar/handler/handler.go:13: Call failed [&{not found Error fetching Forms 500}]

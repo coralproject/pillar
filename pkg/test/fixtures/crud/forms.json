@@ -34,6 +34,36 @@
                             "a":"B",
                             "c":4
                         }
+                    },
+                    {
+                        "id": 2,
+                        "type": "field",
+                        "component": "Text",
+                        "title": "Name",
+                        "wrapper" : {
+                            "a":"B",
+                            "c":4
+                        },
+
+                        "props": {
+                            "a":"B",
+                            "c":4
+                        }
+                    },
+                    {
+                        "id": 3,
+                        "type": "field",
+                        "component": "Text",
+                        "title": "Email",
+                        "wrapper" : {
+                            "a":"B",
+                            "c":4
+                        },
+
+                        "props": {
+                            "a":"B",
+                            "c":4
+                        }
                     }
                 ]
             }

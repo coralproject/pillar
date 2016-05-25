@@ -68,11 +68,11 @@ func GetForms(context *web.AppContext) ([]model.Form, *web.AppError) {
 	return all, nil
 }
 
-// GetForms returns an array of Forms
+// GetForms returns a single form by id
 func GetForm(c *web.AppContext) (model.Form, *web.AppError) {
 
+	// which one do they want?
 	idStr := c.GetValue("id")
-	//we must have an id to delete the search
 	if idStr == "" {
 		message := fmt.Sprintf("Cannot get Form. Invalid Id [%s]", idStr)
 		return model.Form{}, &web.AppError{nil, message, http.StatusInternalServerError}
@@ -94,7 +94,7 @@ func GetForm(c *web.AppContext) (model.Form, *web.AppError) {
 func DeleteForm(c *web.AppContext) *web.AppError {
 
 	idStr := c.GetValue("id")
-	//we must have an id to delete the search
+	//we must have an id to delete
 	if idStr == "" {
 		message := fmt.Sprintf("Cannot delete Form. Invalid Id [%s]", idStr)
 		return &web.AppError{nil, message, http.StatusInternalServerError}
