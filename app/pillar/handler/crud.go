@@ -107,6 +107,11 @@ func CreateUpdateForm(c *web.AppContext) {
 	doRespond(c, dbObject, err)
 }
 
+func UpdateFormStatus(c *web.AppContext) {
+	dbObject, err := service.UpdateFormStatus(c)
+	doRespond(c, dbObject, err)
+}
+
 func GetForms(c *web.AppContext) {
 	dbObject, err := service.GetForms(c)
 	doRespond(c, dbObject, err)
@@ -124,6 +129,11 @@ func DeleteForm(c *web.AppContext) {
 
 func CreateFormSubmission(c *web.AppContext) {
 	dbObject, err := service.CreateFormSubmission(c)
+	doRespond(c, dbObject, err)
+}
+
+func UpdateFormSubmissionStatus(c *web.AppContext) {
+	dbObject, err := service.UpdateFormSubmissionStatus(c)
 	doRespond(c, dbObject, err)
 }
 

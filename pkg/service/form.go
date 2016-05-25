@@ -11,7 +11,37 @@ import (
 	"github.com/coralproject/pillar/pkg/web"
 )
 
+// given a form's id and a stats, update the form with the status
+func UpdateFormStatus(context *web.AppContext) (*model.Form, *web.AppError) {
+
+	// todo, gracefully message invalid ids
+	id := bson.ObjectIdHex(context.GetValue("id"))
+	status := context.GetValue("status")
+
+	// let's make sure we don't update all of them..
+	q := bson.M{"_id": id}
+	s := bson.M{"$set": bson.M{"status": status, "date_updated": time.Now()}}
+
+	// do the update
+	err := context.MDB.DB.C(model.Forms).Update(q, s)
+	if err != nil {
+		message := fmt.Sprintf("Error updating Form status")
+		return nil, &web.AppError{err, message, http.StatusInternalServerError}
+	}
+
+	var f *model.Form
+	err = context.MDB.DB.C(model.Forms).FindId(id).One(&f)
+	if err != nil {
+		message := fmt.Sprintf("Could not find Form ", id)
+		return nil, &web.AppError{err, message, http.StatusInternalServerError}
+	}
+
+	return f, nil
+
+}
+
 func CreateUpdateForm(context *web.AppContext) (*model.Form, *web.AppError) {
+
 	var input model.Form
 	if err := UnmarshallAndValidate(context, &input); err != nil {
 		return nil, err
@@ -37,9 +67,6 @@ func CreateUpdateForm(context *web.AppContext) (*model.Form, *web.AppError) {
 
 		if err := context.MDB.DB.C(model.Forms).Insert(input); err != nil {
 			message := fmt.Sprintf("Error inserting Form")
-
-			fmt.Println(message, err)
-
 			return nil, &web.AppError{err, message, http.StatusInternalServerError}
 		}
 	}

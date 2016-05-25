@@ -3,7 +3,7 @@ package service
 import (
 	"fmt"
 	"net/http"
-	//	"time"
+	"time"
 
 	"gopkg.in/mgo.v2/bson"
 
@@ -179,4 +179,33 @@ func DeleteFormSubmission(c *web.AppContext) *web.AppError {
 	}
 
 	return nil
+}
+
+// given a form's id and a stats, update the form with the status
+func UpdateFormSubmissionStatus(context *web.AppContext) (*model.FormSubmission, *web.AppError) {
+
+	// todo, gracefully message invalid ids
+	id := bson.ObjectIdHex(context.GetValue("id"))
+	status := context.GetValue("status")
+
+	// let's make sure we don't update all of them..
+	q := bson.M{"_id": id}
+	s := bson.M{"$set": bson.M{"status": status, "date_updated": time.Now()}}
+
+	// do the update
+	err := context.MDB.DB.C(model.FormSubmissions).Update(q, s)
+	if err != nil {
+		message := fmt.Sprintf("Error updating Form Submission status")
+		return nil, &web.AppError{err, message, http.StatusInternalServerError}
+	}
+
+	var f *model.FormSubmission
+	err = context.MDB.DB.C(model.FormSubmissions).FindId(id).One(&f)
+	if err != nil {
+		message := fmt.Sprintf("Could not find Form Submission ", id)
+		return nil, &web.AppError{err, message, http.StatusInternalServerError}
+	}
+
+	return f, nil
+
 }
