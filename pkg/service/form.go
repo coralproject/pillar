@@ -30,8 +30,6 @@ func CreateUpdateForm(context *web.AppContext) (*model.Form, *web.AppError) {
 	}
 	input.DateUpdated = time.Now()
 
-	fmt.Println(input)
-
 	// create
 	if input.ID == "" {
 
