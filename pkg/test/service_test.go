@@ -24,6 +24,9 @@ const (
 	dataNewTags     = "fixtures/crud/tags_rename.json"
 	dataUserActions = "fixtures/crud/user-actions.json"
 	dataSearches    = "fixtures/crud/searches.json"
+
+	dataForms           = "fixtures/crud/forms.json"
+	dataFormSubmissions = "fixtures/crud/form_submissions.json"
 )
 
 func init() {
@@ -31,6 +34,8 @@ func init() {
 	defer db.Close()
 
 	//Empty all test data
+	db.DB.C(model.Forms).RemoveAll(nil)
+	db.DB.C(model.FormSubmissions).RemoveAll(nil)
 	db.DB.C(model.Tags).RemoveAll(nil)
 	db.DB.C(model.Sections).RemoveAll(nil)
 	db.DB.C(model.Authors).RemoveAll(nil)
@@ -43,6 +48,67 @@ func init() {
 	db.DB.C(model.Searches).RemoveAll(nil)
 }
 
+func TestCreateForms(t *testing.T) {
+	file, err := os.Open(dataForms)
+	if err != nil {
+		log.Fatalf("opening config file", err.Error())
+	}
+
+	objects := []model.Form{}
+	jsonParser := json.NewDecoder(file)
+	if err = jsonParser.Decode(&objects); err != nil {
+		log.Fatalf("Error reading forms ", err.Error())
+	}
+
+	c := web.NewContext(nil, nil)
+	defer c.Close()
+
+	for _, one := range objects {
+		c.Marshall(one)
+		if _, err := service.CreateUpdateForm(c); err != nil {
+			t.Fail()
+		}
+	}
+}
+
+func TestCreateFormSubmissions(t *testing.T) {
+
+	file, err := os.Open(dataFormSubmissions)
+	if err != nil {
+		log.Fatalf("opening config file", err.Error())
+	}
+
+	objects := []model.FormSubmission{}
+	jsonParser := json.NewDecoder(file)
+	if err = jsonParser.Decode(&objects); err != nil {
+		log.Fatalf("Error reading forms submissions ", err.Error())
+	}
+
+	c := web.NewContext(nil, nil)
+	defer c.Close()
+
+	fs := []model.Form{}
+
+	// let's see if we have forms to reply to
+	fs, appErr := service.GetForms(c)
+	if appErr != nil {
+		log.Fatalf("Could not load forms to test add replies", appErr)
+
+	}
+
+	// Get the first form in the collection to reply to
+	f := fs[0]
+	fId := f.ID.Hex()
+	c.SetValue("form_id", fId)
+
+	for _, one := range objects {
+		c.Marshall(one)
+		if _, err := service.CreateUpdateFormSubmission(c); err != nil {
+			t.Fail()
+		}
+	}
+
+}
 
 func TestCreateSections(t *testing.T) {
 	file, err := os.Open(dataSections)

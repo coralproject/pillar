@@ -1,9 +1,9 @@
 package handler
 
 import (
+	"github.com/coralproject/pillar/pkg/model"
 	"github.com/coralproject/pillar/pkg/service"
 	"github.com/coralproject/pillar/pkg/web"
-	"github.com/coralproject/pillar/pkg/model"
 )
 
 //CreateUpdateAsset end-point allows creation or updation of Asset.
@@ -98,6 +98,56 @@ func CreateUpdateSearch(c *web.AppContext) {
 
 //DeleteSearch end-point allows deletion of Search.
 func DeleteSearch(c *web.AppContext) {
+	err := service.DeleteSearch(c)
+	doRespond(c, nil, err)
+}
+
+func CreateUpdateForm(c *web.AppContext) {
+	dbObject, err := service.CreateUpdateForm(c)
+	doRespond(c, dbObject, err)
+}
+
+func UpdateFormStatus(c *web.AppContext) {
+	dbObject, err := service.UpdateFormStatus(c)
+	doRespond(c, dbObject, err)
+}
+
+func GetForms(c *web.AppContext) {
+	dbObject, err := service.GetForms(c)
+	doRespond(c, dbObject, err)
+}
+
+func GetForm(c *web.AppContext) {
+	dbObject, err := service.GetForm(c)
+	doRespond(c, dbObject, err)
+}
+
+func DeleteForm(c *web.AppContext) {
+	err := service.DeleteSearch(c)
+	doRespond(c, nil, err)
+}
+
+func CreateFormSubmission(c *web.AppContext) {
+	dbObject, err := service.CreateFormSubmission(c)
+	doRespond(c, dbObject, err)
+}
+
+func UpdateFormSubmissionStatus(c *web.AppContext) {
+	dbObject, err := service.UpdateFormSubmissionStatus(c)
+	doRespond(c, dbObject, err)
+}
+
+func GetFormSubmissionsByForm(c *web.AppContext) {
+	dbObject, err := service.GetFormSubmissionsByForm(c)
+	doRespond(c, dbObject, err)
+}
+
+func GetFormSubmission(c *web.AppContext) {
+	dbObject, err := service.GetFormSubmission(c)
+	doRespond(c, dbObject, err)
+}
+
+func DeleteFormSubmission(c *web.AppContext) {
 	err := service.DeleteSearch(c)
 	doRespond(c, nil, err)
 }

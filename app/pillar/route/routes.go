@@ -46,4 +46,19 @@ var routes = []Route{
 	Route{"POST", "/api/comment", handler.CreateUpdateComment},
 	Route{"POST", "/api/index", handler.CreateIndex},
 	Route{"POST", "/api/metadata", handler.UpdateMetadata},
+
+	// Forms
+	Route{"POST", "/api/form", handler.CreateUpdateForm},
+	Route{"PUT", "/api/form", handler.CreateUpdateForm},
+	Route{"PUT", "/api/form/{id}/status/{status}", handler.UpdateFormStatus},
+	Route{"GET", "/api/forms", handler.GetForms},
+	Route{"GET", "/api/form/{id}", handler.GetForm},
+	Route{"DELETE", "/api/form/{id}", handler.DeleteForm},
+
+	// Form Submissions
+	Route{"POST", "/api/form_submission/{form_id}", handler.CreateFormSubmission},
+	Route{"PUT", "/api/form_submission/{id}/status/{status}", handler.UpdateFormSubmissionStatus},
+	Route{"GET", "/api/form_submissions/{form_id}", handler.GetFormSubmissionsByForm},
+	Route{"GET", "/api/form_submission/{id}", handler.GetFormSubmission},
+	Route{"DELETE", "/api/form_submission/{id}", handler.DeleteFormSubmission},
 }
