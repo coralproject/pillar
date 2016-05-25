@@ -7,18 +7,18 @@ import (
 )
 
 type FormWidget struct {
-	ID        bson.ObjectId `json:"id" bson:"_id"`
-	Type      string        `json:"type" bson:"type"`
-	Component string        `json:"component" bson:"component"`
-	Title     string        `json:"title" bson:"title"`
-	Wrapper   interface{}   `json:"wrapper" bson:"wrapper"`
-	Props     interface{}   `json:"props" bson:"props"`
+	ID        int64       `json:"id" bson:"_id"`
+	Type      string      `json:"type" bson:"type"`
+	Component string      `json:"component" bson:"component"`
+	Title     string      `json:"title" bson:"title"`
+	Wrapper   interface{} `json:"wrapper" bson:"wrapper"`
+	Props     interface{} `json:"props" bson:"props"`
 }
 
 type FormStep struct {
-	ID      int64
-	Name    string
-	Widgets []FormWidget
+	ID      int64        `json:"id" bson:"_id"`
+	Name    string       `json:"name" bson:"name"`
+	Widgets []FormWidget `json:"widgets" bson:"widgets"`
 }
 
 type Form struct {
@@ -27,7 +27,7 @@ type Form struct {
 	Header         interface{}   `json:"header" bson:"header"`
 	Footer         interface{}   `json:"footer" bson:"footer"`
 	FinishedScreen interface{}   `json:"finishedScreen" bson:"finishedScreen"`
-	Steps          []FormStep    `json:"step" bson:"steps"`
+	Steps          []FormStep    `json:"steps" bson:"steps"`
 	DateCreated    time.Time     `json:"date_created,omitempty" bson:"date_created,omitempty"`
 	DateUpdated    time.Time     `json:"date_updated,omitempty" bson:"date_updated,omitempty"`
 }
