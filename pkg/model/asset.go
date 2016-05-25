@@ -10,6 +10,7 @@ import (
 type Asset struct {
 	ID          bson.ObjectId `json:"id" bson:"_id"`
 	URL         string        `json:"url" bson:"url" validate:"required"`
+	Headline    string        `json:"headline,omitempty" bson:"headline,omitempty"`
 	Tags        []string      `json:"tags,omitempty" bson:"tags,omitempty"`
 	Authors     []Author      `json:"authors,omitempty" bson:"authors,omitempty"`
 	Section     string        `json:"section,omitempty" bson:"section,omitempty"`
