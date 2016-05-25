@@ -46,4 +46,10 @@ var routes = []Route{
 	Route{"POST", "/api/comment", handler.CreateUpdateComment},
 	Route{"POST", "/api/index", handler.CreateIndex},
 	Route{"POST", "/api/metadata", handler.UpdateMetadata},
+
+	Route{"POST", "/api/form", handler.CreateUpdateForm},
+	Route{"PUT", "/api/form", handler.CreateUpdateForm},
+	Route{"GET", "/api/forms", handler.GetForms},
+	Route{"GET", "/api/form/{id}", handler.GetForm},
+	Route{"DELETE", "/api/form/{id}", handler.DeleteForm},
 }
