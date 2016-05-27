@@ -53,7 +53,8 @@ func CreateUpdateSearch(context *web.AppContext) (*model.Search, *web.AppError) 
 
 	var dbEntity model.Search
 	//Upsert if entity exists with same ID
-	context.MDB.DB.C(model.Searches).Find(input.ID).One(&dbEntity)
+	context.MDB.DB.C(model.Searches).FindId(input.ID).One(&dbEntity)
+
 	if dbEntity.ID == "" { //new
 		input.ID = bson.NewObjectId()
 		input.DateCreated = time.Now()
