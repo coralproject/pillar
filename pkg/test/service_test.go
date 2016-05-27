@@ -173,13 +173,12 @@ func TestCreateSearches(t *testing.T) {
 
 	for _, one := range objects {
 		c.Marshall(one)
-		if _, err := service.CreateUpdateSearch(c); err != nil {
+		search, err := service.CreateUpdateSearch(c)
+		if err != nil {
 			t.Fail()
 		}
-	}
-
-	for _, one := range objects {
-		c.Marshall(one)
+		//make sure upsert on the same ID works
+		c.Marshall(search)
 		if _, err := service.CreateUpdateSearch(c); err != nil {
 			t.Fail()
 		}
