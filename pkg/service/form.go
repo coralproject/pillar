@@ -162,16 +162,21 @@ func GetForm(c *web.AppContext) (model.Form, *web.AppError) {
 // DeleteForm deletes a Form
 func DeleteForm(c *web.AppContext) *web.AppError {
 
+	// we must have an id to delete
 	idStr := c.GetValue("id")
-	//we must have an id to delete
+
+	// todo, better handling of string -> ObjectIdHex()
 	if idStr == "" {
 		message := fmt.Sprintf("Cannot delete Form. Invalid Id [%s]", idStr)
 		return &web.AppError{nil, message, http.StatusInternalServerError}
 	}
 
+	//convert to an ObjectId
+	id := bson.ObjectIdHex(idStr)
+
 	//delete
-	if err := c.MDB.DB.C(model.Forms).RemoveId(idStr); err != nil {
-		message := fmt.Sprintf("Error deleting Form [%v]", idStr)
+	if err := c.MDB.DB.C(model.Forms).RemoveId(id); err != nil {
+		message := fmt.Sprintf("Error deleting Form [%v], form not found", idStr)
 		return &web.AppError{err, message, http.StatusInternalServerError}
 	}
 

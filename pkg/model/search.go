@@ -1,9 +1,9 @@
 package model
 
 import (
+	"fmt"
 	"gopkg.in/mgo.v2/bson"
 	"time"
-	"fmt"
 )
 
 // Search denotes a search bound by a query and tag.
@@ -12,6 +12,7 @@ type Search struct {
 	Name        string        `json:"name" bson:"name" validate:"required"`
 	Description string        `json:"description,omitempty" bson:"description,omitempty"`
 	Query       string        `json:"query" bson:"query" validate:"required"`
+	QuerySet    interface{}   `json:"querySet" bson:"querySet"`
 	Tag         string        `json:"tag" bson:"tag" validate:"required"`
 	Filters     bson.M        `json:"filters,omitempty" bson:"filters,omitempty"`
 	Result      SearchResult  `json:"result,omitempty" bson:"result,omitempty"`

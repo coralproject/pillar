@@ -37,10 +37,8 @@ type FormSubmission struct {
 	FinishedScreen interface{}            `json:"finishedScreen" bson:"finishedScreen"`
 	CreatedBy      interface{}            `json:"created_by" bson:"created_by"` // Todo, decide how to represent ownership here
 	UpdatedBy      interface{}            `json:"updated_by" bson:"updated_by"` // Todo, decide how to represent ownership here
-	DeletedBy      interface{}            `json:"deleted_by" bson:"deleted_by"` // Todo, decide how to represent ownership here
 	DateCreated    time.Time              `json:"date_created,omitempty" bson:"date_created,omitempty"`
 	DateUpdated    time.Time              `json:"date_updated,omitempty" bson:"date_updated,omitempty"`
-	DateDeleted    time.Time              `json:"date_deleted,omitempty" bson:"date_deleted,omitempty"`
 }
 
 // Id returns the ID for this Model

@@ -123,7 +123,7 @@ func GetForm(c *web.AppContext) {
 }
 
 func DeleteForm(c *web.AppContext) {
-	err := service.DeleteSearch(c)
+	err := service.DeleteForm(c)
 	doRespond(c, nil, err)
 }
 
