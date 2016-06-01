@@ -17,7 +17,7 @@ func CalculateUserStatistics(ctx context.Context) error {
 	// present.
 	b, ok := ctx.Value("backend").(backend.Backend)
 	if !ok {
-		return db.ErrBackendNotInitialized
+		return backend.ErrBackendNotInitializedError
 	}
 
 	// Get the users iterator.
@@ -36,7 +36,7 @@ func CalculateUserStatistics(ctx context.Context) error {
 			// Assert that the document is the type we expect.
 			user, ok := doc.(*model.User)
 			if !ok {
-				return db.ErrBackendType
+				return backend.ErrBackendType
 			}
 
 			in <- user
