@@ -6,7 +6,6 @@ import (
 
 	"github.com/coralproject/pillar/pkg/aggregate"
 	"github.com/coralproject/pillar/pkg/backend"
-	"github.com/coralproject/pillar/pkg/db"
 	"github.com/coralproject/pillar/pkg/model"
 	"github.com/coralproject/pillar/pkg/model/statistics"
 )
@@ -31,7 +30,7 @@ func CalculateUserStatistics(ctx context.Context) error {
 
 	go func() {
 		defer close(in)
-		if err := db.Each(iter, func(doc interface{}) error {
+		if err := backend.Each(iter, func(doc interface{}) error {
 
 			// Assert that the document is the type we expect.
 			user, ok := doc.(*model.User)
@@ -52,6 +51,7 @@ func CalculateUserStatistics(ctx context.Context) error {
 	})
 
 	if userAccumulator, ok := accumulator.(*statistics.UserAccumulator); ok {
+
 		for _, dimension := range userAccumulator.Dimensions() {
 			if err := b.Upsert("dimensions", map[string]interface{}{"name": dimension.Name}, dimension); err != nil {
 				log.Error(uid, "stats", err, "Calculating User Stadistics.")

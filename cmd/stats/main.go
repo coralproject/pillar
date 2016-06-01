@@ -9,6 +9,8 @@ import (
 	"github.com/pborman/uuid"
 )
 
+// It configure stats command line tool to run statistics
+
 func main() {
 
 	uid := uuid.New()
