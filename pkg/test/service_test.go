@@ -2,6 +2,7 @@ package service
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/coralproject/pillar/pkg/db"
 	"github.com/coralproject/pillar/pkg/model"
 	"github.com/coralproject/pillar/pkg/service"
@@ -103,7 +104,9 @@ func TestCreateFormSubmissions(t *testing.T) {
 
 	for _, one := range objects {
 		c.Marshall(one)
-		if _, err := service.CreateUpdateFormSubmission(c); err != nil {
+
+		if _, err := service.CreateFormSubmission(c); err != nil {
+			fmt.Println(err)
 			t.Fail()
 		}
 	}

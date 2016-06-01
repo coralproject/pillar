@@ -115,6 +115,12 @@ func CreateFormSubmission(context *web.AppContext) (*model.FormSubmission, *web.
 		return nil, &web.AppError{err, message, http.StatusInternalServerError}
 	}
 
+	// update the stats using the Form Context
+	err = updateStats(fc)
+	if err != nil {
+		return nil, err
+	}
+
 	return &fs, nil
 
 }

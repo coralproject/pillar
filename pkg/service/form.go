@@ -11,6 +11,37 @@ import (
 	"github.com/coralproject/pillar/pkg/web"
 )
 
+// calculate stats for Forms
+func updateStats(context *web.AppContext) *web.AppError {
+
+	// get the form in question
+	f, err := GetForm(context)
+	if err != nil {
+		message := fmt.Sprintf("Could not load form to update stats")
+		return &web.AppError{nil, message, http.StatusInternalServerError}
+	}
+
+	// do some counting
+	responses, err2 := context.MDB.DB.C(model.FormSubmissions).Find(bson.M{"form_id": f.ID}).Count()
+	if err2 != nil {
+		message := fmt.Sprintf("Could not perform count of form submissions")
+		return &web.AppError{nil, message, http.StatusInternalServerError}
+	}
+
+	// update the stats subdoc
+
+	s := model.FormStats{}
+	s.Responses = responses
+	err2 = context.MDB.DB.C(model.Forms).Update(bson.M{"_id": f.ID}, bson.M{"$set": bson.M{"stats": s}})
+	if err2 != nil {
+		message := fmt.Sprintf("Error updating form stats")
+		return &web.AppError{nil, message, http.StatusInternalServerError}
+	}
+
+	return nil
+
+}
+
 // given a form's id and a stats, update the form with the status
 func UpdateFormStatus(context *web.AppContext) (*model.Form, *web.AppError) {
 
@@ -69,13 +100,24 @@ func CreateUpdateForm(context *web.AppContext) (*model.Form, *web.AppError) {
 			message := fmt.Sprintf("Error inserting Form")
 			return nil, &web.AppError{err, message, http.StatusInternalServerError}
 		}
+
+		// store the id into the context as a hex
+		//  to match up with what we expect from web params
+		context.SetValue("id", input.ID.Hex())
+
 	}
 
-	// update
+	// do the update
 	if _, err := context.MDB.DB.C(model.Forms).UpsertId(input.ID, input); err != nil {
 		message := fmt.Sprintf("Error creating/updating Form")
 
 		return nil, &web.AppError{err, message, http.StatusInternalServerError}
+	}
+
+	// always update the stats
+	err := updateStats(context)
+	if err != nil {
+		return nil, err
 	}
 
 	return &input, nil

@@ -21,6 +21,10 @@ type FormStep struct {
 	Widgets []FormWidget `json:"widgets" bson:"widgets"`
 }
 
+type FormStats struct {
+	Responses int `json:"responses" bson:responses"`
+}
+
 type Form struct {
 	ID             bson.ObjectId `json:"id" bson:"_id"`
 	Status         string        `json:"status" bson:"status"`
@@ -29,6 +33,7 @@ type Form struct {
 	Footer         interface{}   `json:"footer" bson:"footer"`
 	FinishedScreen interface{}   `json:"finishedScreen" bson:"finishedScreen"`
 	Steps          []FormStep    `json:"steps" bson:"steps"`
+	Stats          FormStats     `json:"stats" bson:"stats"`
 	CreatedBy      interface{}   `json:"created_by" bson:"created_by"` // Todo, decide how to represent ownership here
 	UpdatedBy      interface{}   `json:"updated_by" bson:"updated_by"` // Todo, decide how to represent ownership here
 	DeletedBy      interface{}   `json:"deleted_by" bson:"deleted_by"` // Todo, decide how to represent ownership here
