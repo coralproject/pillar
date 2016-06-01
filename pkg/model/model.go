@@ -43,6 +43,7 @@ const (
 	// Ask collections
 	Forms           string = "forms"
 	FormSubmissions string = "form_submissions"
+	FormGalleries   string = "form_galleries"
 )
 
 type Model interface {

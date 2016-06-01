@@ -78,13 +78,6 @@ func CreateUpdateForm(context *web.AppContext) (*model.Form, *web.AppError) {
 		return nil, err
 	}
 
-	/* Todo, custom validation
-	if input.Name == "" {
-		message := fmt.Sprintf("Invalid Section Name [%s]", input.Name)
-		return nil, &web.AppError{nil, message, http.StatusInternalServerError}
-	}
-	*/
-
 	var dbEntity model.Form
 	if context.MDB.DB.C(model.Forms).FindId(input.ID).One(&dbEntity); dbEntity.ID == "" {
 		input.DateCreated = time.Now()
@@ -94,8 +87,10 @@ func CreateUpdateForm(context *web.AppContext) (*model.Form, *web.AppError) {
 	// create
 	if input.ID == "" {
 
+		// append a fresh id to the input obj
 		input.ID = bson.NewObjectId()
 
+		// and insert it
 		if err := context.MDB.DB.C(model.Forms).Insert(input); err != nil {
 			message := fmt.Sprintf("Error inserting Form")
 			return nil, &web.AppError{err, message, http.StatusInternalServerError}
@@ -104,6 +99,14 @@ func CreateUpdateForm(context *web.AppContext) (*model.Form, *web.AppError) {
 		// store the id into the context as a hex
 		//  to match up with what we expect from web params
 		context.SetValue("id", input.ID.Hex())
+
+		// we're auto-creating galleries for forms
+		//  so create a context and do so
+		fc := web.NewContext(nil, nil)
+		defer fc.Close()
+		fc.SetValue("form_id", input.ID.Hex())
+
+		CreateFormGallery(fc)
 
 	}
 

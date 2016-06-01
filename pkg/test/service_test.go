@@ -31,12 +31,13 @@ const (
 )
 
 func init() {
-	db := db.NewMongoDB(os.Getenv("MONGODB_URL"))
+	db := db.NewMongoDB(os.Getenv("MONGODB_URL") + "_test")
 	defer db.Close()
 
 	//Empty all test data
 	db.DB.C(model.Forms).RemoveAll(nil)
 	db.DB.C(model.FormSubmissions).RemoveAll(nil)
+	db.DB.C(model.FormGalleries).RemoveAll(nil)
 	db.DB.C(model.Tags).RemoveAll(nil)
 	db.DB.C(model.Sections).RemoveAll(nil)
 	db.DB.C(model.Authors).RemoveAll(nil)
