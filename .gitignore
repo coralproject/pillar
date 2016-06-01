@@ -1,2 +1,4 @@
 dev.cfg
 .DS_Store
+app/pillar/pillar
+pillar.log
