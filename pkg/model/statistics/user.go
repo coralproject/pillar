@@ -1,17 +1,18 @@
 package statistics
 
 import (
-	"golang.org/x/net/context"
 	"log"
+
+	"golang.org/x/net/context"
 
 	"gopkg.in/mgo.v2/bson"
 
 	"github.com/coralproject/pillar/pkg/aggregate"
 	"github.com/coralproject/pillar/pkg/backend"
-	"github.com/coralproject/pillar/pkg/backend/iterator"
 	"github.com/coralproject/pillar/pkg/model"
 )
 
+// Actions performed BY the user or ON the user
 type UserActions struct {
 	Performed *ActionTypes `json:"performed" bson:"performed"`
 	Received  *ActionTypes `json:"received" bson:"received"`
@@ -151,7 +152,7 @@ func (a *UserAccumulator) Accumulate(ctx context.Context, object interface{}) {
 	}
 
 	commentsAccumulator :=
-		aggregate.Pipeline(ctx, iterator.EachChannel(commentsIterator), func() aggregate.Accumulator {
+		aggregate.Pipeline(ctx, backend.EachChannel(commentsIterator), func() aggregate.Accumulator {
 			return NewUserStatisticsAccumulator()
 		})
 
@@ -168,7 +169,7 @@ func (a *UserAccumulator) Accumulate(ctx context.Context, object interface{}) {
 	})
 
 	actionsReceivedAccumulator :=
-		aggregate.Pipeline(ctx, iterator.EachChannel(actionsRevceivedIterator), func() aggregate.Accumulator {
+		aggregate.Pipeline(ctx, backend.EachChannel(actionsRevceivedIterator), func() aggregate.Accumulator {
 			return NewUserStatisticsAccumulator()
 		})
 
@@ -182,7 +183,7 @@ func (a *UserAccumulator) Accumulate(ctx context.Context, object interface{}) {
 	}
 
 	actionsPerformedAccumulator :=
-		aggregate.Pipeline(ctx, iterator.EachChannel(actionsPerformedIterator), func() aggregate.Accumulator {
+		aggregate.Pipeline(ctx, backend.EachChannel(actionsPerformedIterator), func() aggregate.Accumulator {
 			return NewUserStatisticsAccumulator()
 		})
 

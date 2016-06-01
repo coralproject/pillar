@@ -1,4 +1,4 @@
-package iterator
+package backend
 
 type Iterator interface {
 	Next() (value interface{}, done bool, err error)

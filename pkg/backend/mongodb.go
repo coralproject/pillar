@@ -1,4 +1,4 @@
-package mongodb
+package backend
 
 import (
 	"crypto/tls"
@@ -6,7 +6,6 @@ import (
 
 	"gopkg.in/mgo.v2"
 
-	"github.com/coralproject/pillar/pkg/backend/iterator"
 	"github.com/coralproject/pillar/pkg/model"
 )
 
@@ -58,14 +57,12 @@ func NewMongoDBBackend(addrs []string, database, username, password string, ssl 
 		Username: username,
 		Password: password,
 	}
-
 	// Determine whether or not to use TLS.
 	if ssl {
 		dialInfo.DialServer = func(addr *mgo.ServerAddr) (net.Conn, error) {
 			return tls.Dial("tcp", addr.String(), &tls.Config{})
 		}
 	}
-
 	session, err := mgo.DialWithInfo(dialInfo)
 	if err != nil {
 		return nil, err
@@ -148,7 +145,7 @@ func (i *iter) Next() (interface{}, bool, error) {
 	return nil, true, nil
 }
 
-func (m *MongoDBBackend) Find(objectType string, query map[string]interface{}) (iterator.Iterator, error) {
+func (m *MongoDBBackend) Find(objectType string, query map[string]interface{}) (Iterator, error) {
 	if err := model.ValidateObjectType(objectType); err != nil {
 		return nil, err
 	}

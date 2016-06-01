@@ -5,8 +5,6 @@ import (
 	"sync"
 
 	"golang.org/x/net/context"
-
-	"github.com/coralproject/pillar/pkg/backend/iterator"
 )
 
 const (
@@ -14,12 +12,12 @@ const (
 )
 
 var (
-	BackendNotInitializedError = errors.New("backend not initialized")
-	BackendTypeError           = errors.New("object type is incorrect")
+	ErrBackendNotInitializedError = errors.New("backend not initialized")
+	ErrBackendType                = errors.New("object type is incorrect")
 )
 
 type Backend interface {
-	Find(objectType string, query map[string]interface{}) (iterator.Iterator, error)
+	Find(objectType string, query map[string]interface{}) (Iterator, error)
 	FindID(objectType string, id interface{}) (interface{}, error)
 	Upsert(objectType string, query map[string]interface{}, object interface{}) error
 	UpsertID(objectType string, id, object interface{}) error
@@ -33,7 +31,7 @@ func NewBackendContext(ctx context.Context, b Backend) context.Context {
 func BackendFromContext(ctx context.Context) (Backend, error) {
 	b, ok := ctx.Value(backendContextKey).(Backend)
 	if !ok {
-		return nil, BackendNotInitializedError
+		return nil, ErrBackendNotInitializedError
 	}
 	return b, nil
 }
