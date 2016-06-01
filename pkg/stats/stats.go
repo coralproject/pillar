@@ -57,6 +57,10 @@ func Init() {
 	config.mongodb.database = os.Getenv("MONGODB_DATABASE")
 	config.mongodb.ssl, _ = strconv.ParseBool(os.Getenv("MONGODB_SSL"))
 
+	if config.mongodb.addrs == "" {
+		log.Fatal(uid, "Init", "Remember to set up environment variables to connect to MongoDB server.")
+	}
+
 	// Check if a password file was provided.
 	if config.mongodb.passwordFile != "" {
 		log.User(uid, "Init", "Reading MongoDB password from %s", config.mongodb.passwordFile)
