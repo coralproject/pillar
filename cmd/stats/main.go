@@ -1,4 +1,4 @@
-// It provides teh coral project sponge CLI  platform.
+// It provides the coral project sponge CLI  platform.
 package main
 
 import (
@@ -9,7 +9,7 @@ import (
 	"github.com/pborman/uuid"
 )
 
-// It configure stats command line tool to run statistics
+// It configures stats command line tool to run statistics
 
 func main() {
 
