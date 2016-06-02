@@ -105,7 +105,6 @@ func CreateUpdateForm(context *web.AppContext) (*model.Form, *web.AppError) {
 		fc := web.NewContext(nil, nil)
 		defer fc.Close()
 		fc.SetValue("form_id", input.ID.Hex())
-
 		CreateFormGallery(fc)
 
 	}

@@ -7,8 +7,8 @@ import (
 )
 
 type FormGalleryAnswer struct {
-	ResponseId bson.ObjectId `json:"response_id" bson:"response_id"`
-	AnswerId   bson.ObjectId `json:"answer_id" bson:"answer_id"`
+	SubmissionId bson.ObjectId `json:"submission_id" bson:"submission_id"`
+	AnswerId     string        `json:"answer_id" bson:"answer_id"`
 }
 
 type FormGallery struct {

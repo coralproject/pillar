@@ -151,3 +151,13 @@ func DeleteFormSubmission(c *web.AppContext) {
 	err := service.DeleteSearch(c)
 	doRespond(c, nil, err)
 }
+
+func AddAnswerToFormGallery(c *web.AppContext) {
+	dbObject, err := service.AddAnswerToFormGallery(c)
+	doRespond(c, dbObject, err)
+}
+
+func RemoveAnswerFromFormGallery(c *web.AppContext) {
+	dbObject, err := service.AddAnswerToFormGallery(c)
+	doRespond(c, dbObject, err)
+}

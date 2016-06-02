@@ -73,6 +73,57 @@ func TestCreateForms(t *testing.T) {
 	}
 }
 
+func getAForm(t *testing.T) *model.Form {
+
+	c := web.NewContext(nil, nil)
+	defer c.Close()
+
+	fs := []model.Form{}
+
+	// let's see if we have forms to reply to
+	fs, err := service.GetForms(c)
+	if err != nil {
+		log.Fatalf("Could not load forms for the test", err)
+		t.Fail()
+	}
+
+	// Get the first form in the collection to reply to
+	return &fs[0]
+
+}
+
+func getASubmissionToAForm(f *model.Form, t *testing.T) *model.FormSubmission {
+
+	// create the context for this form
+	c := web.NewContext(nil, nil)
+	defer c.Close()
+	c.SetValue("form_id", f.ID.Hex())
+
+	s, err := service.GetFormSubmissionsByForm(c)
+	if err != nil {
+		log.Fatalf("Could not load forms submissions for the test", err)
+		t.Fail()
+	}
+
+	return &s[0]
+}
+
+func getAGalleryFormAForm(f *model.Form, t *testing.T) *model.FormGallery {
+
+	// create the context for this form
+	c := web.NewContext(nil, nil)
+	defer c.Close()
+	c.SetValue("form_id", f.ID.Hex())
+
+	g, err := service.GetFormGalleriesByForm(c)
+	if err != nil {
+		log.Fatalf("Could not load forms galleries for the test", err)
+		t.Fail()
+	}
+
+	return &g[0]
+}
+
 func TestCreateFormSubmissions(t *testing.T) {
 
 	file, err := os.Open(dataFormSubmissions)
@@ -86,21 +137,12 @@ func TestCreateFormSubmissions(t *testing.T) {
 		log.Fatalf("Error reading forms submissions ", err.Error())
 	}
 
+	f := getAForm(t)
+	fId := f.ID.Hex()
+
 	c := web.NewContext(nil, nil)
 	defer c.Close()
 
-	fs := []model.Form{}
-
-	// let's see if we have forms to reply to
-	fs, appErr := service.GetForms(c)
-	if appErr != nil {
-		log.Fatalf("Could not load forms to test add replies", appErr)
-
-	}
-
-	// Get the first form in the collection to reply to
-	f := fs[0]
-	fId := f.ID.Hex()
 	c.SetValue("form_id", fId)
 
 	for _, one := range objects {
@@ -108,6 +150,54 @@ func TestCreateFormSubmissions(t *testing.T) {
 
 		if _, err := service.CreateFormSubmission(c); err != nil {
 			fmt.Println(err)
+			t.Fail()
+		}
+	}
+
+}
+
+func TestAddingAndRemovingAnswersToGallery(t *testing.T) {
+
+	f := getAForm(t)
+	s := getASubmissionToAForm(f, t)
+	g := getAGalleryFormAForm(f, t)
+
+	c := web.NewContext(nil, nil)
+	defer c.Close()
+
+	c.SetValue("id", g.ID.Hex())
+	c.SetValue("submission_id", s.ID.Hex())
+
+	for _, i := range s.Answers {
+		c.SetValue("answer_id", i.WidgetId)
+
+		_, err := service.RemoveAnswerFromFormGallery(c)
+		if err == nil {
+			log.Fatalln("We shouldn't be able to remove an answer that isn't in the gallery")
+			t.Fail()
+		}
+
+		_, err = service.AddAnswerToFormGallery(c)
+		if err != nil {
+			log.Fatalln("We should be able to add an answer to an empty gallery.")
+			t.Fail()
+		}
+
+		_, err = service.AddAnswerToFormGallery(c)
+		if err == nil {
+			log.Fatalln("We shouldn't be able to add an answer twice to a gallery.")
+			t.Fail()
+		}
+
+		_, err = service.RemoveAnswerFromFormGallery(c)
+		if err != nil {
+			log.Fatalln("We should be able to remove an answer that's already in a gallery")
+			t.Fail()
+		}
+
+		_, err = service.AddAnswerToFormGallery(c)
+		if err != nil {
+			log.Fatalln("Should be able to add an answer to a gallery after removing it")
 			t.Fail()
 		}
 	}

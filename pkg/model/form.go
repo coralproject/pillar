@@ -7,7 +7,7 @@ import (
 )
 
 type FormWidget struct {
-	ID        int64       `json:"id" bson:"_id"`
+	ID        string      `json:"id" bson:"_id"`
 	Type      string      `json:"type" bson:"type"`
 	Component string      `json:"component" bson:"component"`
 	Title     string      `json:"title" bson:"title"`
@@ -16,7 +16,7 @@ type FormWidget struct {
 }
 
 type FormStep struct {
-	ID      int64        `json:"id" bson:"_id"`
+	ID      string       `json:"id" bson:"_id"`
 	Name    string       `json:"name" bson:"name"`
 	Widgets []FormWidget `json:"widgets" bson:"widgets"`
 }

@@ -8,7 +8,7 @@ import (
 
 // this is what we expect for input for a form submission
 type FormSubmissionAnswerInput struct {
-	WidgetId int64       `json:"widget_id"`
+	WidgetId string      `json:"widget_id"`
 	Answer   interface{} `json:"answer"`
 }
 
@@ -20,7 +20,7 @@ type FormSubmissionInput struct {
 
 // here's what a form submission is
 type FormSubmissionAnswer struct {
-	WidgetId     int64       `json:"widget_id" bson:"widget_id"`
+	WidgetId     string      `json:"widget_id" bson:"widget_id"`
 	Answer       interface{} `json:"answer" bson:"answer"`
 	EditedAnswer interface{} `json:"edited" bson:"edited"`
 	Question     interface{} `json:"question" bson:"question"`

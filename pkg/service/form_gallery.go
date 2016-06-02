@@ -11,6 +11,96 @@ import (
 	"github.com/coralproject/pillar/pkg/web"
 )
 
+func galleryContainsSubmissionAnswer(g *model.FormGallery, a *model.FormGalleryAnswer) bool {
+
+	for _, i := range g.Answers {
+		if i.SubmissionId == a.SubmissionId && i.AnswerId == a.AnswerId {
+			return true
+		}
+	}
+
+	return false
+}
+
+// add an answer to a form gallery
+func AddAnswerToFormGallery(context *web.AppContext) (*model.FormGallery, *web.AppError) {
+
+	// get the form gallery in question
+	g, err := GetFormGallery(context)
+	if err != nil {
+		message := fmt.Sprintf("Cannot add answer to form gallery: form not found %s", context.GetValue("id"))
+		return nil, &web.AppError{nil, message, http.StatusInternalServerError}
+	}
+
+	// grab the ids of the submission and answer we're adding
+	sId := bson.ObjectIdHex(context.GetValue("submission_id"))
+	aId := context.GetValue("answer_id") // answer ids are not bson
+
+	// make ourselves a FormGalleryAnswer
+	a := model.FormGalleryAnswer{SubmissionId: sId, AnswerId: aId}
+
+	// make sure it's not already there
+	if galleryContainsSubmissionAnswer(&g, &a) {
+		message := fmt.Sprintf("Cannot add answer to form gallery: already exists", context.GetValue("id"))
+		return nil, &web.AppError{nil, message, http.StatusInternalServerError}
+	}
+
+	// append the answer
+	g.Answers = append(g.Answers, a)
+	if err := context.MDB.DB.C(model.FormGalleries).Update(bson.M{"_id": g.ID}, g); err != nil {
+		message := fmt.Sprintf("Cannot add answer to gallery, Error updating FormGallery")
+		return nil, &web.AppError{err, message, http.StatusInternalServerError}
+	}
+
+	return &g, nil
+
+}
+
+// remove an answer from a form gallery
+func RemoveAnswerFromFormGallery(context *web.AppContext) (*model.FormGallery, *web.AppError) {
+
+	// get the form gallery in question
+	g, err := GetFormGallery(context)
+	if err != nil {
+		message := fmt.Sprintf("Cannot remove answer from form gallery: form not found %s", context.GetValue("id"))
+		return nil, &web.AppError{nil, message, http.StatusInternalServerError}
+	}
+
+	// grab the ids of the submission and answer we're adding
+	sId := bson.ObjectIdHex(context.GetValue("submission_id"))
+	aId := context.GetValue("answer_id") // answer ids are not bson
+
+	// make ourselves a FormGalleryAnswer
+	a := model.FormGalleryAnswer{SubmissionId: sId, AnswerId: aId}
+
+	// make sure it's not already there
+	if !galleryContainsSubmissionAnswer(&g, &a) {
+		message := fmt.Sprintf("Cannot remove answer from form gallery: answer not present in %s", context.GetValue("id"))
+		return nil, &web.AppError{nil, message, http.StatusInternalServerError}
+	}
+
+	// find the index
+	index := 0
+	for i, ia := range g.Answers {
+		if ia.SubmissionId == a.SubmissionId && ia.AnswerId == a.AnswerId {
+			index = i
+			break
+		}
+	}
+
+	// cut the element from the answers by index
+	g.Answers = append(g.Answers[:index], g.Answers[index+1:]...)
+
+	// save it
+	if err := context.MDB.DB.C(model.FormGalleries).Update(bson.M{"_id": g.ID}, g); err != nil {
+		message := fmt.Sprintf("Cannot add answer to gallery, Error updating FormGallery")
+		return nil, &web.AppError{err, message, http.StatusInternalServerError}
+	}
+
+	return &g, nil
+
+}
+
 //  ** consider implementing this as a method on FormGallery **
 func CreateFormGallery(context *web.AppContext) (*model.FormGallery, *web.AppError) {
 
