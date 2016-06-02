@@ -2,14 +2,47 @@ package service
 
 import (
 	"fmt"
+	"gopkg.in/mgo.v2/bson"
 	"net/http"
 	"time"
-
-	"gopkg.in/mgo.v2/bson"
 
 	"github.com/coralproject/pillar/pkg/model"
 	"github.com/coralproject/pillar/pkg/web"
 )
+
+func EditFormSubmissionAnswer(c *web.AppContext) (*model.FormSubmission, *web.AppError) {
+
+	// get our tasty form submission
+	s, err := GetFormSubmission(c)
+	if err != nil {
+		return nil, &web.AppError{nil, "Could not edit submission answer: form submission not found", http.StatusInternalServerError}
+
+	}
+
+	// look for the answer in question
+	for i, a := range s.Answers {
+
+		if a.WidgetId == c.GetValue("answer_id") {
+
+			body := model.FormSubmissionEditInput{}
+			_ = c.Unmarshall(&body)
+
+			s.Answers[i].EditedAnswer = body.EditedAnswer
+
+		}
+	}
+
+	// do the update
+	q := bson.M{"_id": s.ID}
+	appErr := c.MDB.DB.C(model.FormSubmissions).Update(q, s)
+	if appErr != nil {
+		message := fmt.Sprintf("Error updating Form Submission after edit")
+		return nil, &web.AppError{nil, message, http.StatusInternalServerError}
+	}
+
+	return &s, nil
+
+}
 
 func buildSubmissionFromForm(f model.Form) model.FormSubmission {
 
@@ -151,6 +184,7 @@ func GetFormSubmission(c *web.AppContext) (model.FormSubmission, *web.AppError) 
 
 	idStr := c.GetValue("id")
 	//we must have an id to delete the search
+
 	if idStr == "" {
 		message := fmt.Sprintf("Cannot get FormSubmission. Invalid Id [%s]", idStr)
 		return model.FormSubmission{}, &web.AppError{nil, message, http.StatusInternalServerError}

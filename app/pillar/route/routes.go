@@ -60,6 +60,7 @@ var routes = []Route{
 	Route{"PUT", "/api/form_submission/{id}/status/{status}", handler.UpdateFormSubmissionStatus},
 	Route{"GET", "/api/form_submissions/{form_id}", handler.GetFormSubmissionsByForm},
 	Route{"GET", "/api/form_submission/{id}", handler.GetFormSubmission},
+	Route{"PUT", "/api/form_submission/{id}/{answer_id}", handler.EditFormSubmissionAnswer},
 	Route{"DELETE", "/api/form_submission/{id}", handler.DeleteFormSubmission},
 
 	// Form Galleries

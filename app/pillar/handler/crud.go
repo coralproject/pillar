@@ -137,6 +137,11 @@ func UpdateFormSubmissionStatus(c *web.AppContext) {
 	doRespond(c, dbObject, err)
 }
 
+func EditFormSubmissionAnswer(c *web.AppContext) {
+	dbObject, err := service.EditFormSubmissionAnswer(c)
+	doRespond(c, dbObject, err)
+}
+
 func GetFormSubmissionsByForm(c *web.AppContext) {
 	dbObject, err := service.GetFormSubmissionsByForm(c)
 	doRespond(c, dbObject, err)

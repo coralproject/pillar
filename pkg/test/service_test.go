@@ -215,6 +215,35 @@ func TestAddingAndRemovingAnswersToGallery(t *testing.T) {
 
 }
 
+func TestEditFormSubmissionAnswer(t *testing.T) {
+
+	// so let's get a form
+	f := getAForm(t)
+
+	// one of its submissions
+	s := getASubmissionToAForm(f, t)
+
+	c := web.NewContext(nil, nil)
+	c.SetValue("id", s.ID.Hex())
+
+	for _, a := range s.Answers {
+		// set the answer id into the context
+		c.SetValue("answer_id", a.WidgetId)
+
+		// set the context body to something ridiculous
+		body := model.FormSubmissionEditInput{"This is an edit! Purple Monkey Dishwasher."}
+		c.Marshall(body)
+
+		// and edit the answer
+		_, err := service.EditFormSubmissionAnswer(c)
+		if err != nil {
+			log.Fatalf("Could not edit a form submission answer: %+v", err)
+		}
+
+	}
+
+}
+
 func TestCreateSections(t *testing.T) {
 	file, err := os.Open(dataSections)
 	if err != nil {

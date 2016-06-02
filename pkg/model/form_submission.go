@@ -6,6 +6,10 @@ import (
 	"time"
 )
 
+type FormSubmissionEditInput struct {
+	EditedAnswer interface{} `json:"edited"`
+}
+
 // this is what we expect for input for a form submission
 type FormSubmissionAnswerInput struct {
 	WidgetId string      `json:"widget_id"`
