@@ -129,6 +129,39 @@ func CreateFormGallery(context *web.AppContext) (*model.FormGallery, *web.AppErr
 
 }
 
+// embeds the latest version of the FormSubmisison.Answer into
+//  a Form Gallery.  Loaded every time to react to Edits/deltes
+//  of form submission content
+func hydrateFormGallery(g model.FormGallery) model.FormGallery {
+
+	// get a context to load the submissions
+	c := web.NewContext(nil, nil)
+
+	// for each answer in the gallery
+	for _, a := range g.Answers {
+
+		// load the submission
+		c.SetValue("id", a.SubmissionId.Hex())
+		s, err := GetFormSubmission(c)
+		if err != nil {
+			// remove answers from gallery if submission is
+			//  deleted?
+		}
+
+		// find the answer
+		for i, fsa := range s.Answers {
+			if fsa.WidgetId == a.AnswerId {
+
+				// and embed it into the form gallery
+				g.Answers[i].Answer = fsa
+				break
+			}
+		}
+	}
+
+	return g
+}
+
 // GetFormGallerys returns an array of FormGallerys
 func GetFormGalleriesByForm(c *web.AppContext) ([]model.FormGallery, *web.AppError) {
 
@@ -145,6 +178,11 @@ func GetFormGalleriesByForm(c *web.AppContext) ([]model.FormGallery, *web.AppErr
 	if err := c.MDB.DB.C(model.FormGalleries).Find(bson.M{"form_id": id}).All(&fss); err != nil {
 		message := fmt.Sprintf("Error fetching FormGallerys")
 		return nil, &web.AppError{err, message, http.StatusInternalServerError}
+	}
+
+	//hydrate them all...
+	for i, g := range fss {
+		fss[i] = hydrateFormGallery(g)
 	}
 
 	return fss, nil
@@ -168,6 +206,9 @@ func GetFormGallery(c *web.AppContext) (model.FormGallery, *web.AppError) {
 		message := fmt.Sprintf("Error fetching FormGalleries")
 		return model.FormGallery{}, &web.AppError{err, message, http.StatusInternalServerError}
 	}
+
+	// hydrate the form gallery
+	f = hydrateFormGallery(f)
 
 	return f, nil
 }

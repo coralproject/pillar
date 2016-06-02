@@ -31,7 +31,7 @@ const (
 )
 
 func init() {
-	db := db.NewMongoDB(os.Getenv("MONGODB_URL") + "_test")
+	db := db.NewMongoDB(os.Getenv("MONGODB_URL"))
 	defer db.Close()
 
 	//Empty all test data

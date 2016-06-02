@@ -12,7 +12,6 @@ package handler
 */
 
 import (
-	"github.com/coralproject/pillar/pkg/model"
 	"github.com/coralproject/pillar/pkg/service"
 	"github.com/coralproject/pillar/pkg/web"
 )
@@ -72,6 +71,16 @@ func DeleteFormSubmission(c *web.AppContext) {
 	doRespond(c, nil, err)
 }
 
+func AddFlagToFormSubmission(c *web.AppContext) {
+	dbObject, err := service.AddFlagToFormSubmission(c)
+	doRespond(c, dbObject, err)
+}
+
+func RemoveFlagFromFormSubmission(c *web.AppContext) {
+	dbObject, err := service.RemoveFlagFromFormSubmission(c)
+	doRespond(c, dbObject, err)
+}
+
 func AddAnswerToFormGallery(c *web.AppContext) {
 	dbObject, err := service.AddAnswerToFormGallery(c)
 	doRespond(c, dbObject, err)
@@ -82,12 +91,12 @@ func RemoveAnswerFromFormGallery(c *web.AppContext) {
 	doRespond(c, dbObject, err)
 }
 
-func AddFlagToFormSubmission(c *web.AppContext) {
-	dbObject, err := service.AddFlagToFormSubmission(c)
+func GetFormGalleriesByForm(c *web.AppContext) {
+	dbObject, err := service.GetFormGalleriesByForm(c)
 	doRespond(c, dbObject, err)
 }
 
-func RemoveFlagFromFormSubmission(c *web.AppContext) {
-	dbObject, err := service.RemoveFlagFromFormSubmission(c)
+func GetFormGallery(c *web.AppContext) {
+	dbObject, err := service.GetFormGallery(c)
 	doRespond(c, dbObject, err)
 }
