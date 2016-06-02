@@ -164,7 +164,7 @@ func TestAddingAndRemovingAnswersToGallery(t *testing.T) {
 	// so let's get a form
 	f := getAForm(t)
 
-	// one of it's submissions
+	// one of its submissions
 	s := getASubmissionToAForm(f, t)
 
 	// and a gallery
