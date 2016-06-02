@@ -44,6 +44,12 @@ func (c *AppContext) GetValue(key string) string {
 	return c.Vars[key]
 }
 
+func (c *AppContext) SetValue(k string, v string) string {
+
+	c.Vars[k] = v
+	return c.Vars[k]
+}
+
 //Returns a cloned context with db and mq resources
 //A cloned context must not be closed
 func (c *AppContext) Clone() *AppContext {
@@ -79,6 +85,8 @@ func NewContext(rw http.ResponseWriter, r *http.Request) *AppContext {
 		c.Header = r.Header
 		c.Body = r.Body
 		c.Vars = mux.Vars(r)
+	} else {
+		c.Vars = make(map[string]string)
 	}
 
 	return &c

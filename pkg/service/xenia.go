@@ -27,15 +27,16 @@ type doc struct {
 }
 
 func getUserIds(search model.Search) []string {
-	url := os.Getenv("XENIA_URL") + search.Query
+	url := os.Getenv("XENIA_URL") + search.Query + os.Getenv("XENIA_QUERY_PARAM")
 
 	header := make(map[string]string)
 	header["Content-Type"] = "application/json"
 	header["Authorization"] = os.Getenv("XENIA_AUTH")
 
-	response, _ := web.Request(web.GET, url, header, nil)
-	if response == nil || response.StatusCode != 200 {
-		log.Printf("Error getting response from Xenia\n")
+	log.Printf("Xenia URL [%v]\n", url)
+	response, err := web.Request(web.GET, url, header, nil)
+	if err != nil {
+		log.Printf("Error getting response from Xenia [%v]\n", err)
 		return nil
 	}
 

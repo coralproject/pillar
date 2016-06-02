@@ -46,6 +46,9 @@ func ObjectTypeInstance(objectType string) interface{} {
 		return Tag{}
 	case "dimensions":
 		return Dimension{}
+
+	case "forms":
+		return &Form{}
 	}
 
 	return make(map[string]interface{})

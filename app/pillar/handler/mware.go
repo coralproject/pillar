@@ -14,7 +14,7 @@ const appContext string = "app-context"
 func CORS() *cors.Cors {
 	return cors.New(cors.Options{
 		AllowedOrigins:   []string{"*"},
-		AllowedMethods:   []string{"POST", "GET", "OPTIONS", "DELETE"},
+		AllowedMethods:   []string{"POST", "GET", "PUT", "OPTIONS", "DELETE"},
 		AllowedHeaders:   []string{"Accept", "Content-Type", "Content-Length", "Accept-Encoding"},
 		AllowCredentials: true,
 	})
