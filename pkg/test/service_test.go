@@ -156,21 +156,32 @@ func TestCreateFormSubmissions(t *testing.T) {
 
 }
 
+// let's test adding and removing answers to a gallery
+//  Galleries are made up of
+//  Answers in submissions to forms
 func TestAddingAndRemovingAnswersToGallery(t *testing.T) {
 
+	// so let's get a form
 	f := getAForm(t)
+
+	// one of it's submissions
 	s := getASubmissionToAForm(f, t)
+
+	// and a gallery
 	g := getAGalleryFormAForm(f, t)
 
+	// set the values into a context
 	c := web.NewContext(nil, nil)
 	defer c.Close()
 
 	c.SetValue("id", g.ID.Hex())
 	c.SetValue("submission_id", s.ID.Hex())
 
+	// and for each submission answer
 	for _, i := range s.Answers {
 		c.SetValue("answer_id", i.WidgetId)
 
+		// do a complex dance to test each permutation
 		_, err := service.RemoveAnswerFromFormGallery(c)
 		if err == nil {
 			log.Fatalln("We shouldn't be able to remove an answer that isn't in the gallery")
