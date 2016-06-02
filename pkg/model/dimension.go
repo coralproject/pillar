@@ -1,6 +1,6 @@
 package model
 
-// Note denotes a note by a user in the system.
+// Dimension will hold all the variables on which aggregations/statistics can be get for the specific type
 type Dimension struct {
 	Name         string   `json:"name" bson:"name" validate:"required"`
 	Constituents []string `json:"constituents" bson:"constituents"`

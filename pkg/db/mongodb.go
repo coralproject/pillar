@@ -1,10 +1,10 @@
 package db
 
 import (
-	"github.com/coralproject/pillar/pkg/backend/iterator"
+	"log"
+
 	"github.com/coralproject/pillar/pkg/model"
 	"gopkg.in/mgo.v2"
-	"log"
 )
 
 var (
@@ -40,7 +40,7 @@ func (m *MongoDB) Upsert(objectType string, id, object interface{}) error {
 }
 
 //Find finds from a collection using the query
-func (m *MongoDB) Find(objectType string, query map[string]interface{}) (iterator.Iterator, error) {
+func (m *MongoDB) Find(objectType string, query map[string]interface{}) (Iterator, error) {
 	if err := model.ValidateObjectType(objectType); err != nil {
 		return nil, err
 	}

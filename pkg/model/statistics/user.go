@@ -1,17 +1,18 @@
 package statistics
 
 import (
-	"golang.org/x/net/context"
 	"log"
+
+	"golang.org/x/net/context"
 
 	"gopkg.in/mgo.v2/bson"
 
 	"github.com/coralproject/pillar/pkg/aggregate"
 	"github.com/coralproject/pillar/pkg/backend"
-	"github.com/coralproject/pillar/pkg/backend/iterator"
 	"github.com/coralproject/pillar/pkg/model"
 )
 
+// Actions performed BY the user or ON the user
 type UserActions struct {
 	Performed *ActionTypes `json:"performed" bson:"performed"`
 	Received  *ActionTypes `json:"received" bson:"received"`
@@ -122,12 +123,14 @@ type UserAccumulator struct {
 	DimensionAccumulator map[string]aggregate.Int
 }
 
+// Returns the aggregation map for the different variables
 func NewUserAccumulator() *UserAccumulator {
 	return &UserAccumulator{
 		DimensionAccumulator: make(map[string]aggregate.Int),
 	}
 }
 
+// Acumulates aggregate the values on the different dimensions for object (in this case a user)
 func (a *UserAccumulator) Accumulate(ctx context.Context, object interface{}) {
 
 	user, ok := object.(*model.User)
@@ -138,11 +141,13 @@ func (a *UserAccumulator) Accumulate(ctx context.Context, object interface{}) {
 	// Add the user ID to the context.
 	ctx = context.WithValue(ctx, "user_id", user.ID)
 
+	// The backend is being used to consult the database
 	b, ok := ctx.Value("backend").(backend.Backend)
 	if !ok {
 		return
 	}
 
+	// All the comments made by that user id
 	commentsIterator, err := b.Find("comments", map[string]interface{}{
 		"user_id": user.ID,
 	})
@@ -151,7 +156,7 @@ func (a *UserAccumulator) Accumulate(ctx context.Context, object interface{}) {
 	}
 
 	commentsAccumulator :=
-		aggregate.Pipeline(ctx, iterator.EachChannel(commentsIterator), func() aggregate.Accumulator {
+		aggregate.Pipeline(ctx, backend.EachChannel(commentsIterator), func() aggregate.Accumulator {
 			return NewUserStatisticsAccumulator()
 		})
 
@@ -168,7 +173,7 @@ func (a *UserAccumulator) Accumulate(ctx context.Context, object interface{}) {
 	})
 
 	actionsReceivedAccumulator :=
-		aggregate.Pipeline(ctx, iterator.EachChannel(actionsRevceivedIterator), func() aggregate.Accumulator {
+		aggregate.Pipeline(ctx, backend.EachChannel(actionsRevceivedIterator), func() aggregate.Accumulator {
 			return NewUserStatisticsAccumulator()
 		})
 
@@ -182,13 +187,13 @@ func (a *UserAccumulator) Accumulate(ctx context.Context, object interface{}) {
 	}
 
 	actionsPerformedAccumulator :=
-		aggregate.Pipeline(ctx, iterator.EachChannel(actionsPerformedIterator), func() aggregate.Accumulator {
+		aggregate.Pipeline(ctx, backend.EachChannel(actionsPerformedIterator), func() aggregate.Accumulator {
 			return NewUserStatisticsAccumulator()
 		})
 
 	userStatisticsAccumulator.Combine(actionsPerformedAccumulator)
 
-	// 		actionsReceivedIterator, err := b.Find("actions", map[string]interface{}{"":"","target_id": user.ID})
+	// actionsReceivedIterator, err := b.Find("actions", map[string]interface{}{"":"","target_id": user.ID})
 	// if err != nil {
 	// 	return
 	// }
@@ -240,6 +245,7 @@ func (a *UserAccumulator) Combine(object interface{}) {
 	}
 }
 
+// Dimensions bring all the dimmensions for the user
 func (a *UserAccumulator) Dimensions() []*model.Dimension {
 
 	dimensions := make([]*model.Dimension, 0, len(a.DimensionAccumulator))
