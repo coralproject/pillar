@@ -215,6 +215,68 @@ func TestAddingAndRemovingAnswersToGallery(t *testing.T) {
 
 }
 
+func TestFlagFormSubmissions(t *testing.T) {
+
+	// so let's get a form n' submission
+	f := getAForm(t)
+	s := getASubmissionToAForm(f, t)
+
+	// new context for the form submission
+	c := web.NewContext(nil, nil)
+	defer c.Close()
+	c.SetValue("id", s.ID.Hex())
+
+	fCount := len(s.Flags)
+
+	c.SetValue("flag", "test_the_flag")
+	s, err := service.AddFlagToFormSubmission(c)
+	if err != nil {
+		log.Fatalln("Should be able to add a flag to a gallery after removing it")
+		t.Fail()
+	}
+
+	if len(s.Flags) != (fCount + 1) {
+		log.Fatalln("Flag count should increment after add")
+		t.Fail()
+	}
+
+	s, err = service.AddFlagToFormSubmission(c)
+	if len(s.Flags) != (fCount + 1) {
+		log.Fatalln("Should not be able to add a flag twice")
+		t.Fail()
+	}
+
+	c.SetValue("flag", "test_another__flag")
+	s, err = service.AddFlagToFormSubmission(c)
+	if err != nil {
+		log.Fatalln("Should be able to add a flag to a gallery after removing it")
+		t.Fail()
+	}
+
+	s, err = service.RemoveFlagFromFormSubmission(c)
+	if err != nil {
+		log.Fatalln("Should be able to remove a flag to a gallery after removing it")
+		t.Fail()
+	}
+
+	if len(s.Flags) != (fCount + 1) {
+		log.Fatalln("Should get the right count after adding and removing")
+		t.Fail()
+	}
+
+	s, err = service.RemoveFlagFromFormSubmission(c)
+	if err != nil {
+		log.Fatalln("Should not be able to remove a flag twice")
+		t.Fail()
+	}
+
+	if len(s.Flags) != (fCount + 1) {
+		log.Fatalln("Should get the right count after adding and removing")
+		t.Fail()
+	}
+
+}
+
 func TestEditFormSubmissionAnswer(t *testing.T) {
 
 	// so let's get a form

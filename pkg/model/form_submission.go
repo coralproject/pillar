@@ -36,6 +36,7 @@ type FormSubmission struct {
 	FormId         bson.ObjectId          `json:"form_id" bson:"form_id"`
 	Status         string                 `json:"status" bson:"status"`
 	Answers        []FormSubmissionAnswer `json:"replies" bson:"replies"`
+	Flags          []string               `json:"flags" bson:"flags"` // simple, flexible string flagging
 	Header         interface{}            `json:"header" bson:"header"`
 	Footer         interface{}            `json:"footer" bson:"footer"`
 	FinishedScreen interface{}            `json:"finishedScreen" bson:"finishedScreen"`
