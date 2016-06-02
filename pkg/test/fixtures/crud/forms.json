@@ -17,11 +17,11 @@
         },
         "steps": [
             {
-                "id": 1,
+                "id": "1",
                 "name": "Hello?",
                 "widgets": [
                     {
-                        "id": 1,
+                        "id": "1",
                         "type": "field",
                         "component": "Text",
                         "title": "Is there anybody out there?",
@@ -36,7 +36,7 @@
                         }
                     },
                     {
-                        "id": 2,
+                        "id": "2",
                         "type": "field",
                         "component": "Text",
                         "title": "Name",
@@ -51,7 +51,7 @@
                         }
                     },
                     {
-                        "id": 3,
+                        "id": "3",
                         "type": "field",
                         "component": "Text",
                         "title": "Email",

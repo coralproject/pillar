@@ -2,14 +2,47 @@ package service
 
 import (
 	"fmt"
+	"gopkg.in/mgo.v2/bson"
 	"net/http"
 	"time"
-
-	"gopkg.in/mgo.v2/bson"
 
 	"github.com/coralproject/pillar/pkg/model"
 	"github.com/coralproject/pillar/pkg/web"
 )
+
+func EditFormSubmissionAnswer(c *web.AppContext) (*model.FormSubmission, *web.AppError) {
+
+	// get our tasty form submission
+	s, err := GetFormSubmission(c)
+	if err != nil {
+		return nil, &web.AppError{nil, "Could not edit submission answer: form submission not found", http.StatusInternalServerError}
+
+	}
+
+	// look for the answer in question
+	for i, a := range s.Answers {
+
+		if a.WidgetId == c.GetValue("answer_id") {
+
+			body := model.FormSubmissionEditInput{}
+			_ = c.Unmarshall(&body)
+
+			s.Answers[i].EditedAnswer = body.EditedAnswer
+
+		}
+	}
+
+	// do the update
+	q := bson.M{"_id": s.ID}
+	appErr := c.MDB.DB.C(model.FormSubmissions).Update(q, s)
+	if appErr != nil {
+		message := fmt.Sprintf("Error updating Form Submission after edit")
+		return nil, &web.AppError{nil, message, http.StatusInternalServerError}
+	}
+
+	return &s, nil
+
+}
 
 func buildSubmissionFromForm(f model.Form) model.FormSubmission {
 
@@ -115,6 +148,12 @@ func CreateFormSubmission(context *web.AppContext) (*model.FormSubmission, *web.
 		return nil, &web.AppError{err, message, http.StatusInternalServerError}
 	}
 
+	// update the stats using the Form Context
+	err = updateStats(fc)
+	if err != nil {
+		return nil, err
+	}
+
 	return &fs, nil
 
 }
@@ -145,6 +184,7 @@ func GetFormSubmission(c *web.AppContext) (model.FormSubmission, *web.AppError) 
 
 	idStr := c.GetValue("id")
 	//we must have an id to delete the search
+
 	if idStr == "" {
 		message := fmt.Sprintf("Cannot get FormSubmission. Invalid Id [%s]", idStr)
 		return model.FormSubmission{}, &web.AppError{nil, message, http.StatusInternalServerError}
@@ -207,5 +247,85 @@ func UpdateFormSubmissionStatus(context *web.AppContext) (*model.FormSubmission,
 	}
 
 	return f, nil
+
+}
+
+/*  Flag functionality specified here can be abstracted as
+Flaggabe behavior */
+func RemoveFlagFromFormSubmission(context *web.AppContext) (*model.FormSubmission, *web.AppError) {
+
+	// get our tasty form submission
+	s, err := GetFormSubmission(context)
+	if err != nil {
+		return nil, &web.AppError{nil, "Could not edit submission answer: form submission not found", http.StatusInternalServerError}
+	}
+
+	fi := -1 // a var to store the flag's index
+	f := context.GetValue("flag")
+
+	// find the flag
+	for i, tf := range s.Flags {
+		if tf == f {
+			fi = i
+			break
+		}
+	}
+
+	// slice that flag out
+	if fi != -1 {
+		s.Flags = append(s.Flags[:fi], s.Flags[fi+1:]...)
+	}
+
+	// let's make sure we don't update all of them..
+	q := bson.M{"_id": s.ID}
+	u := bson.M{"$set": bson.M{"flags": s.Flags, "date_updated": time.Now()}}
+
+	// do the update
+	err2 := context.MDB.DB.C(model.FormSubmissions).Update(q, u)
+	if err2 != nil {
+		message := fmt.Sprintf("Error updating Form Submission after removing flag")
+		return nil, &web.AppError{err2, message, http.StatusInternalServerError}
+	}
+
+	return &s, nil
+
+}
+
+func AddFlagToFormSubmission(context *web.AppContext) (*model.FormSubmission, *web.AppError) {
+
+	// get our tasty form submission
+	s, err := GetFormSubmission(context)
+	if err != nil {
+		return nil, &web.AppError{nil, "Could not edit submission answer: form submission not found", http.StatusInternalServerError}
+	}
+
+	fi := -1 // a var to store the flag's index
+	f := context.GetValue("flag")
+
+	// find the flag
+	for i, tf := range s.Flags {
+		if tf == f {
+			fi = i
+			break
+		}
+	}
+
+	// if it's not there, add it
+	if fi == -1 {
+		s.Flags = append(s.Flags, f)
+	}
+
+	// let's make sure we don't update all of them..
+	q := bson.M{"_id": s.ID}
+	u := bson.M{"$set": bson.M{"flags": s.Flags, "date_updated": time.Now()}}
+
+	// do the update
+	err2 := context.MDB.DB.C(model.FormSubmissions).Update(q, u)
+	if err2 != nil {
+		message := fmt.Sprintf("Error updating Form Submission after removing flag")
+		return nil, &web.AppError{err2, message, http.StatusInternalServerError}
+	}
+
+	return &s, nil
 
 }

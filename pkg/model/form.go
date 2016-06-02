@@ -7,7 +7,7 @@ import (
 )
 
 type FormWidget struct {
-	ID        int64       `json:"id" bson:"_id"`
+	ID        string      `json:"id" bson:"_id"`
 	Type      string      `json:"type" bson:"type"`
 	Component string      `json:"component" bson:"component"`
 	Title     string      `json:"title" bson:"title"`
@@ -16,9 +16,13 @@ type FormWidget struct {
 }
 
 type FormStep struct {
-	ID      int64        `json:"id" bson:"_id"`
+	ID      string       `json:"id" bson:"_id"`
 	Name    string       `json:"name" bson:"name"`
 	Widgets []FormWidget `json:"widgets" bson:"widgets"`
+}
+
+type FormStats struct {
+	Responses int `json:"responses" bson:responses"`
 }
 
 type Form struct {
@@ -29,6 +33,7 @@ type Form struct {
 	Footer         interface{}   `json:"footer" bson:"footer"`
 	FinishedScreen interface{}   `json:"finishedScreen" bson:"finishedScreen"`
 	Steps          []FormStep    `json:"steps" bson:"steps"`
+	Stats          FormStats     `json:"stats" bson:"stats"`
 	CreatedBy      interface{}   `json:"created_by" bson:"created_by"` // Todo, decide how to represent ownership here
 	UpdatedBy      interface{}   `json:"updated_by" bson:"updated_by"` // Todo, decide how to represent ownership here
 	DeletedBy      interface{}   `json:"deleted_by" bson:"deleted_by"` // Todo, decide how to represent ownership here

@@ -6,9 +6,13 @@ import (
 	"time"
 )
 
+type FormSubmissionEditInput struct {
+	EditedAnswer interface{} `json:"edited"`
+}
+
 // this is what we expect for input for a form submission
 type FormSubmissionAnswerInput struct {
-	WidgetId int64       `json:"widget_id"`
+	WidgetId string      `json:"widget_id"`
 	Answer   interface{} `json:"answer"`
 }
 
@@ -20,7 +24,7 @@ type FormSubmissionInput struct {
 
 // here's what a form submission is
 type FormSubmissionAnswer struct {
-	WidgetId     int64       `json:"widget_id" bson:"widget_id"`
+	WidgetId     string      `json:"widget_id" bson:"widget_id"`
 	Answer       interface{} `json:"answer" bson:"answer"`
 	EditedAnswer interface{} `json:"edited" bson:"edited"`
 	Question     interface{} `json:"question" bson:"question"`
@@ -32,15 +36,14 @@ type FormSubmission struct {
 	FormId         bson.ObjectId          `json:"form_id" bson:"form_id"`
 	Status         string                 `json:"status" bson:"status"`
 	Answers        []FormSubmissionAnswer `json:"replies" bson:"replies"`
+	Flags          []string               `json:"flags" bson:"flags"` // simple, flexible string flagging
 	Header         interface{}            `json:"header" bson:"header"`
 	Footer         interface{}            `json:"footer" bson:"footer"`
 	FinishedScreen interface{}            `json:"finishedScreen" bson:"finishedScreen"`
 	CreatedBy      interface{}            `json:"created_by" bson:"created_by"` // Todo, decide how to represent ownership here
 	UpdatedBy      interface{}            `json:"updated_by" bson:"updated_by"` // Todo, decide how to represent ownership here
-	DeletedBy      interface{}            `json:"deleted_by" bson:"deleted_by"` // Todo, decide how to represent ownership here
 	DateCreated    time.Time              `json:"date_created,omitempty" bson:"date_created,omitempty"`
 	DateUpdated    time.Time              `json:"date_updated,omitempty" bson:"date_updated,omitempty"`
-	DateDeleted    time.Time              `json:"date_deleted,omitempty" bson:"date_deleted,omitempty"`
 }
 
 // Id returns the ID for this Model
