@@ -33,9 +33,13 @@ func scheduleCronJobs() {
 		return
 	}
 
-	sched := os.Getenv("PILLAR_CRON_SEARCH")
-	c := cron.New()
-	c.AddFunc(sched, service.UpdateSearch)
-	c.AddFunc(sched, service.CalculateStats)
-	c.Start()
+	schedse := os.Getenv("PILLAR_CRON_SEARCH")
+	cse := cron.New()
+	cse.AddFunc(schedse, service.UpdateSearch)
+	cse.Start()
+
+	schedst := os.Getenv("PILLAR_CRON_STATS")
+	cst := cron.New()
+	cst.AddFunc(schedst, service.CalculateStats)
+	cst.Start()
 }
