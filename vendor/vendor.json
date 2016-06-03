@@ -3,6 +3,11 @@
 	"ignore": "test",
 	"package": [
 		{
+			"path": "github.com/ardanlabs/kit/cfg",
+			"revision": "ecb7416d45bf81d12d12b7e3766f8c6cf9359e51",
+			"revisionTime": "2016-03-14T11:07:07-04:00"
+		},
+		{
 			"path": "github.com/ardanlabs/kit/log",
 			"revision": "ecb7416d45bf81d12d12b7e3766f8c6cf9359e51",
 			"revisionTime": "2016-03-14T11:07:07-04:00"
