@@ -3,12 +3,13 @@ package service
 import (
 	"encoding/json"
 	"fmt"
+	"log"
+	"net/http"
+	"time"
+
 	"github.com/coralproject/pillar/pkg/model"
 	"github.com/coralproject/pillar/pkg/web"
 	"gopkg.in/mgo.v2/bson"
-	"net/http"
-	"time"
-	"log"
 )
 
 func PublishEvent(c *web.AppContext, object interface{}, payload interface{}) {
@@ -19,7 +20,7 @@ func PublishEvent(c *web.AppContext, object interface{}, payload interface{}) {
 	}
 
 	if payload == nil {
-		payload = model.Event{Name:c.Event, Payload:object}
+		payload = model.Event{Name: c.Event, Payload: object}
 		//payload = getPayload(c, object)
 	}
 
@@ -28,8 +29,8 @@ func PublishEvent(c *web.AppContext, object interface{}, payload interface{}) {
 		log.Printf("Invalid payload - error sending message: %s\n\n", err)
 		return
 	}
-        
-        log.Printf("Event pushed [%+v]\n\n", payload)
+
+	log.Printf("Event pushed [%+v]\n\n", payload)
 	c.RMQ.Publish(data)
 }
 

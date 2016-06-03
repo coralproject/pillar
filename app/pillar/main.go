@@ -7,6 +7,11 @@ import (
 	"github.com/coralproject/pillar/app/pillar/route"
 )
 
+const (
+	// VersionNumber is the version for sponge
+	VersionNumber = 0.1
+)
+
 func main() {
 	//new Negroni Middleware
 	n := negroni.Classic()

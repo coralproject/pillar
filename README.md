@@ -34,6 +34,12 @@ Pillar interacts with **Mongo** database as a data-store and  **RabbitMQ** for m
 > $GOPATH/bin/pillar
 ```
 
+#### Test
+```
+> cd $GOPATH/src/github.com/coralproject/pillar/app/pillar/
+> go test
+```
+
 ## Using Pillar End-Points
 
 Here is a generic example of how you might use these end-points. See [model](https://github.com/coralproject/pillar/tree/master/pkg/model) for the structure of data to be passed for various APIs.
@@ -76,7 +82,7 @@ Skip this section if you're not familiar or comfortable with Docker. This sectio
 ### Run Pillar as a Container
 Find the Docker Image with tag pillar-server:0.1 and run the IMAGE_ID.
 
-You must pass the `environment` variables needed to run Pillar, using the env.list file. See ```config/dev.cfg.sample``` file as an example. 
+You must pass the `environment` variables needed to run Pillar, using the env.list file. See ```config/dev.cfg.sample``` file as an example.
 
 Now, find the image id for ```pillar-server``` and run using the command below:
 
