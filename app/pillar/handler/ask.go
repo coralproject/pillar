@@ -87,7 +87,7 @@ func AddAnswerToFormGallery(c *web.AppContext) {
 }
 
 func RemoveAnswerFromFormGallery(c *web.AppContext) {
-	dbObject, err := service.AddAnswerToFormGallery(c)
+	dbObject, err := service.RemoveAnswerFromFormGallery(c)
 	doRespond(c, dbObject, err)
 }
 

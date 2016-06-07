@@ -94,7 +94,7 @@ func RemoveAnswerFromFormGallery(context *web.AppContext) (*model.FormGallery, *
 
 	// save it
 	if err := context.MDB.DB.C(model.FormGalleries).Update(bson.M{"_id": g.ID}, g); err != nil {
-		message := fmt.Sprintf("Cannot add answer to gallery, Error updating FormGallery")
+		message := fmt.Sprintf("Cannot remove answer from gallery, Error updating FormGallery")
 		return nil, &web.AppError{err, message, http.StatusInternalServerError}
 	}
 
