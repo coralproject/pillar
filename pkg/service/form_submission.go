@@ -63,6 +63,7 @@ func buildSubmissionFromForm(f model.Form) model.FormSubmission {
 
 			// get the question/title and props for posterity
 			a.WidgetId = w.ID
+			a.Identity = w.Identity
 			a.Question = w.Title
 			a.Props = w.Props
 

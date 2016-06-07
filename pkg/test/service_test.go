@@ -211,7 +211,7 @@ func TestAddingAndRemovingAnswersToGallery(t *testing.T) {
 
 		_, err = service.AddAnswerToFormGallery(c)
 		if err != nil {
-			log.Fatalln("We should be able to add an answer to an empty gallery.")
+			log.Fatalln("We should be able to add an answer to an empty gallery.", err)
 			t.Fail()
 		}
 
