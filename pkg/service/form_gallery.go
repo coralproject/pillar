@@ -7,6 +7,7 @@ import (
 
 	"gopkg.in/mgo.v2/bson"
 
+	"github.com/coralproject/pillar/pkg/behavior"
 	"github.com/coralproject/pillar/pkg/model"
 	"github.com/coralproject/pillar/pkg/web"
 )
@@ -124,6 +125,10 @@ func CreateFormGallery(context *web.AppContext) (*model.FormGallery, *web.AppErr
 		message := fmt.Sprintf("Error inserting FormGallery")
 		return nil, &web.AppError{err, message, http.StatusInternalServerError}
 	}
+
+	// store the history of it's creation!
+	hr := behavior.HistoricalRecord{}
+	hr.Record("Created", fg)
 
 	return &fg, nil
 
