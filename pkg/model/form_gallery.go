@@ -20,6 +20,16 @@ type FormGallery struct {
 	DateUpdated time.Time           `json:"date_updated,omitempty" bson:"date_updated,omitempty"`
 }
 
+// I am, form_gallery
+func (o FormGallery) GetType() string {
+	return "form_gallery"
+}
+
+// Record all Historical Events for FormGalleries
+func (o FormGallery) IsRecordableEvent(e string) bool {
+	return true
+}
+
 // Id returns the ID for this Model
 func (object FormGallery) Id() string {
 	return object.ID.Hex()
