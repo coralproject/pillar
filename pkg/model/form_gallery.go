@@ -7,9 +7,10 @@ import (
 )
 
 type FormGalleryAnswer struct {
-	SubmissionId bson.ObjectId        `json:"submission_id" bson:"submission_id"`
-	AnswerId     string               `json:"answer_id" bson:"answer_id"`
-	Answer       FormSubmissionAnswer `json:"answer,omitempty" bson:"answer,omitempty"` // not saved to db, hydrated when reading only!
+	SubmissionId    bson.ObjectId          `json:"submission_id" bson:"submission_id"`
+	AnswerId        string                 `json:"answer_id" bson:"answer_id"`
+	Answer          FormSubmissionAnswer   `json:"answer,omitempty" bson:"answer,omitempty"`                     // not saved to db, hydrated when reading only!
+	IdentityAnswers []FormSubmissionAnswer `json:"identity_answers,omitempty" bson:"identity_answers,omitempty"` // not saved to db, hydrated when reading only!
 }
 
 type FormGallery struct {
