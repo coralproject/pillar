@@ -124,7 +124,7 @@ func getAGalleryFormAForm(f *model.Form, t *testing.T) *model.FormGallery {
 	return &g[0]
 }
 
-func TestCreateFormSubmissions(t *testing.T) {
+func TestFormSubmissionsSchenanigans(t *testing.T) {
 
 	file, err := os.Open(dataFormSubmissions)
 	if err != nil {
@@ -152,6 +152,27 @@ func TestCreateFormSubmissions(t *testing.T) {
 			fmt.Println(err)
 			t.Fail()
 		}
+
+		// let's create another just so we can delete it
+		c.Marshall(one)
+		s, err := service.CreateFormSubmission(c)
+		if err != nil {
+
+			fmt.Println(err)
+			t.Fail()
+		}
+
+		c := web.NewContext(nil, nil)
+		defer c.Close()
+		c.SetValue("id", s.ID.Hex())
+
+		err = service.DeleteFormSubmission(c)
+		if err != nil {
+
+			fmt.Println(err)
+			t.Fail()
+		}
+
 	}
 
 }

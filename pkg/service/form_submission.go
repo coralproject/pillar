@@ -216,8 +216,10 @@ func DeleteFormSubmission(c *web.AppContext) *web.AppError {
 		return &web.AppError{nil, message, http.StatusInternalServerError}
 	}
 
+	id := bson.ObjectIdHex(idStr)
+
 	//delete
-	if err := c.MDB.DB.C(model.FormSubmissions).RemoveId(idStr); err != nil {
+	if err := c.MDB.DB.C(model.FormSubmissions).RemoveId(id); err != nil {
 		message := fmt.Sprintf("Error deleting FormSubmission [%v]", idStr)
 		return &web.AppError{err, message, http.StatusInternalServerError}
 	}
@@ -254,8 +256,7 @@ func UpdateFormSubmissionStatus(context *web.AppContext) (*model.FormSubmission,
 
 }
 
-/*  Flag functionality specified here can be abstracted as
-Flaggabe behavior */
+/*  Flag functionality specified here can be abstracted as Flaggabe behavior */
 func RemoveFlagFromFormSubmission(context *web.AppContext) (*model.FormSubmission, *web.AppError) {
 
 	// get our tasty form submission
