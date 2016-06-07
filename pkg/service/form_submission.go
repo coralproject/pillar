@@ -141,6 +141,10 @@ func CreateFormSubmission(context *web.AppContext) (*model.FormSubmission, *web.
 	// set the answers into the submission
 	fs = setAnswersToFormSubmission(fs, input)
 
+	// set miscellenia
+	fs.DateCreated = time.Now()
+	fs.DateUpdated = time.Now()
+
 	// aaaand save it
 	fs.ID = bson.NewObjectId()
 	if err := context.MDB.DB.C(model.FormSubmissions).Insert(fs); err != nil {
