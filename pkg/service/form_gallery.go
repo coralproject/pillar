@@ -147,7 +147,7 @@ func hydrateFormGallery(g model.FormGallery) model.FormGallery {
 	c := web.NewContext(nil, nil)
 
 	// for each answer in the gallery
-	for _, a := range g.Answers {
+	for i, a := range g.Answers {
 
 		// load the submission
 		c.SetValue("id", a.SubmissionId.Hex())
@@ -158,7 +158,7 @@ func hydrateFormGallery(g model.FormGallery) model.FormGallery {
 		}
 
 		// find the answer
-		for i, fsa := range s.Answers {
+		for _, fsa := range s.Answers {
 			if fsa.WidgetId == a.AnswerId {
 
 				// and embed it into the form gallery
