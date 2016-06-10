@@ -7,6 +7,7 @@ import (
 
 	"gopkg.in/mgo.v2/bson"
 
+	"github.com/coralproject/pillar/pkg/behavior"
 	"github.com/coralproject/pillar/pkg/model"
 	"github.com/coralproject/pillar/pkg/web"
 )
@@ -93,7 +94,7 @@ func RemoveAnswerFromFormGallery(context *web.AppContext) (*model.FormGallery, *
 
 	// save it
 	if err := context.MDB.DB.C(model.FormGalleries).Update(bson.M{"_id": g.ID}, g); err != nil {
-		message := fmt.Sprintf("Cannot add answer to gallery, Error updating FormGallery")
+		message := fmt.Sprintf("Cannot remove answer from gallery, Error updating FormGallery")
 		return nil, &web.AppError{err, message, http.StatusInternalServerError}
 	}
 
@@ -125,6 +126,10 @@ func CreateFormGallery(context *web.AppContext) (*model.FormGallery, *web.AppErr
 		return nil, &web.AppError{err, message, http.StatusInternalServerError}
 	}
 
+	// store the history of it's creation!
+	hr := behavior.HistoricalRecord{}
+	hr.Record("Created", fg)
+
 	return &fg, nil
 
 }
@@ -132,13 +137,17 @@ func CreateFormGallery(context *web.AppContext) (*model.FormGallery, *web.AppErr
 // embeds the latest version of the FormSubmisison.Answer into
 //  a Form Gallery.  Loaded every time to react to Edits/deltes
 //  of form submission content
+//
+// Identity is defined by answers to form questions that are tagged with
+//   identity: true. In addition to capturing the answers, this func stores
+//  all the identity information for each submission
 func hydrateFormGallery(g model.FormGallery) model.FormGallery {
 
 	// get a context to load the submissions
 	c := web.NewContext(nil, nil)
 
 	// for each answer in the gallery
-	for _, a := range g.Answers {
+	for i, a := range g.Answers {
 
 		// load the submission
 		c.SetValue("id", a.SubmissionId.Hex())
@@ -149,13 +158,27 @@ func hydrateFormGallery(g model.FormGallery) model.FormGallery {
 		}
 
 		// find the answer
-		for i, fsa := range s.Answers {
+		for _, fsa := range s.Answers {
 			if fsa.WidgetId == a.AnswerId {
 
 				// and embed it into the form gallery
 				g.Answers[i].Answer = fsa
-				break
+
+				// now let's package up the identity flagged answers
+				// create a slice of answers to contain identity fields
+				g.Answers[i].IdentityAnswers = []model.FormSubmissionAnswer{}
+
+				for _, ifsa := range s.Answers {
+
+					// append all answers flagged as identity to this answer
+					if ifsa.Identity == true {
+						//						fmt.Println("found identity!", i, ifsa)
+						g.Answers[i].IdentityAnswers = append(g.Answers[i].IdentityAnswers, ifsa)
+					}
+				}
+
 			}
+
 		}
 	}
 

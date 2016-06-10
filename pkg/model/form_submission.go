@@ -25,6 +25,7 @@ type FormSubmissionInput struct {
 // here's what a form submission is
 type FormSubmissionAnswer struct {
 	WidgetId     string      `json:"widget_id" bson:"widget_id"`
+	Identity     bool        `json:"identity" bson:"identity"`
 	Answer       interface{} `json:"answer" bson:"answer"`
 	EditedAnswer interface{} `json:"edited" bson:"edited"`
 	Question     interface{} `json:"question" bson:"question"`

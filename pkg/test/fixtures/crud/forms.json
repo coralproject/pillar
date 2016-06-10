@@ -38,6 +38,7 @@
                     {
                         "id": "2",
                         "type": "field",
+                        "identity": true,
                         "component": "Text",
                         "title": "Name",
                         "wrapper" : {
@@ -53,6 +54,7 @@
                     {
                         "id": "3",
                         "type": "field",
+                        "identity": true,
                         "component": "Text",
                         "title": "Email",
                         "wrapper" : {
