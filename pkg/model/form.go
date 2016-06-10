@@ -29,6 +29,7 @@ type FormStats struct {
 type Form struct {
 	ID             bson.ObjectId `json:"id" bson:"_id"`
 	Status         string        `json:"status" bson:"status"`
+	Theme          interface{}   `json:"theme" bson:"theme"`
 	Settings       interface{}   `json:"settings" bson:"settings"`
 	Header         interface{}   `json:"header" bson:"header"`
 	Footer         interface{}   `json:"footer" bson:"footer"`
