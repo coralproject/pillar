@@ -2,12 +2,15 @@ package service
 
 import (
 	"fmt"
+	"log"
+	"net/http"
+	"strings"
+	"time"
+
+	"gopkg.in/mgo.v2/bson"
+
 	"github.com/coralproject/pillar/pkg/model"
 	"github.com/coralproject/pillar/pkg/web"
-	"gopkg.in/mgo.v2/bson"
-	"net/http"
-	"time"
-	"log"
 )
 
 // GetSearches returns the list of all Search items in the system
@@ -57,6 +60,7 @@ func CreateUpdateSearch(context *web.AppContext) (*model.Search, *web.AppError) 
 
 	if dbEntity.ID == "" { //new
 		input.ID = bson.NewObjectId()
+		input.Query = strings.Join([]string{"trust_search_", input.ID.Hex()}, "")
 		input.DateCreated = time.Now()
 	} else { //existing
 		input.DateUpdated = time.Now()
