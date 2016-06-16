@@ -95,6 +95,8 @@ func Calculate() {
 		log.Fatal(uid, "main", "Failed on connecting with MongoDB. Error: %v", err)
 	}
 
+	defer b.Close()
+
 	log.User(uid, "main", "Calculating stats")
 	ctx := backend.NewBackendContext(context.Background(), backend.NewIdentityMap(b))
 	if err := CalculateUserStatistics(ctx); err != nil {
