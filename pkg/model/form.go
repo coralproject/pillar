@@ -9,6 +9,7 @@ import (
 type FormWidget struct {
 	ID        string      `json:"id" bson:"_id"`
 	Type      string      `json:"type" bson:"type"`
+	Identity  bool        `json:"identity" bson:"identity"`
 	Component string      `json:"component" bson:"component"`
 	Title     string      `json:"title" bson:"title"`
 	Wrapper   interface{} `json:"wrapper" bson:"wrapper"`
@@ -28,6 +29,7 @@ type FormStats struct {
 type Form struct {
 	ID             bson.ObjectId `json:"id" bson:"_id"`
 	Status         string        `json:"status" bson:"status"`
+	Theme          interface{}   `json:"theme" bson:"theme"`
 	Settings       interface{}   `json:"settings" bson:"settings"`
 	Header         interface{}   `json:"header" bson:"header"`
 	Footer         interface{}   `json:"footer" bson:"footer"`

@@ -11,15 +11,15 @@ type Search struct {
 	ID          bson.ObjectId `json:"id" bson:"_id"`
 	Name        string        `json:"name" bson:"name" validate:"required"`
 	Description string        `json:"description,omitempty" bson:"description,omitempty"`
-	Query       string        `json:"query" bson:"query" validate:"required"`
-	QuerySet    interface{}   `json:"querySet" bson:"querySet"`
-	Tag         string        `json:"tag" bson:"tag" validate:"required"`
-	Filters     bson.M        `json:"filters,omitempty" bson:"filters,omitempty"`
-	Result      SearchResult  `json:"result,omitempty" bson:"result,omitempty"`
-	DateCreated time.Time     `json:"date_created" bson:"date_created"`
-	DateUpdated time.Time     `json:"date_updated,omitempty" bson:"date_updated,omitempty"`
-	UserCreated string        `json:"user_created,omitempty" bson:"user_created,omitempty"`
-	UserUpdated string        `json:"user_updated,omitempty" bson:"user_updated,omitempty"`
+	Query       string        `json:"query" bson:"query"` // generated internally from ID
+	//	QuerySet    interface{}   `json:"querySet" bson:"querySet"`
+	Tag         string       `json:"tag" bson:"tag"`
+	Filters     bson.M       `json:"filters,omitempty" bson:"filters,omitempty"`
+	Result      SearchResult `json:"result,omitempty" bson:"result,omitempty"`
+	DateCreated time.Time    `json:"date_created" bson:"date_created"`
+	DateUpdated time.Time    `json:"date_updated,omitempty" bson:"date_updated,omitempty"`
+	UserCreated string       `json:"user_created,omitempty" bson:"user_created,omitempty"`
+	UserUpdated string       `json:"user_updated,omitempty" bson:"user_updated,omitempty"`
 }
 
 // Id returns the ID for this Model

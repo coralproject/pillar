@@ -67,7 +67,7 @@ func GetFormSubmission(c *web.AppContext) {
 }
 
 func DeleteFormSubmission(c *web.AppContext) {
-	err := service.DeleteSearch(c)
+	err := service.DeleteFormSubmission(c)
 	doRespond(c, nil, err)
 }
 
@@ -87,7 +87,7 @@ func AddAnswerToFormGallery(c *web.AppContext) {
 }
 
 func RemoveAnswerFromFormGallery(c *web.AppContext) {
-	dbObject, err := service.AddAnswerToFormGallery(c)
+	dbObject, err := service.RemoveAnswerFromFormGallery(c)
 	doRespond(c, dbObject, err)
 }
 

@@ -1,7 +1,7 @@
 package service
 
 import (
-	"fmt"
+	"log"
 
 	"github.com/coralproject/pillar/pkg/stats"
 )
@@ -9,7 +9,8 @@ import (
 // CalculateStats calculate stats as a service to use in the cron scheduler
 func CalculateStats() {
 
-	fmt.Println("Calculating Stats")
+	log.Printf("New scheduled job - Calculating Stats!\n")
+
 	stats.Init()
 	stats.Calculate()
 }
