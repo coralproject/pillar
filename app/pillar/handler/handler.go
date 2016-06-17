@@ -14,12 +14,14 @@ func doRespond(c *web.AppContext, object interface{}, appErr *web.AppError) {
 		payload, err := json.Marshal(appErr)
 		if err != nil {
 			http.Error(c.Writer, err.Error(), http.StatusInternalServerError)
+			c.SD.Client.Inc("Internal_Server_Error", 1, 1.0)
 			return
 		}
 
 		c.Writer.Header().Set("Content-Type", "application/json")
 		c.Writer.WriteHeader(appErr.Code)
 		c.Writer.Write(payload)
+		c.SD.Client.Inc("App_Error", 1, 1.0)
 		return
 	}
 
@@ -27,6 +29,7 @@ func doRespond(c *web.AppContext, object interface{}, appErr *web.AppError) {
 	if err != nil {
 		config.Logger().Printf("Call failed [%v]", err)
 		http.Error(c.Writer, err.Error(), http.StatusInternalServerError)
+		c.SD.Client.Inc("JSON_Error", 1, 1.0)
 		return
 	}
 
@@ -36,4 +39,5 @@ func doRespond(c *web.AppContext, object interface{}, appErr *web.AppError) {
 	c.Writer.Header().Set("Content-Type", "application/json")
 	c.Writer.WriteHeader(http.StatusOK)
 	c.Writer.Write(payload)
+	c.SD.Client.Inc("HTTP_Success", 1, 1.0)
 }

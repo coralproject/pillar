@@ -32,6 +32,7 @@ func PublishEvent(c *web.AppContext, object interface{}, payload interface{}) {
 
 	log.Printf("Event pushed [%+v]\n\n", payload)
 	c.RMQ.Publish(data)
+	c.SD.Client.Inc(c.Event, 1, 1.0)
 }
 
 func getPayload(context *web.AppContext, object interface{}) interface{} {
