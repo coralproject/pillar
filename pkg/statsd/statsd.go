@@ -3,6 +3,7 @@ package statsd
 import (
 	"github.com/cactus/go-statsd-client/statsd"
 	"log"
+	"time"
 )
 
 func main() {
@@ -18,21 +19,18 @@ var (
 
 func connect(url string) statsd.Statter {
 
-	// A buffered client, which sends multiple stats in one packet, is
-	// recommended when your server supports it (better performance).
-	// client, err := statsd.NewBufferedClient("127.0.0.1:8125", "test-client", 300*time.Millisecond, 0)
-
 	if client != nil {
 		return client
 	}
 
-	client, err := statsd.NewClient(url, "pillar")
+	client, err := statsd.NewBufferedClient(url, "pillar", 300*time.Millisecond, 0)
 
 	if err != nil {
 		log.Printf("Error connecting to Statsd [%v]", err)
 		return nil
 	}
 
+	log.Printf("Connected to Statsd")
 	return client
 }
 
