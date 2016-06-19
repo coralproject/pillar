@@ -39,5 +39,4 @@ func doRespond(c *web.AppContext, object interface{}, appErr *web.AppError) {
 	c.Writer.Header().Set("Content-Type", "application/json")
 	c.Writer.WriteHeader(http.StatusOK)
 	c.Writer.Write(payload)
-	c.SD.Client.Inc("HTTP_Success", 1, 1.0)
 }

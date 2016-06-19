@@ -85,8 +85,6 @@ func NewContext(rw http.ResponseWriter, r *http.Request) *AppContext {
 	c.RMQ = amqp.NewMQ(os.Getenv("AMQP_URL"), os.Getenv("AMQP_EXCHANGE"))
 	c.SD = statsd.NewSD(os.Getenv("STATSD_URL"))
 
-	c.SD.Client.Inc("Context_Created", 1, 1.0)
-
 	if r != nil {
 		c.Header = r.Header
 		c.Body = r.Body
