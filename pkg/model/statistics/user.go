@@ -92,7 +92,7 @@ func (a *UserStatisticsAccumulator) Combine(object interface{}) {
 	case *UserStatisticsAccumulator:
 		a.Comments.Combine(typedObject.Comments)
 		a.Actions.Combine(typedObject.Actions)
-		for key, _ := range typedObject.CommentIDMap {
+		for key := range typedObject.CommentIDMap {
 			a.CommentIDMap[key] = struct{}{}
 		}
 	}
@@ -107,7 +107,7 @@ func (a *UserStatisticsAccumulator) UserStatistics(ctx context.Context) *UserSta
 
 func (a *UserStatisticsAccumulator) CommentIDs(ctx context.Context) []interface{} {
 	commentIDs := make([]interface{}, 0, len(a.CommentIDMap))
-	for key, _ := range a.CommentIDMap {
+	for key := range a.CommentIDMap {
 		commentIDs = append(commentIDs, key)
 	}
 	return commentIDs
@@ -199,10 +199,6 @@ func (a *UserAccumulator) Accumulate(ctx context.Context, object interface{}) {
 	// }
 
 	userStatisticsReference := userStatisticsAccumulator.UserStatistics(ctx)
-	if count := user.Stats["comments"]; count != nil && userStatisticsReference.Comments.All.All.Count != count {
-		log.Printf("Comment count didn't match, got %d, expected %d for %s", userStatisticsReference.Comments.All.All.Count, count, user.ID.Hex())
-	}
-
 	if userStatisticsReference.Comments.All.All.Count > 0 {
 		if err := b.UpsertID("user_reference", user.ID, &User{
 			User:      *user,
@@ -225,7 +221,7 @@ func (a *UserAccumulator) Accumulate(ctx context.Context, object interface{}) {
 			a.DimensionAccumulator[dimension] = aggregate.NewInt()
 		}
 
-		for key, _ := range commentTypes {
+		for key := range commentTypes {
 			a.DimensionAccumulator[dimension].Add(key, 1)
 		}
 	}
