@@ -51,13 +51,8 @@ func Pipeline(
 
 			// Process values until the input channel is closed, then signal this go
 			// routine has finished processing.
-			total := 0
 			for object := range in {
 				accumulator.Accumulate(ctx, object)
-				total++
-				if total%1000 == 0 {
-					log.Printf("%s[%d] processed %d", uid, i, total)
-				}
 			}
 			waitGroup.Done()
 		}(i)
