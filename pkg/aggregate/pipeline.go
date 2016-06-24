@@ -1,16 +1,13 @@
 package aggregate
 
 import (
-	"fmt"
-	"log"
-	"math/rand"
 	"runtime"
 	"sync"
 
 	"golang.org/x/net/context"
 )
 
-// Accumultor is an object that can accumulate statistics based on individual
+// Accumulator is an object that can accumulate statistics based on individual
 // objects within a context.
 type Accumulator interface {
 	Accumulate(context.Context, interface{})
@@ -29,7 +26,7 @@ func Pipeline(
 	// each Go routine withine the pipeline.
 	newAccumulator func() Accumulator,
 ) Accumulator {
-	uid := fmt.Sprintf("%8X", rand.Uint32())
+	//uid := fmt.Sprintf("%8X", rand.Uint32())
 
 	// Keep track of GOMAXPROCS accumulators using a slice.
 	gomaxprocs := runtime.GOMAXPROCS(-1)
