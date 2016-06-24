@@ -37,6 +37,89 @@ var Indicies = []Index{
 		},
 	},
 
+	// User Statistics indexes
+	{
+		UserStatistics, mgo.Index{
+			Key: []string{"statistics.comments.all.all.count"},
+		},
+	},
+	{
+		UserStatistics, mgo.Index{
+			Key: []string{"statistics.comments.all.all.replied_count"},
+		},
+	},
+	{
+		UserStatistics, mgo.Index{
+			Key: []string{"statistics.comments.all.all.replied_ratio"},
+		},
+	},
+	{
+		UserStatistics, mgo.Index{
+			Key: []string{"statistics.comments.all.all.reply_count"},
+		},
+	},
+	{
+		UserStatistics, mgo.Index{
+			Key: []string{"statistics.comments.all.all.reply_ratio"},
+		},
+	},
+	{
+		UserStatistics, mgo.Index{
+			Key: []string{"statistics.comments.all.all.word_count_average"},
+		},
+	},
+	{
+		UserStatistics, mgo.Index{
+			Key: []string{"statistics.comments.all.ModeratorDeleted.count"},
+		},
+	},
+	{
+		UserStatistics, mgo.Index{
+			Key: []string{"statistics.comments.all.ratios.ModeratorDeleted"},
+		},
+	},
+	{
+		UserStatistics, mgo.Index{
+			Key: []string{"statistics.comments.all.ModeratorApproved.count"},
+		},
+	},
+	{
+		UserStatistics, mgo.Index{
+			Key: []string{"statistics.comments.all.ratios.ModeratorApproved"},
+		},
+	},
+	{
+		UserStatistics, mgo.Index{
+			Key: []string{"statistics.comments.all.CommunityFlagged.count"},
+		},
+	},
+	{
+		UserStatistics, mgo.Index{
+			Key: []string{"statistics.comments.all.ratios.Communityflagged"},
+		},
+	},
+
+	{
+		UserStatistics, mgo.Index{
+			Key: []string{"statistics.actions.received.likes.count"},
+		},
+	},
+	{
+		UserStatistics, mgo.Index{
+			Key: []string{"statistics.actions.performed.likes.count"},
+		},
+	},
+	{
+		UserStatistics, mgo.Index{
+			Key: []string{"statistics.actions.received.flags.count"},
+		},
+	},
+	{
+		UserStatistics, mgo.Index{
+			Key: []string{"statistics.actions.performed.flags.count"},
+		},
+	},
+
 	//Comments Indexes
 	{
 		Comments, mgo.Index{

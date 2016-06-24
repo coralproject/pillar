@@ -29,6 +29,7 @@ const (
 
 	//Various Collections
 	Users          string = "users"
+	UserStatistics string = "user_statistics"
 	Assets         string = "assets"
 	Actions        string = "actions"
 	Comments       string = "comments"
