@@ -3,14 +3,14 @@ package web
 import (
 	"bytes"
 	"encoding/json"
+	"github.com/coralproject/pillar/pkg/amqp"
+	"github.com/coralproject/pillar/pkg/db"
+	"github.com/coralproject/pillar/pkg/statsd"
+	"github.com/gorilla/mux"
 	"io"
 	"io/ioutil"
 	"net/http"
 	"os"
-
-	"github.com/coralproject/pillar/pkg/amqp"
-	"github.com/coralproject/pillar/pkg/db"
-	"github.com/gorilla/mux"
 )
 
 // overwrites the handlerfunc
@@ -32,12 +32,14 @@ type AppContext struct {
 	Vars   map[string]string
 	MDB    *db.MongoDB
 	RMQ    *amqp.MQ
+	SD     *statsd.SD
 	Event  string
 }
 
 func (c *AppContext) Close() {
 	c.MDB.Close()
 	c.RMQ.Close()
+	c.SD.Close()
 }
 
 func (c *AppContext) GetValue(key string) string {
@@ -56,6 +58,7 @@ func (c *AppContext) Clone() *AppContext {
 	var ac AppContext
 	ac.MDB = c.MDB
 	ac.RMQ = c.RMQ
+	ac.SD = c.SD
 	return &ac
 }
 
@@ -80,6 +83,7 @@ func NewContext(rw http.ResponseWriter, r *http.Request) *AppContext {
 	c.Writer = rw
 	c.MDB = db.NewMongoDB(os.Getenv("MONGODB_URL"))
 	c.RMQ = amqp.NewMQ(os.Getenv("AMQP_URL"), os.Getenv("AMQP_EXCHANGE"))
+	c.SD = statsd.NewSD(os.Getenv("STATSD_URL"))
 
 	if r != nil {
 		c.Header = r.Header

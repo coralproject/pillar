@@ -39,7 +39,7 @@ func doUpdateSearch(c *web.AppContext, search model.Search) {
 	//remove tag when user from old list are no longer in new list
 	for _, one := range search.Result.Users {
 		if _, ok := m[one.ID]; !ok {
-			if user := removeTag(c.MDB, one.ID, search.Tag); user != nil {
+			if user := removeTag(c, one.ID, search.Tag); user != nil {
 				p := model.Event{model.EventTagRemoved, model.PayloadTag{search.Tag, *user}}
 				PublishEvent(c, nil, p)
 			}
@@ -47,7 +47,7 @@ func doUpdateSearch(c *web.AppContext, search model.Search) {
 	}
 
 	for _, value := range m {
-		if user := addTag(c.MDB, value.ID, search.Tag); user != nil {
+		if user := addTag(c, value.ID, search.Tag); user != nil {
 			p := model.Event{model.EventTagAdded, model.PayloadTag{search.Tag, *user}}
 			PublishEvent(c, nil, p)
 		}
@@ -57,11 +57,12 @@ func doUpdateSearch(c *web.AppContext, search model.Search) {
 	r := model.SearchResult{Count: len(m), Users: a}
 	c.MDB.DB.C(model.Searches).UpdateId(search.ID, bson.M{"$set": bson.M{"result": r}})
 	log.Printf("UpdateSearch successful [query: %v, count %d]\n", search.Query, len(m))
+	c.SD.Client.Inc("Update_Search_Successful", 1, 1.0)
 }
 
-func addTag(db *db.MongoDB, id bson.ObjectId, tag string) *model.User {
+func addTag(c *web.AppContext, id bson.ObjectId, tag string) *model.User {
 	var user model.User
-	if err := db.DB.C(model.Users).FindId(id).One(&user); err != nil {
+	if err := c.MDB.DB.C(model.Users).FindId(id).One(&user); err != nil {
 		return nil
 	}
 
@@ -73,13 +74,14 @@ func addTag(db *db.MongoDB, id bson.ObjectId, tag string) *model.User {
 
 	//add the new tag
 	tags := append(user.Tags, tag)
-	db.DB.C(model.Users).UpdateId(id, bson.M{"$set": bson.M{"tags": tags}})
+	c.MDB.DB.C(model.Users).UpdateId(id, bson.M{"$set": bson.M{"tags": tags}})
+	c.SD.Client.Inc("New_Tag_Added", 1, 1.0)
 	return &user
 }
 
-func removeTag(db *db.MongoDB, id bson.ObjectId, tag string) *model.User {
+func removeTag(c *web.AppContext, id bson.ObjectId, tag string) *model.User {
 	var user model.User
-	if err := db.DB.C(model.Users).FindId(id).One(&user); err != nil {
+	if err := c.MDB.DB.C(model.Users).FindId(id).One(&user); err != nil {
 		return nil
 	}
 
@@ -92,7 +94,8 @@ func removeTag(db *db.MongoDB, id bson.ObjectId, tag string) *model.User {
 		tags = append(tags, one)
 	}
 
-	db.DB.C(model.Users).UpdateId(id, bson.M{"$set": bson.M{"tags": tags}})
+	c.MDB.DB.C(model.Users).UpdateId(id, bson.M{"$set": bson.M{"tags": tags}})
+	c.SD.Client.Inc("Tag_Removed", 1, 1.0)
 	return &user
 }
 

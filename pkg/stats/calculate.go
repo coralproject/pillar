@@ -41,7 +41,7 @@ func CalculateUserStatistics(ctx context.Context) error {
 			in <- user
 			return nil
 		}); err != nil {
-			log.Error(uid, "stats", err, "Calculating User Stadistics.")
+			log.Error(uid, "stats", err, "Calculating User Statistics.")
 			return
 		}
 	}()
@@ -54,7 +54,7 @@ func CalculateUserStatistics(ctx context.Context) error {
 
 		for _, dimension := range userAccumulator.Dimensions() {
 			if err := b.Upsert("dimensions", map[string]interface{}{"name": dimension.Name}, dimension); err != nil {
-				log.Error(uid, "stats", err, "Calculating User Stadistics.")
+				log.Error(uid, "stats", err, "Calculating User Statistics.")
 			}
 		}
 	}
