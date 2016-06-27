@@ -6,11 +6,12 @@ import (
 
 var (
 	objectTypes = map[string]struct{}{
-		"comments": struct{}{},
-		"assets":   struct{}{},
-		"users":    struct{}{},
-		"actions":  struct{}{},
-		"tags":     struct{}{},
+		"comments":   struct{}{},
+		"assets":     struct{}{},
+		"users":      struct{}{},
+		"actions":    struct{}{},
+		"tags":       struct{}{},
+		"dimensions": struct{}{},
 	}
 )
 
@@ -43,6 +44,11 @@ func ObjectTypeInstance(objectType string) interface{} {
 		return &User{}
 	case "tags":
 		return Tag{}
+	case "dimensions":
+		return Dimension{}
+
+	case "forms":
+		return &Form{}
 	}
 
 	return make(map[string]interface{})

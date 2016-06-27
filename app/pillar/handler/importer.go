@@ -1,80 +1,42 @@
 package handler
 
 import (
-	"encoding/json"
-	"github.com/coralproject/pillar/pkg/model"
 	"github.com/coralproject/pillar/pkg/service"
-	"net/http"
+	"github.com/coralproject/pillar/pkg/web"
+	"github.com/coralproject/pillar/pkg/model"
 )
 
 //ImportUser imports a new user to the system
-func ImportUser(w http.ResponseWriter, r *http.Request) {
-	//Get the user from request
-	jsonObject := model.User{}
-	json.NewDecoder(r.Body).Decode(&jsonObject)
-
-	// Write content-type, status code, payload
-	w.Header().Set("Content-Type", "application/json")
-	dbObject, err := service.CreateUser(&jsonObject)
-	doRespond(w, dbObject, err)
+func ImportUser(c *web.AppContext) {
+	c.Event = model.EventUserImport
+	dbObject, err := service.ImportUser(c)
+	doRespond(c, dbObject, err)
 }
 
 //ImportAsset imports a new asset to the system
-func ImportAsset(w http.ResponseWriter, r *http.Request) {
-	//Get the user from request
-	jsonObject := model.Asset{}
-	json.NewDecoder(r.Body).Decode(&jsonObject)
-
-	// Write content-type, status code and payload
-	w.Header().Set("Content-Type", "application/json")
-	dbObject, err := service.CreateAsset(&jsonObject)
-	doRespond(w, dbObject, err)
+func ImportAsset(c *web.AppContext) {
+	c.Event = model.EventAssetImport
+	dbObject, err := service.ImportAsset(c)
+	doRespond(c, dbObject, err)
 }
 
 //ImportComment imports a new comment to the system
-func ImportComment(w http.ResponseWriter, r *http.Request) {
-	//Get the user from request
-	jsonObject := model.Comment{}
-	json.NewDecoder(r.Body).Decode(&jsonObject)
-
-	// Write content-type, statuscode, payload
-	w.Header().Set("Content-Type", "application/json")
-	dbObject, err := service.CreateComment(&jsonObject)
-	doRespond(w, dbObject, err)
+func ImportComment(c *web.AppContext) {
+	c.Event = model.EventCommentImport
+	dbObject, err := service.ImportComment(c)
+	doRespond(c, dbObject, err)
 }
 
 //ImportAction imports actions into the system
-func ImportAction(w http.ResponseWriter, r *http.Request) {
-	//Get the user from request
-	jsonObject := model.Action{}
-	json.NewDecoder(r.Body).Decode(&jsonObject)
-
-	// Write content-type, status code and payload
-	w.Header().Set("Content-Type", "application/json")
-	dbObject, err := service.CreateAction(&jsonObject)
-	doRespond(w, dbObject, err)
+func ImportAction(c *web.AppContext) {
+	c.Event = model.EventActionImport
+	dbObject, err := service.ImportAction(c)
+	doRespond(c, dbObject, err)
 }
 
 //ImportNote imports notes into the system
-func ImportNote(w http.ResponseWriter, r *http.Request) {
-	//Get the user from request
-	jsonObject := model.Note{}
-	json.NewDecoder(r.Body).Decode(&jsonObject)
-
-	// Write content-type, status code and payload
-	w.Header().Set("Content-Type", "application/json")
-	dbObject, err := service.CreateNote(&jsonObject)
-	doRespond(w, dbObject, err)
-}
-
-//ImportMetadata imports metadata to various entities in the system
-func ImportMetadata(w http.ResponseWriter, r *http.Request) {
-	//Get the user from request
-	jsonObject := model.Metadata{}
-	json.NewDecoder(r.Body).Decode(&jsonObject)
-
-	// Write content-type, status code and payload
-	w.Header().Set("Content-Type", "application/json")
-	dbObject, err := service.UpdateMetadata(&jsonObject)
-	doRespond(w, dbObject, err)
+func ImportNote(c *web.AppContext) {
+	c.Event = model.EventNoteImport
+	dbObject, err := service.CreateNote(c)
+	doRespond(c, dbObject, err)
 }

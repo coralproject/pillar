@@ -1,0 +1,98 @@
+[
+    {
+        "name": "national",
+        "description": "national"
+    },
+    {
+        "name": "politics",
+        "description": "politics"
+    },
+    {
+        "name": "world",
+        "description": "world"
+    },
+    {
+        "name": "opinions",
+        "description": "opinions"
+    },
+    {
+        "name": "sports",
+        "description": "sports"
+    },
+    {
+        "name": "business",
+        "description": "business"
+    },
+    {
+        "name": "lifestyle",
+        "description": "lifestyle"
+    },
+    {
+        "name": "local",
+        "description": "local"
+    },
+    {
+        "name": "powerpost",
+        "description": "powerpost"
+    },
+    {
+        "name": "entertainment",
+        "description": "entertainment"
+    },
+    {
+        "name": "national/on-innovations",
+        "description": "national/on-innovations"
+    },
+    {
+        "name": "realestate",
+        "description": "realestate"
+    },
+    {
+        "name": "photography",
+        "description": "photography"
+    },
+    {
+        "name": "goingoutguide",
+        "description": "goingoutguide"
+    },
+    {
+        "name": "express",
+        "description": "express"
+    },
+    {
+        "name": "community-relations",
+        "description": "community-relations"
+    },
+    {
+        "name": "investigations",
+        "description": "investigations"
+    },
+    {
+        "name": "cars",
+        "description": "cars"
+    },
+    {
+        "name": "world/national-security",
+        "description": "world/national-security"
+    },
+    {
+        "name": "national/health-science",
+        "description": "national/health-science"
+    },
+    {
+        "name": "lifestyle/on-parenting",
+        "description": "lifestyle/on-parenting"
+    },
+    {
+        "name": "business/technology",
+        "description": "business/technology"
+    },
+    {
+        "name": "conversations",
+        "description": "conversations"
+    },
+    {
+        "name": "business/on-leadership",
+        "description": "business/on-leadership"
+    }
+]

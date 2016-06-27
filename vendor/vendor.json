@@ -3,6 +3,16 @@
 	"ignore": "test",
 	"package": [
 		{
+			"path": "github.com/ardanlabs/kit/cfg",
+			"revision": "ecb7416d45bf81d12d12b7e3766f8c6cf9359e51",
+			"revisionTime": "2016-03-14T11:07:07-04:00"
+		},
+		{
+			"path": "github.com/ardanlabs/kit/log",
+			"revision": "ecb7416d45bf81d12d12b7e3766f8c6cf9359e51",
+			"revisionTime": "2016-03-14T11:07:07-04:00"
+		},
+		{
 			"path": "github.com/codegangsta/negroni",
 			"revision": "c7477ad8e330bef55bf1ebe300cf8aa67c492d1b",
 			"revisionTime": "2015-03-19T10:13:04-07:00"
@@ -23,6 +33,16 @@
 			"revisionTime": "2015-11-11T18:35:30+08:00"
 		},
 		{
+			"path": "github.com/pborman/uuid",
+			"revision": "ca53cad383cad2479bbba7f7a1a05797ec1386e4",
+			"revisionTime": "2015-06-03T14:40:16-07:00"
+		},
+		{
+			"path": "github.com/robfig/cron",
+			"revision": "0f39cf7ebc65a602f45692f9894bd6a193faf8fa",
+			"revisionTime": "2016-03-29T11:39:55-04:00"
+		},
+		{
 			"path": "github.com/rs/cors",
 			"revision": "5950cf11d77f8a61b432a25dd4d444b4ced01379",
 			"revisionTime": "2016-02-11T13:46:49-08:00"
@@ -31,6 +51,16 @@
 			"path": "github.com/rs/xhandler",
 			"revision": "d9d9599b6aaf6a058cb7b1f48291ded2cbd13390",
 			"revisionTime": "2015-12-23T17:29:56-08:00"
+		},
+		{
+			"path": "github.com/spf13/cobra",
+			"revision": "1c44ec8d3f1552cac48999f9306da23c4d8a288b",
+			"revisionTime": "2015-11-24T10:32:17-05:00"
+		},
+		{
+			"path": "github.com/streadway/amqp",
+			"revision": "2e25825abdbd7752ff08b270d313b93519a0a232",
+			"revisionTime": "2016-03-11T22:55:03+01:00"
 		},
 		{
 			"path": "golang.org/x/net/context",

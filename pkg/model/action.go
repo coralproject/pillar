@@ -16,6 +16,26 @@ type Action struct {
 	TargetID bson.ObjectId `json:"target_id" bson:"target_id" validate:"required"`
 	Date     time.Time     `json:"date" bson:"date" validate:"required"`
 	Value    string        `json:"value,omitempty" bson:"value,omitempty"`
-	Source   ImportSource  `json:"source" bson:"source"`
 	Metadata bson.M        `json:"metadata,omitempty" bson:"metadata,omitempty"`
+	Source   *ImportSource `json:"source,omitempty" bson:"source,omitempty"`
+}
+
+// Id returns the ID for this Model
+func (object Action) Id() string {
+	return object.ID.Hex()
+}
+
+// ImportSource returns the Source model
+func (object Action) ImportSource() *ImportSource {
+	return object.Source
+}
+
+// Validate validates this Model
+func (object Action) Validate() error {
+//	errs := validate.Struct(object)
+//	if errs != nil {
+//		return fmt.Errorf("%v", errs)
+//	}
+
+	return nil
 }

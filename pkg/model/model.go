@@ -29,6 +29,7 @@ const (
 
 	//Various Collections
 	Users          string = "users"
+	UserStatistics string = "user_statistics"
 	Assets         string = "assets"
 	Actions        string = "actions"
 	Comments       string = "comments"
@@ -37,7 +38,20 @@ const (
 	Sections       string = "sections"
 	TagTargets     string = "tag_targets"
 	CayUserActions string = "cay_user_actions"
+	Searches       string = "searches"
+	SrchHistory    string = "search_history"
+
+	// Ask collections
+	Forms           string = "forms"
+	FormSubmissions string = "form_submissions"
+	FormGalleries   string = "form_galleries"
 )
+
+type Model interface {
+	Id() string
+	Validate() error
+	ImportSource() *ImportSource
+}
 
 // ImportSource encapsulates all original id from the source system
 // this is a common struct used primarily for import purposes
@@ -48,14 +62,15 @@ type ImportSource struct {
 	TargetID string `json:"target_id,omitempty" bson:"target_id,omitempty"`
 	AssetID  string `json:"asset_id,omitempty" bson:"asset_id,omitempty"`
 	ParentID string `json:"parent_id,omitempty" bson:"parent_id,omitempty"`
+	User     *User  `json:"user,omitempty" bson:"user,omitempty"`
 }
 
 // Metadata denotes a request to add/update Metadata for an entity
 type Metadata struct {
 	Target   string        `json:"target" bson:"target" validate:"required"`
 	TargetID bson.ObjectId `json:"target_id" bson:"target_id" validate:"required"`
-	Source   ImportSource  `json:"source" bson:"source"`
 	Metadata bson.M        `json:"metadata,omitempty" bson:"metadata,omitempty"`
+	Source   ImportSource  `json:"source,omitempty" bson:"source,omitempty"`
 }
 
 // Index denotes a request to add Index to various entities.
@@ -64,6 +79,7 @@ type Index struct {
 	Index  mgo.Index `json:"index" bson:"index" validate:"required"`
 }
 
+//CayUserAction denotes a user action from the user using the system.
 type CayUserAction struct {
 	ID      bson.ObjectId `json:"id" bson:"_id"`
 	Date    time.Time     `json:"date" bson:"date" validate:"required"`

@@ -1,0 +1,19 @@
+[
+    {
+        "name": "power_users",
+        "description": "Power Users",
+        "query" : "find all users with this tag",
+        "tag" : "my-top-commenter",
+        "filters" : {
+            "values": ["a", "b"],
+            "breakdown": "xyz",
+            "specificBreakdown": "abc"
+        }
+    },
+    {
+        "name": "opinionated",
+        "description": "Opinion Users",
+        "query" : "find all users without this tag",
+        "tag" : "terrible-english"
+    }
+]

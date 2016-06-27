@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/coralproject/pillar/pkg/model"
+	"github.com/coralproject/pillar/pkg/web"
 	"net/http"
 )
 
@@ -21,8 +22,8 @@ func init() {
 }
 
 //AboutThisApp displays the about page
-func AboutThisApp(w http.ResponseWriter, r *http.Request) {
-	doRespond(w, about, nil)
+func AboutThisApp(c *web.AppContext) {
+	doRespond(c, about, nil)
 }
 
 //Logout logs the user out of the system

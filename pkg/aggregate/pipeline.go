@@ -1,14 +1,13 @@
 package aggregate
 
 import (
-	"log"
 	"runtime"
 	"sync"
 
 	"golang.org/x/net/context"
 )
 
-// Accumultor is an object that can accumulate statistics based on individual
+// Accumulator is an object that can accumulate statistics based on individual
 // objects within a context.
 type Accumulator interface {
 	Accumulate(context.Context, interface{})
@@ -27,6 +26,7 @@ func Pipeline(
 	// each Go routine withine the pipeline.
 	newAccumulator func() Accumulator,
 ) Accumulator {
+	//uid := fmt.Sprintf("%8X", rand.Uint32())
 
 	// Keep track of GOMAXPROCS accumulators using a slice.
 	gomaxprocs := runtime.GOMAXPROCS(-1)
@@ -48,13 +48,8 @@ func Pipeline(
 
 			// Process values until the input channel is closed, then signal this go
 			// routine has finished processing.
-			total := 0
 			for object := range in {
 				accumulator.Accumulate(ctx, object)
-				total++
-				if total%1000 == 0 {
-					log.Printf("routine[%d] processed %d", i, total)
-				}
 			}
 			waitGroup.Done()
 		}(i)

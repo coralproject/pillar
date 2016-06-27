@@ -3,54 +3,37 @@ package handler
 import (
 	"encoding/json"
 	"github.com/coralproject/pillar/app/pillar/config"
-	"github.com/coralproject/pillar/pkg/model"
 	"github.com/coralproject/pillar/pkg/service"
+	"github.com/coralproject/pillar/pkg/web"
 	"net/http"
 )
 
-func doRespond(w http.ResponseWriter, object interface{}, appErr *service.AppError) {
+func doRespond(c *web.AppContext, object interface{}, appErr *web.AppError) {
 	if appErr != nil {
-		config.Logger.Printf("Call failed [%+v]", appErr)
+		config.Logger().Printf("Call failed [%v]", appErr)
 		payload, err := json.Marshal(appErr)
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
+			http.Error(c.Writer, err.Error(), http.StatusInternalServerError)
 			return
 		}
 
-		w.WriteHeader(appErr.Code)
-		w.Write(payload)
+		c.Writer.Header().Set("Content-Type", "application/json")
+		c.Writer.WriteHeader(appErr.Code)
+		c.Writer.Write(payload)
 		return
 	}
 
 	payload, err := json.Marshal(object)
 	if err != nil {
-		config.Logger.Printf("Call failed [%+v]", err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		config.Logger().Printf("Call failed [%v]", err)
+		http.Error(c.Writer, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	w.WriteHeader(http.StatusOK)
-	w.Write(payload)
-}
+	//publish event before sending response
+	service.PublishEvent(c, object, nil)
 
-func CreateIndex(w http.ResponseWriter, r *http.Request) {
-	//Get the Index from request
-	jsonObject := model.Index{}
-	json.NewDecoder(r.Body).Decode(&jsonObject)
-
-	// Write content-type, status code and payload
-	w.Header().Set("Content-Type", "application/json")
-	err := service.CreateIndex(&jsonObject)
-	doRespond(w, nil, err)
-}
-
-func HandleUserAction(w http.ResponseWriter, r *http.Request) {
-	//Get the UserAction from request
-	jsonObject := model.CayUserAction{}
-	json.NewDecoder(r.Body).Decode(&jsonObject)
-
-	// Write content-type, status code and payload
-	w.Header().Set("Content-Type", "application/json")
-	err := service.CreateUserAction(&jsonObject)
-	doRespond(w, nil, err)
+	c.Writer.Header().Set("Content-Type", "application/json")
+	c.Writer.WriteHeader(http.StatusOK)
+	c.Writer.Write(payload)
 }

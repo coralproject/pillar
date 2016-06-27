@@ -1,0 +1,36 @@
+[
+  {
+    "name" : "Giantsmax",
+    "avatar" : "https://wpidentity.s3.amazonaws.com/assets/images/avatar-default.png",
+    "status" : "ModeratorApproved",
+    "source" : {
+      "id":"u6qTe%2BFQ%2BFli6rmbWJ6BEP%2BLRzrUEvutviR1VYa5PdNoGeVxxhJF5A%3D%3D"
+    },
+    "tags" : ["top_commentor", "powerball"]
+  },
+  {
+    "status" : "ModeratorApproved",
+    "name" : "jwc-ky",
+    "avatar" : "https://wpidentity.s3.amazonaws.com/assets/images/avatar-default.png",
+    "source" : {
+      "id" : "2k5EMOH4o1EAkq9Fb0zxksgoWI6YUHMFVlNQOUtKBgd/tT03sC7QkQ%3D%3D"
+    },
+    "tags" : ["top_commentor", "powerball"]
+  },
+  {
+    "status" : "ModeratorApproved",
+    "name" : "camasca",
+    "avatar" : "https://wpidentity.s3.amazonaws.com/assets/images/avatar-default.png",
+    "source" : {
+      "id" : "DbG3YQhvTOTbgmccXKF4LXrE7VgS76krNWZjM5N3fM%2B%2B%2BfrlKkwhFQ%3D%3D"
+    }
+  },
+  {
+    "status" : "ModeratorApproved",
+    "name" : "pandabear",
+    "avatar" : "https://wpidentity.s3.amazonaws.com/assets/images/avatar-default.png",
+    "source" : {
+      "id" : "5TGhIXDxMXgz5S%2BBc7ap4/JkV59ZvvsMNXwm4WKT3BRoGeVxxhJF5A%3D%3D"
+    }
+  }
+]

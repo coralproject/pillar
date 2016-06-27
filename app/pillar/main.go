@@ -3,21 +3,25 @@ package main
 import (
 	"github.com/codegangsta/negroni"
 	"github.com/coralproject/pillar/app/pillar/config"
+	"github.com/coralproject/pillar/app/pillar/handler"
 	"github.com/coralproject/pillar/app/pillar/route"
-	"github.com/rs/cors"
+)
+
+const (
+	// VersionNumber is the version for sponge
+	VersionNumber = 0.1
 )
 
 func main() {
-	c := cors.New(cors.Options{
-		AllowedOrigins:   []string{"*"},
-		AllowedMethods:   []string{"POST", "GET", "OPTIONS", "DELETE"},
-		AllowedHeaders:   []string{"Accept", "Content-Type", "Content-Length", "Accept-Encoding"},
-		AllowCredentials: true,
-	})
-
-	router := route.NewRouter()
+	//new Negroni Middleware
 	n := negroni.Classic()
-	n.Use(c)
-	n.UseHandler(router)
-	n.Run(config.GetAddress())
+
+	//Add CORS
+	n.Use(handler.CORS())
+
+	//Router at the end
+	n.UseHandler(route.NewRouter())
+
+	//run server
+	n.Run(config.Address())
 }

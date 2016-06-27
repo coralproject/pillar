@@ -3,15 +3,36 @@ package model
 import (
 	"gopkg.in/mgo.v2/bson"
 	"time"
+	"fmt"
 )
 
 // Tag denotes a unique tag in the system
 type Tag struct {
 	Name        string    `json:"name" bson:"_id" validate:"required"`
-	Old_Name    string    `json:"old_name,omitempty" bson:"old_name,omitempty"`
+	OldName     string    `json:"old_name,omitempty" bson:"old_name,omitempty"`
 	Description string    `json:"description" bson:"description" validate:"required"`
 	DateCreated time.Time `json:"date_created" bson:"date_created"`
 	DateUpdated time.Time `json:"date_updated,omitempty" bson:"date_updated,omitempty"`
+}
+
+// Id returns the ID for this Model
+func (object Tag) Id() string {
+	return object.Name
+}
+
+// ImportSource returns the Source model
+func (object Tag) ImportSource() *ImportSource {
+	return nil
+}
+
+// Validate validates this Model
+func (object Tag) Validate() error {
+	errs := validate.Struct(object)
+	if errs != nil {
+		return fmt.Errorf("%v", errs)
+	}
+
+	return nil
 }
 
 // TagTarget denotes relationship between an entity and its tags
