@@ -92,7 +92,7 @@ func NewMongoDBBackend(addrs []string, database, username, password string, ssl 
 // }
 
 func (m *MongoDBBackend) newSession() *mgo.Session {
-	return m.session.Clone()
+	return m.session.Copy()
 }
 
 func (m *MongoDBBackend) Upsert(objectType string, query map[string]interface{}, object interface{}) error {

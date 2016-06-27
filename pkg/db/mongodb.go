@@ -2,6 +2,7 @@ package db
 
 import (
 	"log"
+	"sync"
 
 	"github.com/coralproject/pillar/pkg/model"
 	"gopkg.in/mgo.v2"
@@ -9,6 +10,7 @@ import (
 
 var (
 	mgoSession *mgo.Session
+	mu         sync.Mutex
 )
 
 // MongoDB encapsulates a mongo database and session
@@ -32,7 +34,7 @@ func (m *MongoDB) IsValid() bool {
 
 //Upsert upserts a specific entity into the given collection
 func (m *MongoDB) Upsert(objectType string, id, object interface{}) error {
-	session := m.Session.Clone()
+	session := m.Session.Copy()
 	defer session.Close()
 
 	_, err := m.Session.DB("").C(objectType).UpsertId(id, object)
@@ -45,7 +47,7 @@ func (m *MongoDB) Find(objectType string, query map[string]interface{}) (Iterato
 		return nil, err
 	}
 
-	session := m.Session.Clone()
+	session := m.Session.Copy()
 	return &iter{
 		session: session,
 		iter:    session.DB("").C(objectType).Find(query).Iter(),
@@ -56,6 +58,9 @@ func (m *MongoDB) Find(objectType string, query map[string]interface{}) (Iterato
 }
 
 func connect(url string) *mgo.Session {
+	mu.Lock()
+	defer mu.Unlock()
+
 	if mgoSession != nil {
 		return mgoSession
 	}
@@ -84,7 +89,7 @@ func NewMongoDB(url string) *MongoDB {
 
 	s := connect(url)
 	if s != nil {
-		db.Session = s.Clone() //must clone
+		db.Session = s.Copy()
 		db.DB = s.DB("")
 	}
 
