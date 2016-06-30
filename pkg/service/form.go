@@ -107,16 +107,21 @@ func CreateUpdateForm(context *web.AppContext) (*model.Form, *web.AppError) {
 		fc.SetValue("form_id", input.ID.Hex())
 		CreateFormGallery(fc)
 
+	} else { // do the update
+
+		// store the existing id into the context as a hex
+		//  to match up with what we expect from web params
+		context.SetValue("id", input.ID.Hex())
+
+		if _, err := context.MDB.DB.C(model.Forms).UpsertId(input.ID, input); err != nil {
+			message := fmt.Sprintf("Error creating/updating Form")
+
+			return nil, &web.AppError{err, message, http.StatusInternalServerError}
+		}
+
 	}
 
-	// do the update
-	if _, err := context.MDB.DB.C(model.Forms).UpsertId(input.ID, input); err != nil {
-		message := fmt.Sprintf("Error creating/updating Form")
-
-		return nil, &web.AppError{err, message, http.StatusInternalServerError}
-	}
-
-	// always update the stats
+	// always update form stats to ensure expected stats fields
 	err := updateStats(context)
 	if err != nil {
 		return nil, err
