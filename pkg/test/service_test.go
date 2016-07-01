@@ -124,6 +124,26 @@ func getAGalleryFormAForm(f *model.Form, t *testing.T) *model.FormGallery {
 	return &g[0]
 }
 
+func TestSearchFormSubmissions(t *testing.T) {
+
+	// so let's get a form
+	f := getAForm(t)
+
+	// one of its submissions
+	s := getASubmissionToAForm(f, t)
+
+	// prep a context for the search
+	c := web.NewContext(nil, nil)
+	defer c.Close()
+	c.SetValue("search", "Hello, Kitty!")
+
+	r, err := service.SearchFormSubmissions(c)
+	if err != nil {
+		log.Fatalf("Should be able to test this")
+	}
+
+}
+
 func TestFormSubmissionsSchenanigans(t *testing.T) {
 
 	file, err := os.Open(dataFormSubmissions)
