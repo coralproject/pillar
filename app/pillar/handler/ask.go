@@ -100,3 +100,8 @@ func GetFormGallery(c *web.AppContext) {
 	dbObject, err := service.GetFormGallery(c)
 	doRespond(c, dbObject, err)
 }
+
+func SearchFormSubmissions(c *web.AppContext) {
+	dbObject, err := service.SearchFormSubmissions(c)
+	doRespond(c, dbObject, err)
+}

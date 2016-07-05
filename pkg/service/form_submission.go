@@ -2,9 +2,10 @@ package service
 
 import (
 	"fmt"
-	"gopkg.in/mgo.v2/bson"
 	"net/http"
 	"time"
+
+	"gopkg.in/mgo.v2/bson"
 
 	"github.com/coralproject/pillar/pkg/model"
 	"github.com/coralproject/pillar/pkg/web"
@@ -334,4 +335,22 @@ func AddFlagToFormSubmission(context *web.AppContext) (*model.FormSubmission, *w
 
 	return &s, nil
 
+}
+
+func SearchFormSubmissions(c *web.AppContext) ([]model.FormSubmission, *web.AppError) {
+
+	// get what we are searching for
+	s := c.GetValue("search")
+
+	// we are building a text search query
+	q := bson.M{"$text": bson.M{"$search": s}}
+
+	// go find it!
+	var fss []model.FormSubmission
+	if err := c.MDB.DB.C(model.FormSubmissions).Find(q).All(&fss); err != nil {
+		message := fmt.Sprintf("Error searching Form Submissions by %s", s)
+		return nil, &web.AppError{err, message, http.StatusInternalServerError}
+	}
+
+	return fss, nil
 }
