@@ -1,8 +1,9 @@
-package service
+package service_test
 
 import (
-	"github.com/coralproject/pillar/pkg/model"
 	"testing"
+
+	"github.com/coralproject/pillar/pkg/model"
 )
 
 func TestUser(t *testing.T) {
