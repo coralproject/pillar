@@ -51,7 +51,7 @@ var _ = Describe("Searching", func() {
 	Describe("the form submissions ", func() {
 		Context("with an existing string", func() {
 
-			BeforeEach(func() {
+			JustBeforeEach(func() {
 				// prep a context for the search
 				c := web.NewContext(nil, nil)
 				defer c.Close()
@@ -71,63 +71,108 @@ var _ = Describe("Searching", func() {
 
 })
 
-///* USING TESTING STANDARD LIBRARY *//
-//
-// func init() {
-// 	db := db.NewMongoDB(os.Getenv("MONGODB_URL" + "_test"))
-// 	defer db.Close()
-//
-// 	//Empty all test data
-// 	db.DB.C(model.Forms).RemoveAll(nil)
-// 	db.DB.C(model.FormSubmissions).RemoveAll(nil)
-// 	db.DB.C(model.FormGalleries).RemoveAll(nil)
-// 	db.DB.C(model.Tags).RemoveAll(nil)
-// 	db.DB.C(model.Sections).RemoveAll(nil)
-// 	db.DB.C(model.Authors).RemoveAll(nil)
-// 	db.DB.C(model.Actions).RemoveAll(nil)
-// 	db.DB.C(model.Comments).RemoveAll(nil)
-// 	db.DB.C(model.Users).RemoveAll(nil)
-// 	db.DB.C(model.Assets).RemoveAll(nil)
-// 	db.DB.C(model.CayUserActions).RemoveAll(nil)
-// 	db.DB.C(model.TagTargets).RemoveAll(nil)
-// 	db.DB.C(model.Searches).RemoveAll(nil)
-// }
-//
-// func getAForm(t *testing.T) *model.Form {
-//
-// 	c := web.NewContext(nil, nil)
-// 	defer c.Close()
-//
-// 	fs := []model.Form{}
-//
-// 	// let's see if we have forms to reply to
-// 	fs, err := service.GetForms(c)
-// 	if err != nil {
-// 		log.Fatalf("Could not load forms for the test %v", err)
-// 		t.Fail()
-// 	}
-//
-// 	// Get the first form in the collection to reply to
-// 	return &fs[0]
-//
-// }
-//
-// func getASubmissionToAForm(f *model.Form, t *testing.T) *model.FormSubmission {
-//
-// 	// create the context for this form
-// 	c := web.NewContext(nil, nil)
-// 	defer c.Close()
-// 	c.SetValue("form_id", f.ID.Hex())
-//
-// 	s, err := service.GetFormSubmissionsByForm(c)
-// 	if err != nil {
-// 		log.Fatalf("Could not load forms submissions for the test %v", err)
-// 		t.Fail()
-// 	}
-//
-// 	return &s[0]
-// }
-//
+var _ = Describe("Get", func() {
+
+	var (
+		err         *web.AppError
+		formid      string
+		mongodb_url string
+	)
+
+	BeforeEach(func() {
+
+		// set test database
+		mongodb_url = os.Getenv("MONGODB_URL")
+		if mongodb_url == "" {
+			log.Fatal("MONGODB_URL needs to be setup.")
+		}
+		e := os.Setenv("MONGODB_URL", mongodb_url+"_test") //os.Setenv("MONGODB_URL", mongodb_url+"_"+strconv.Itoa(rand.Intn(10))+"_test")
+		if e != nil {
+			fmt.Println("Error when setting environment test ", e)
+		}
+
+		// get the fixtures for forms and forms submissions
+		loadformfixtures()
+		formid = "577c1c95a969c805f7f8c88a"
+
+		loadformgalleriesfixtures()
+	})
+
+	AfterEach(func() {
+		// empty database
+		emptydb()
+
+		// restore initial database
+		e := os.Setenv("MONGODB_URL", mongodb_url)
+		if e != nil {
+			fmt.Println("Error when setting environment back ", e)
+		}
+	})
+
+	Describe("forms", func() {
+		Context("with appropiate context", func() {
+
+			var fs []model.Form
+
+			BeforeEach(func() {
+				c := web.NewContext(nil, nil)
+				defer c.Close()
+
+				fs = []model.Form{}
+
+				// let's see if we have forms to reply to
+				fs, err = service.GetForms(c)
+			})
+			It("should return at least a form and no error", func() {
+				Expect(len(fs)).ShouldNot(Equal(0))
+				Expect(err).Should(BeNil())
+			})
+		})
+	})
+
+	Describe("submissions to a form", func() {
+		Context("with appropiate context", func() {
+
+			var fss []model.FormSubmission
+
+			BeforeEach(func() {
+				// create the context for this form
+				c := web.NewContext(nil, nil)
+				defer c.Close()
+				c.SetValue("form_id", formid)
+
+				fss, err = service.GetFormSubmissionsByForm(c)
+			})
+			It("should return at least a form and no error", func() {
+				Expect(len(fss)).ShouldNot(Equal(0))
+				Expect(err).Should(BeNil())
+			})
+		})
+	})
+
+	Describe("galleries to a form", func() {
+		Context("with appropiate context", func() {
+
+			var g []model.FormGallery
+
+			BeforeEach(func() {
+				// create the context for this form
+				c := web.NewContext(nil, nil)
+				defer c.Close()
+				c.SetValue("form_id", formid)
+
+				g, err = service.GetFormGalleriesByForm(c)
+
+			})
+
+			It("should return at least a gallery and no error", func() {
+				Expect(len(g)).ShouldNot(Equal(0))
+				Expect(err).Should(BeNil())
+			})
+		})
+	})
+})
+
 // func getAGalleryFormAForm(f *model.Form, t *testing.T) *model.FormGallery {
 //
 // 	// create the context for this form

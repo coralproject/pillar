@@ -1,0 +1,20 @@
+[
+    {
+      "target": "form_submissions",
+      "index": {
+        "name": "replies-answer-text",
+        "key": ["$text:$**"],
+        "unique": false,
+        "dropdups": false
+      }
+    },
+    {
+      "target": "form_submissions",
+      "index": {
+        "name": "form-id",
+        "key": ["form_id"],
+        "unique": false,
+        "dropdups": false
+      }
+    }
+]

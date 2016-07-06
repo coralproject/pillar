@@ -35,6 +35,8 @@ const (
 
 	dataFormsIds           = "fixtures/crud/forms_with_id.json"
 	dataFormSubmissionsIds = "fixtures/crud/form_submissions_with_id.json"
+
+	dataFormGalleries = "fixtures/crud/form_galleries.json"
 )
 
 // check if we are working with the test db
@@ -126,6 +128,39 @@ func loadformfixtures() {
 		if err != nil {
 			log.Fatalf("Error %v creating index [%+v]", err, i)
 		}
+	}
+}
+
+// load form galleries fixtures
+func loadformgalleriesfixtures() {
+	if test := checkIsTestDB(); !test {
+		log.Fatalf("Fail to setup test database with %s", os.Getenv("MONGODB_URL"))
+	}
+
+	// connect to test mongo database
+	deb := db.NewMongoDB(os.Getenv("MONGODB_URL"))
+	defer deb.Close()
+
+	// get the fixtures from appropiate json file for data form submission
+	file, e := ioutil.ReadFile(dataFormGalleries)
+	if e != nil {
+		log.Fatalf("opening config file %v", e.Error())
+	}
+
+	var objects model.FormGallery
+	e = json.Unmarshal(file, &objects)
+	if e != nil {
+		log.Fatalf("Error reading forms. %v", e.Error())
+	}
+
+	// insert in bulk into mongo database
+	b := deb.DB.C(model.FormGalleries).Bulk()
+	b.Unordered()
+	b.Insert(objects)
+
+	_, e = b.Run()
+	if e != nil {
+		log.Fatalf("Error when loading fixtures for %s. Error: %v", model.FormGalleries, e)
 	}
 }
 
