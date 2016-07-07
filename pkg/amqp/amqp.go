@@ -20,6 +20,7 @@ func connect(url string) *amqp.Connection {
 	if amqpConnection != nil {
 		return amqpConnection
 	}
+
 	c, err := amqp.Dial(url)
 	if err != nil {
 		log.Printf("Error connecting to Rabbit MQ [%v]", err)
@@ -29,7 +30,6 @@ func connect(url string) *amqp.Connection {
 	amqpConnection = c
 	return amqpConnection
 }
-
 
 func NewMQ(url string, exchange string) *MQ {
 
@@ -63,7 +63,6 @@ func (m *MQ) Close() {
 	if m.Channel == nil {
 		return
 	}
-
 	m.Channel.Close()
 }
 

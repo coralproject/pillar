@@ -1,9 +1,9 @@
 package handler
 
 import (
+	"github.com/coralproject/pillar/pkg/model"
 	"github.com/coralproject/pillar/pkg/service"
 	"github.com/coralproject/pillar/pkg/web"
-	"github.com/coralproject/pillar/pkg/model"
 )
 
 //ImportUser imports a new user to the system

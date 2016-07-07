@@ -13,6 +13,11 @@
 			"revisionTime": "2016-03-14T11:07:07-04:00"
 		},
 		{
+			"path": "github.com/cactus/go-statsd-client/statsd",
+			"revision": "91c326c3f7bd20f0226d3d1c289dd9f8ce28d33d",
+			"revisionTime": "2016-05-30T11:57:10-07:00"
+		},
+		{
 			"path": "github.com/codegangsta/negroni",
 			"revision": "c7477ad8e330bef55bf1ebe300cf8aa67c492d1b",
 			"revisionTime": "2015-03-19T10:13:04-07:00"
