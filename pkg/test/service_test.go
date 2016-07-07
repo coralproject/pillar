@@ -180,6 +180,8 @@ var _ = Describe("Create", func() {
 	var (
 		mongodb_url string
 		err         *web.AppError
+		object      model.Form
+		result      *model.Form
 	)
 
 	BeforeEach(func() {
@@ -192,6 +194,23 @@ var _ = Describe("Create", func() {
 		if e != nil {
 			fmt.Println("Error when setting environment test ", e)
 		}
+
+		// get the fixtures from appropiate json file for data form submission
+		file, e := ioutil.ReadFile(dataFormsIds)
+		if e != nil {
+			log.Fatalf("opening config file %v", e.Error())
+		}
+
+		e = json.Unmarshal(file, &object)
+		if e != nil {
+			log.Fatalf("Error reading forms. %v", e.Error())
+		}
+
+		c := web.NewContext(nil, nil)
+		defer c.Close()
+
+		c.Marshall(object)
+		result, err = service.CreateUpdateForm(c)
 	})
 
 	AfterEach(func() {
@@ -208,30 +227,6 @@ var _ = Describe("Create", func() {
 	Describe("a form", func() {
 		Context("with appropiate context", func() {
 
-			var (
-				object model.Form
-				result *model.Form
-			)
-
-			JustBeforeEach(func() {
-				// get the fixtures from appropiate json file for data form submission
-				file, e := ioutil.ReadFile(dataFormsIds)
-				if e != nil {
-					log.Fatalf("opening config file %v", e.Error())
-				}
-
-				e = json.Unmarshal(file, &object)
-				if e != nil {
-					log.Fatalf("Error reading forms. %v", e.Error())
-				}
-
-				c := web.NewContext(nil, nil)
-				defer c.Close()
-
-				c.Marshall(object)
-				result, err = service.CreateUpdateForm(c)
-			})
-
 			It("should not give an error", func() {
 				Expect(err).Should(BeNil())
 				Expect(result).ShouldNot(BeNil())
@@ -243,13 +238,10 @@ var _ = Describe("Create", func() {
 		Context("with appropiate context", func() {
 
 			var (
-				object model.FormSubmission
-				formid string
+				objectS model.FormSubmission
 			)
 
 			JustBeforeEach(func() {
-
-				loadformfixtures()
 
 				// get the fixtures from appropiate json file for data form submission
 				file, e := ioutil.ReadFile(dataFormSubmissionsIds)
@@ -257,19 +249,16 @@ var _ = Describe("Create", func() {
 					log.Fatalf("opening config file %v", e.Error())
 				}
 
-				e = json.Unmarshal(file, &object)
+				e = json.Unmarshal(file, &objectS)
 				if e != nil {
 					log.Fatalf("Error reading forms. %v", e.Error())
 				}
 
-				formid = "577c1c95a969c805f7f8c88a"
-
 				c := web.NewContext(nil, nil)
 				defer c.Close()
 
-				c.SetValue("form_id", formid)
-
-				c.Marshall(object)
+				c.SetValue("form_id", result.ID.Hex())
+				c.Marshall(objectS)
 				_, err = service.CreateFormSubmission(c)
 			})
 
