@@ -2,12 +2,13 @@ package model
 
 import (
 	"fmt"
-	"gopkg.in/mgo.v2/bson"
 	"time"
+
+	"gopkg.in/mgo.v2/bson"
 )
 
 type FormWidget struct {
-	ID        string      `json:"id" bson:"_id"`
+	ID        string      `json:"id" bson:"_id,omitempty"`
 	Type      string      `json:"type" bson:"type"`
 	Identity  bool        `json:"identity" bson:"identity"`
 	Component string      `json:"component" bson:"component"`
@@ -17,17 +18,17 @@ type FormWidget struct {
 }
 
 type FormStep struct {
-	ID      string       `json:"id" bson:"_id"`
+	ID      string       `json:"id" bson:"_id,omitempty"`
 	Name    string       `json:"name" bson:"name"`
 	Widgets []FormWidget `json:"widgets" bson:"widgets"`
 }
 
 type FormStats struct {
-	Responses int `json:"responses" bson:responses"`
+	Responses int `json:"responses" bson:"responses"`
 }
 
 type Form struct {
-	ID             bson.ObjectId `json:"id" bson:"_id"`
+	ID             bson.ObjectId `json:"id" bson:"_id,omitempty"`
 	Status         string        `json:"status" bson:"status"`
 	Theme          interface{}   `json:"theme" bson:"theme"`
 	Settings       interface{}   `json:"settings" bson:"settings"`

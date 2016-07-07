@@ -343,14 +343,14 @@ func SearchFormSubmissions(c *web.AppContext) ([]model.FormSubmission, *web.AppE
 	s := c.GetValue("search")
 
 	// we are building a text search query
-	q := bson.M{"$text": bson.M{"$search": s}}
-
 	// go find it!
 	var fss []model.FormSubmission
-	if err := c.MDB.DB.C(model.FormSubmissions).Find(q).All(&fss); err != nil {
+	q := c.MDB.DB.C(model.FormSubmissions).Find(bson.M{"$text": bson.M{"$search": s}})
+	if err := q.All(&fss); err != nil {
 		message := fmt.Sprintf("Error searching Form Submissions by %s", s)
-		return nil, &web.AppError{err, message, http.StatusInternalServerError}
-	}
+		werr := web.AppError{err, message, http.StatusInternalServerError}
 
+		return nil, &werr
+	}
 	return fss, nil
 }

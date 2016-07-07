@@ -1,18 +1,18 @@
 package service
 
 import (
+	"log"
+
 	"github.com/coralproject/pillar/pkg/db"
 	"github.com/coralproject/pillar/pkg/model"
 	"github.com/coralproject/pillar/pkg/web"
 	"gopkg.in/mgo.v2/bson"
-	"log"
-	"os"
 )
 
-func init() {
-	log.Printf("Xenia URL: %s\n", os.Getenv("XENIA_URL"))
-	log.Printf("Xenia Auth: %s\n", os.Getenv("XENIA_AUTH"))
-}
+// func init() {
+// 	log.Printf("Xenia URL: %s\n", os.Getenv("XENIA_URL"))
+// 	log.Printf("Xenia Auth: %s\n", os.Getenv("XENIA_AUTH"))
+// }
 
 func UpdateSearch() {
 

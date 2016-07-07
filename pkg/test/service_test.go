@@ -1,7 +1,9 @@
 package service_test
 
 import (
+	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"os"
 
@@ -114,7 +116,7 @@ var _ = Describe("Get", func() {
 
 			var fs []model.Form
 
-			BeforeEach(func() {
+			JustBeforeEach(func() {
 				c := web.NewContext(nil, nil)
 				defer c.Close()
 
@@ -135,7 +137,7 @@ var _ = Describe("Get", func() {
 
 			var fss []model.FormSubmission
 
-			BeforeEach(func() {
+			JustBeforeEach(func() {
 				// create the context for this form
 				c := web.NewContext(nil, nil)
 				defer c.Close()
@@ -155,7 +157,7 @@ var _ = Describe("Get", func() {
 
 			var g []model.FormGallery
 
-			BeforeEach(func() {
+			JustBeforeEach(func() {
 				// create the context for this form
 				c := web.NewContext(nil, nil)
 				defer c.Close()
@@ -173,45 +175,188 @@ var _ = Describe("Get", func() {
 	})
 })
 
-// func getAGalleryFormAForm(f *model.Form, t *testing.T) *model.FormGallery {
+var _ = Describe("Create", func() {
+
+	var (
+		mongodb_url string
+		err         *web.AppError
+	)
+
+	BeforeEach(func() {
+		// set test database
+		mongodb_url = os.Getenv("MONGODB_URL")
+		if mongodb_url == "" {
+			log.Fatal("MONGODB_URL needs to be setup.")
+		}
+		e := os.Setenv("MONGODB_URL", mongodb_url+"_test") //os.Setenv("MONGODB_URL", mongodb_url+"_"+strconv.Itoa(rand.Intn(10))+"_test")
+		if e != nil {
+			fmt.Println("Error when setting environment test ", e)
+		}
+	})
+
+	AfterEach(func() {
+		// empty database
+		emptydb()
+
+		// restore initial database
+		e := os.Setenv("MONGODB_URL", mongodb_url)
+		if e != nil {
+			fmt.Println("Error when setting environment back ", e)
+		}
+	})
+
+	Describe("a form", func() {
+		Context("with appropiate context", func() {
+
+			var (
+				object model.Form
+				result *model.Form
+			)
+
+			JustBeforeEach(func() {
+				// get the fixtures from appropiate json file for data form submission
+				file, e := ioutil.ReadFile(dataFormsIds)
+				if e != nil {
+					log.Fatalf("opening config file %v", e.Error())
+				}
+
+				e = json.Unmarshal(file, &object)
+				if e != nil {
+					log.Fatalf("Error reading forms. %v", e.Error())
+				}
+
+				c := web.NewContext(nil, nil)
+				defer c.Close()
+
+				c.Marshall(object)
+				result, err = service.CreateUpdateForm(c)
+			})
+
+			It("should not give an error", func() {
+				Expect(err).Should(BeNil())
+				Expect(result).ShouldNot(BeNil())
+			})
+		})
+	})
+
+	Describe("a form submission", func() {
+		Context("with appropiate context", func() {
+
+			var (
+				object model.FormSubmission
+				formid string
+			)
+
+			JustBeforeEach(func() {
+
+				loadformfixtures()
+
+				// get the fixtures from appropiate json file for data form submission
+				file, e := ioutil.ReadFile(dataFormSubmissionsIds)
+				if e != nil {
+					log.Fatalf("opening config file %v", e.Error())
+				}
+
+				e = json.Unmarshal(file, &object)
+				if e != nil {
+					log.Fatalf("Error reading forms. %v", e.Error())
+				}
+
+				formid = "577c1c95a969c805f7f8c88a"
+
+				c := web.NewContext(nil, nil)
+				defer c.Close()
+
+				c.SetValue("form_id", formid)
+
+				c.Marshall(object)
+				_, err = service.CreateFormSubmission(c)
+			})
+
+			It("should not give an error", func() {
+				Expect(err).Should(BeNil())
+			})
+		})
+	})
+})
+
+// var _ = Describe("Delete", func() {
 //
-// 	// create the context for this form
-// 	c := web.NewContext(nil, nil)
-// 	defer c.Close()
-// 	c.SetValue("form_id", f.ID.Hex())
+// 	var (
+// 		mongodb_url string
+// 		err         *web.AppError
+// 	)
 //
-// 	g, err := service.GetFormGalleriesByForm(c)
-// 	if err != nil {
-// 		log.Fatalf("Could not load forms galleries for the test %v", err)
-// 		t.Fail()
-// 	}
-//
-// 	return &g[0]
-// }
-//
-// func TestCreateForms(t *testing.T) {
-// 	file, err := os.Open(dataForms)
-// 	if err != nil {
-// 		log.Fatalf("opening config file %v", err.Error())
-// 	}
-//
-// 	objects := []model.Form{}
-// 	jsonParser := json.NewDecoder(file)
-// 	if err = jsonParser.Decode(&objects); err != nil {
-// 		log.Fatalf("Error reading forms %v", err.Error())
-// 	}
-//
-// 	c := web.NewContext(nil, nil)
-// 	defer c.Close()
-//
-// 	for _, one := range objects {
-// 		c.Marshall(one)
-// 		if _, err := service.CreateUpdateForm(c); err != nil {
-// 			t.Fail()
+// 	BeforeEach(func() {
+// 		// set test database
+// 		mongodb_url = os.Getenv("MONGODB_URL")
+// 		if mongodb_url == "" {
+// 			log.Fatal("MONGODB_URL needs to be setup.")
 // 		}
-// 	}
-// }
+// 		e := os.Setenv("MONGODB_URL", mongodb_url+"_test") //os.Setenv("MONGODB_URL", mongodb_url+"_"+strconv.Itoa(rand.Intn(10))+"_test")
+// 		if e != nil {
+// 			fmt.Println("Error when setting environment test ", e)
+// 		}
 //
+// 		loadformfixtures()
+// 	})
+//
+// 	AfterEach(func() {
+// 		// empty database
+// 		emptydb()
+//
+// 		// restore initial database
+// 		e := os.Setenv("MONGODB_URL", mongodb_url)
+// 		if e != nil {
+// 			fmt.Println("Error when setting environment back ", e)
+// 		}
+// 	})
+//
+// 	Describe("a form", func() {
+// 		Context("with appropiate context", func() {
+//
+// 			var (
+// 				object model.Form
+// 				formid string
+// 			)
+//
+// 			JustBeforeEach(func() {
+// 				// get the fixtures from appropiate json file for data form submission
+// 				file, e := ioutil.ReadFile(dataFormsIds)
+// 				if e != nil {
+// 					log.Fatalf("opening config file %v", e.Error())
+// 				}
+//
+// 				e = json.Unmarshal(file, &object)
+// 				if e != nil {
+// 					log.Fatalf("Error reading forms. %v", e.Error())
+// 				}
+//
+// 				formid = "577c1c95a969c805f7f8c88a"
+//
+// 				c := web.NewContext(nil, nil)
+// 				defer c.Close()
+//
+// 				c.SetValue("formid", formid)
+//
+// 				c.Marshall(object)
+// 				r, _ := service.CreateUpdateForm(c)
+//
+// 				co := web.NewContext(nil, nil)
+// 				defer co.Close()
+//
+// 				co.SetValue("id", r.ID.Hex())
+//
+// 				err = service.DeleteFormSubmission(co)
+// 			})
+//
+// 			It("should not give an error", func() {
+// 				Expect(err).Should(BeNil())
+// 			})
+// 		})
+// 	})
+// })
+
 // func TestFormSubmissionsSchenanigans(t *testing.T) {
 //
 // 	file, err := os.Open(dataFormSubmissions)

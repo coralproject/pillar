@@ -58,6 +58,39 @@ func emptydb() {
 	}
 }
 
+func loadonlyformfixtures() {
+
+	if test := checkIsTestDB(); !test {
+		log.Fatalf("Fail to setup test database with %s", os.Getenv("MONGODB_URL"))
+	}
+
+	// connect to test mongo database
+	deb := db.NewMongoDB(os.Getenv("MONGODB_URL"))
+	defer deb.Close()
+
+	// get the fixtures from appropiate json file for data form submission
+	file, e := ioutil.ReadFile(dataFormsIds)
+	if e != nil {
+		log.Fatalf("opening config file %v", e.Error())
+	}
+
+	var objects model.Form
+	e = json.Unmarshal(file, &objects)
+	if e != nil {
+		log.Fatalf("Error reading forms. %v", e.Error())
+	}
+
+	// insert in bulk into mongo database
+	b := deb.DB.C(model.Forms).Bulk()
+	b.Unordered()
+	b.Insert(objects)
+
+	_, e = b.Run()
+	if e != nil {
+		log.Fatalf("Error when loading fixtures for %s and %s. Error: %v", model.Forms, model.FormSubmissions, e)
+	}
+}
+
 // load forms fixtures
 func loadformfixtures() {
 	if test := checkIsTestDB(); !test {

@@ -2,8 +2,9 @@ package model
 
 import (
 	"fmt"
-	"gopkg.in/mgo.v2/bson"
 	"time"
+
+	"gopkg.in/mgo.v2/bson"
 )
 
 type FormSubmissionEditInput struct {
@@ -33,7 +34,7 @@ type FormSubmissionAnswer struct {
 }
 
 type FormSubmission struct {
-	ID             bson.ObjectId          `json:"id" bson:"_id"`
+	ID             bson.ObjectId          `json:"id" bson:"_id,omitempty"`
 	FormId         bson.ObjectId          `json:"form_id" bson:"form_id"`
 	Status         string                 `json:"status" bson:"status"`
 	Answers        []FormSubmissionAnswer `json:"replies" bson:"replies"`

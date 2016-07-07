@@ -2,8 +2,9 @@ package model
 
 import (
 	"fmt"
-	"gopkg.in/mgo.v2/bson"
 	"time"
+
+	"gopkg.in/mgo.v2/bson"
 )
 
 type FormGalleryAnswer struct {
@@ -14,7 +15,7 @@ type FormGalleryAnswer struct {
 }
 
 type FormGallery struct {
-	ID          bson.ObjectId       `json:"id" bson:"_id"`
+	ID          bson.ObjectId       `json:"id" bson:"_id,omitempty"`
 	FormId      bson.ObjectId       `json:"form_id" bson:"form_id"`
 	Answers     []FormGalleryAnswer `json:"answers" bson:"answers"`
 	DateCreated time.Time           `json:"date_created,omitempty" bson:"date_created,omitempty"`

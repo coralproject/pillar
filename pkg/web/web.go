@@ -3,14 +3,15 @@ package web
 import (
 	"bytes"
 	"encoding/json"
-	"github.com/coralproject/pillar/pkg/amqp"
-	"github.com/coralproject/pillar/pkg/db"
-	"github.com/coralproject/pillar/pkg/statsd"
-	"github.com/gorilla/mux"
 	"io"
 	"io/ioutil"
 	"net/http"
 	"os"
+
+	"github.com/coralproject/pillar/pkg/amqp"
+	"github.com/coralproject/pillar/pkg/db"
+	"github.com/coralproject/pillar/pkg/statsd"
+	"github.com/gorilla/mux"
 )
 
 // overwrites the handlerfunc
