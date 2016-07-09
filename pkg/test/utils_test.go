@@ -144,24 +144,27 @@ func loadformfixtures() {
 		log.Fatalf("Error when loading fixtures for %s and %s. Error: %v", model.Forms, model.FormSubmissions, e)
 	}
 
-	// create text indexes
-	file, e = ioutil.ReadFile(dataFormIndexes) // os.Open(dataIndexes)
-	if e != nil {
-		log.Fatalf("opening config file %v", e.Error())
-	}
-
-	objectsI := []model.Index{}
-	e = json.Unmarshal(file, &objectsI)
-	if e != nil {
-		log.Fatalf("Error reading index data %v", e.Error())
-	}
-
-	for _, i := range objectsI {
-		err := deb.DB.C(i.Target).EnsureIndex(i.Index)
-		if err != nil {
-			log.Fatalf("Error %v creating index [%+v]", err, i)
-		}
-	}
+	// // create text indexes
+	// file, e = ioutil.ReadFile(dataFormIndexes) // os.Open(dataIndexes)
+	// if e != nil {
+	// 	log.Fatalf("opening config file %v", e.Error())
+	// }
+	//
+	// objectsI := []model.Index{}
+	// e = json.Unmarshal(file, &objectsI)
+	// if e != nil {
+	// 	log.Fatalf("Error reading index data %v", e.Error())
+	// }
+	// fmt.Println("DEBUG creating index?")
+	// for _, i := range objectsI {
+	// 	fmt.Println("DEBUG WTF DEBUG WTF DEBUG WTF DEBUG WTF DEBUG WTF DEBUG WTF DEBUG WTF")
+	// 	fmt.Println("DEBUG Index Keys", i.Index.Key)
+	// 	fmt.Println("DEBUG Target ", i.Target)
+	// 	err := deb.DB.C(i.Target).EnsureIndex(i.Index)
+	// 	if err != nil {
+	// 		log.Fatalf("Error %v creating index [%+v]", err, i)
+	// 	}
+	// }
 }
 
 // load form galleries fixtures
