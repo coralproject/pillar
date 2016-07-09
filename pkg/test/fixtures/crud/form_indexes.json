@@ -3,7 +3,7 @@
       "target": "form_submissions",
       "index": {
         "name": "replies-answer-text",
-        "key": ["$text:$**"],
+        "key": ["$text:replies.answer"],
         "unique": false,
         "dropdups": false
       }
