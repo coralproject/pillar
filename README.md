@@ -8,4 +8,4 @@
 
 All of the [Pillar documentation](https://coralprojectdocs.herokuapp.com/pillar/) (including [installation instructions](https://coralprojectdocs.herokuapp.com/pillar/install/)) can be found in the [Coral Project Documentation](https://coralprojectdocs.herokuapp.com/).
 
-The Pillar documentation [lives in Github](https://github.com/coralproject/docs/tree/master/docs_dir/pillar) in the "coralproject/docs/docs_dir/pillar" repository.
+The Pillar documentation [lives in Github](https://github.com/coralproject/docs/tree/master/docs_dir/pillar) in the `coralproject/docs/docs_dir/pillar` repository.
