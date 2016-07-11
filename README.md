@@ -1,6 +1,6 @@
 # Pillar
 
-[Pillar](https://github.com/coralproject/pillar) is a REST based web service written in Golang. It provides the following services:
+[Pillar](https://github.com/coralproject/pillar) is a REST based web service written in Go. It provides the following services:
 
   * Imports external data into Coral data model
   * Allows CRUD operation on Coral data model
