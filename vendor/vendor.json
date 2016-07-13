@@ -38,6 +38,16 @@
 			"revisionTime": "2015-11-11T18:35:30+08:00"
 		},
 		{
+			"path": "github.com/onsi/ginkgo",
+			"revision": "5437a97bf824dec14e58d68c56ee36e772670c2e",
+			"revisionTime": "2016-05-09T19:20:50+01:00"
+		},
+		{
+			"path": "github.com/onsi/gomega",
+			"revision": "c73e51675ad2455a4515b6213eb7145eaade4824",
+			"revisionTime": "2016-05-16T23:24:31+01:00"
+		},
+		{
 			"path": "github.com/pborman/uuid",
 			"revision": "ca53cad383cad2479bbba7f7a1a05797ec1386e4",
 			"revisionTime": "2015-06-03T14:40:16-07:00"
