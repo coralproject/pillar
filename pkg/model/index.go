@@ -30,6 +30,53 @@ var Indicies = []Index{
 		},
 	},
 
+	//Comments Indexes
+	{
+		Comments, mgo.Index{
+			Key: []string{"source.id"},
+		},
+	},
+	{
+		Comments, mgo.Index{
+			Key: []string{"user_id"},
+		},
+	},
+	{
+		Comments, mgo.Index{
+			Key: []string{"source.parent_id"},
+		},
+	},
+
+	//Form Submission Indexes
+	{
+		FormSubmissions, mgo.Index{
+			Key:      []string{"$text:$**"},
+			Unique:   false,
+			DropDups: false,
+		},
+	},
+	{
+		FormSubmissions, mgo.Index{
+			Key:      []string{"form_id"},
+			Unique:   false,
+			DropDups: false,
+		},
+	},
+
+	//Tags Indexes
+	{
+		Tags, mgo.Index{
+			Key: []string{"name"},
+		},
+	},
+
+	//TagTargets Indexes
+	{
+		TagTargets, mgo.Index{
+			Key: []string{"target_id", "name", "target"},
+		},
+	},
+
 	//Users Indexes
 	{
 		Users, mgo.Index{
@@ -117,37 +164,6 @@ var Indicies = []Index{
 	{
 		UserStatistics, mgo.Index{
 			Key: []string{"statistics.actions.performed.flags.count"},
-		},
-	},
-
-	//Comments Indexes
-	{
-		Comments, mgo.Index{
-			Key: []string{"source.id"},
-		},
-	},
-	{
-		Comments, mgo.Index{
-			Key: []string{"user_id"},
-		},
-	},
-	{
-		Comments, mgo.Index{
-			Key: []string{"source.parent_id"},
-		},
-	},
-
-	//Tags Indexes
-	{
-		Tags, mgo.Index{
-			Key: []string{"name"},
-		},
-	},
-
-	//TagTargets Indexes
-	{
-		TagTargets, mgo.Index{
-			Key: []string{"target_id", "name", "target"},
 		},
 	},
 }

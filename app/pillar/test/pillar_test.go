@@ -1,15 +1,16 @@
-package test
+package pillar_test
 
 import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"github.com/coralproject/pillar/pkg/db"
-	"github.com/coralproject/pillar/pkg/model"
-	"github.com/coralproject/pillar/pkg/web"
 	"log"
 	"os"
 	"testing"
+
+	"github.com/coralproject/pillar/pkg/db"
+	"github.com/coralproject/pillar/pkg/model"
+	"github.com/coralproject/pillar/pkg/web"
 )
 
 //various constants
@@ -51,6 +52,7 @@ func init() {
 		log.Fatalf("Error connecting to Pillar: PILLAR_URL not found.")
 	}
 
+	// to do: this setup has to be a test db
 	db := db.NewMongoDB(os.Getenv("MONGODB_URL"))
 	defer db.Close()
 

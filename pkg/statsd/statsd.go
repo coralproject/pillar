@@ -30,7 +30,6 @@ func connect(url string) statsd.Statter {
 		return nil
 	}
 
-	log.Printf("Connected to Statsd")
 	return client
 }
 

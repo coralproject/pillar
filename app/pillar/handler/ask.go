@@ -12,6 +12,8 @@ package handler
 */
 
 import (
+	"encoding/json"
+
 	"github.com/coralproject/pillar/pkg/service"
 	"github.com/coralproject/pillar/pkg/web"
 )
@@ -98,5 +100,17 @@ func GetFormGalleriesByForm(c *web.AppContext) {
 
 func GetFormGallery(c *web.AppContext) {
 	dbObject, err := service.GetFormGallery(c)
+	doRespond(c, dbObject, err)
+}
+
+func SearchFormSubmissions(c *web.AppContext) {
+
+	//Get the search string from request
+	var search map[string]string
+	json.NewDecoder(c.Body).Decode(&search)
+	c.SetValue("search", search["search"])
+
+	dbObject, err := service.SearchFormSubmissions(c)
+
 	doRespond(c, dbObject, err)
 }

@@ -2,6 +2,7 @@ package db
 
 import (
 	"log"
+	"strings"
 	"sync"
 
 	"github.com/coralproject/pillar/pkg/model"
@@ -87,10 +88,12 @@ func connect(url string) *mgo.Session {
 func NewMongoDB(url string) *MongoDB {
 	db := MongoDB{}
 
+	dbname := strings.Split(url, "/")[1]
+
 	s := connect(url)
 	if s != nil {
 		db.Session = s.Copy()
-		db.DB = s.DB("")
+		db.DB = s.DB(dbname)
 	}
 
 	return &db

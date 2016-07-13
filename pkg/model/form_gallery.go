@@ -2,8 +2,9 @@ package model
 
 import (
 	"fmt"
-	"gopkg.in/mgo.v2/bson"
 	"time"
+
+	"gopkg.in/mgo.v2/bson"
 )
 
 type FormGalleryAnswer struct {

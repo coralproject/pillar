@@ -2,8 +2,9 @@ package model
 
 import (
 	"fmt"
-	"gopkg.in/mgo.v2/bson"
 	"time"
+
+	"gopkg.in/mgo.v2/bson"
 )
 
 type FormWidget struct {
@@ -23,7 +24,7 @@ type FormStep struct {
 }
 
 type FormStats struct {
-	Responses int `json:"responses" bson:responses"`
+	Responses int `json:"responses" bson:"responses"`
 }
 
 type Form struct {
