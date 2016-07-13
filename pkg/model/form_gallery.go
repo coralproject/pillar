@@ -15,7 +15,7 @@ type FormGalleryAnswer struct {
 }
 
 type FormGallery struct {
-	ID          bson.ObjectId       `json:"id" bson:"_id,omitempty"`
+	ID          bson.ObjectId       `json:"id" bson:"_id"`
 	FormId      bson.ObjectId       `json:"form_id" bson:"form_id"`
 	Answers     []FormGalleryAnswer `json:"answers" bson:"answers"`
 	DateCreated time.Time           `json:"date_created,omitempty" bson:"date_created,omitempty"`
