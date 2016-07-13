@@ -3,6 +3,7 @@ package service
 import (
 	"fmt"
 	"net/http"
+	"strconv"
 	"time"
 
 	"gopkg.in/mgo.v2"
@@ -175,10 +176,20 @@ func GetFormSubmissionsByForm(c *web.AppContext) ([]model.FormSubmission, *web.A
 		return []model.FormSubmission{}, &web.AppError{nil, message, http.StatusInternalServerError}
 	}
 
+	limit, err := strconv.Atoi(c.GetValue("limit"))
+	if err != nil {
+		limit = 0
+	}
+
+	skip, err := strconv.Atoi(c.GetValue("skip"))
+	if err != nil {
+		skip = 0
+	}
+
 	//convert to an ObjectId
 	id := bson.ObjectIdHex(idStr)
 	fss := make([]model.FormSubmission, 0)
-	if err := c.MDB.DB.C(model.FormSubmissions).Find(bson.M{"form_id": id}).All(&fss); err != nil {
+	if err := c.MDB.DB.C(model.FormSubmissions).Find(bson.M{"form_id": id}).Skip(skip).Limit(limit).All(&fss); err != nil {
 		message := fmt.Sprintf("Error fetching FormSubmissions")
 		return nil, &web.AppError{err, message, http.StatusInternalServerError}
 	}

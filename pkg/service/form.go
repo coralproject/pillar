@@ -3,6 +3,7 @@ package service
 import (
 	"fmt"
 	"net/http"
+	"strconv"
 	"time"
 
 	"gopkg.in/mgo.v2/bson"
@@ -134,9 +135,19 @@ func CreateUpdateForm(context *web.AppContext) (*model.Form, *web.AppError) {
 // GetForms returns an array of Forms
 func GetForms(context *web.AppContext) ([]model.Form, *web.AppError) {
 
+	limit, err := strconv.Atoi(context.GetValue("limit"))
+	if err != nil {
+		limit = 0
+	}
+
+	skip, err := strconv.Atoi(context.GetValue("skip"))
+	if err != nil {
+		skip = 0
+	}
+
 	//set created-date for the new ones
 	all := make([]model.Form, 0)
-	if err := context.MDB.DB.C(model.Forms).Find(nil).All(&all); err != nil {
+	if err := context.MDB.DB.C(model.Forms).Find(nil).Skip(skip).Limit(limit).All(&all); err != nil {
 		message := fmt.Sprintf("Error fetching Forms")
 		return nil, &web.AppError{err, message, http.StatusInternalServerError}
 	}

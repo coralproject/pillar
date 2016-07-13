@@ -90,6 +90,12 @@ func NewContext(rw http.ResponseWriter, r *http.Request) *AppContext {
 		c.Header = r.Header
 		c.Body = r.Body
 		c.Vars = mux.Vars(r)
+
+		// append the query vars to the vars array
+		for k, v := range r.URL.Query() {
+			c.Vars[k] = v[0]
+		}
+
 	} else {
 		c.Vars = make(map[string]string)
 	}
