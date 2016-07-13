@@ -36,7 +36,8 @@ const (
 	dataFormsIds           = "fixtures/crud/forms_with_id.json"
 	dataFormSubmissionsIds = "fixtures/crud/form_submissions_with_id.json"
 
-	dataFormGalleries = "fixtures/crud/form_galleries.json"
+	dataFormGalleriesIds = "fixtures/crud/form_galleries_with_id.json"
+	dataFormGalleries    = "fixtures/crud/form_galleries.json"
 )
 
 // check if we are working with the test db
@@ -55,39 +56,6 @@ func emptydb() {
 
 	if e := deb.DB.DropDatabase(); e != nil {
 		log.Fatalf("Fail removing DropDatabase %s. Error: %v", deb.DB.Name, e)
-	}
-}
-
-func loadonlyformfixtures() {
-
-	if test := checkIsTestDB(); !test {
-		log.Fatalf("Fail to setup test database with %s", os.Getenv("MONGODB_URL"))
-	}
-
-	// connect to test mongo database
-	deb := db.NewMongoDB(os.Getenv("MONGODB_URL"))
-	defer deb.Close()
-
-	// get the fixtures from appropiate json file for data form submission
-	file, e := ioutil.ReadFile(dataFormsIds)
-	if e != nil {
-		log.Fatalf("opening config file %v", e.Error())
-	}
-
-	var objects model.Form
-	e = json.Unmarshal(file, &objects)
-	if e != nil {
-		log.Fatalf("Error reading forms. %v", e.Error())
-	}
-
-	// insert in bulk into mongo database
-	b := deb.DB.C(model.Forms).Bulk()
-	b.Unordered()
-	b.Insert(objects)
-
-	_, e = b.Run()
-	if e != nil {
-		log.Fatalf("Error when loading fixtures for %s and %s. Error: %v", model.Forms, model.FormSubmissions, e)
 	}
 }
 
@@ -118,9 +86,8 @@ func loadformfixtures() {
 	b.Unordered()
 	b.Insert(objects)
 
-	_, e = b.Run()
-	if e != nil {
-		log.Fatalf("Error when loading fixtures for %s and %s. Error: %v", model.Forms, model.FormSubmissions, e)
+	if _, e = b.Run(); e != nil {
+		log.Fatalf("Error when loading fixtures for %s. Error: %v", model.Forms, e)
 	}
 
 	// get the fixtures from appropiate json file for data form submission
@@ -139,9 +106,8 @@ func loadformfixtures() {
 	b = deb.DB.C(model.FormSubmissions).Bulk()
 	b.Insert(objectsS)
 
-	_, e = b.Run()
-	if e != nil {
-		log.Fatalf("Error when loading fixtures for %s and %s. Error: %v", model.Forms, model.FormSubmissions, e)
+	if _, e = b.Run(); e != nil {
+		log.Fatalf("Error when loading fixtures for %s. Error: %v", model.FormSubmissions, e)
 	}
 
 	// // create text indexes
@@ -178,7 +144,7 @@ func loadformgalleriesfixtures() {
 	defer deb.Close()
 
 	// get the fixtures from appropiate json file for data form submission
-	file, e := ioutil.ReadFile(dataFormGalleries)
+	file, e := ioutil.ReadFile(dataFormGalleriesIds)
 	if e != nil {
 		log.Fatalf("opening config file %v", e.Error())
 	}
@@ -186,7 +152,7 @@ func loadformgalleriesfixtures() {
 	var objects model.FormGallery
 	e = json.Unmarshal(file, &objects)
 	if e != nil {
-		log.Fatalf("Error reading forms. %v", e.Error())
+		log.Fatalf("Error reading forms galleries. %v", e.Error())
 	}
 
 	// insert in bulk into mongo database
@@ -194,8 +160,7 @@ func loadformgalleriesfixtures() {
 	b.Unordered()
 	b.Insert(objects)
 
-	_, e = b.Run()
-	if e != nil {
+	if _, e = b.Run(); e != nil {
 		log.Fatalf("Error when loading fixtures for %s. Error: %v", model.FormGalleries, e)
 	}
 }

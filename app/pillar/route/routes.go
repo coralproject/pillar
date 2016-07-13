@@ -60,7 +60,7 @@ var routes = []Route{
 	{"PUT", "/api/form_submission/{id}/status/{status}", handler.UpdateFormSubmissionStatus},
 	{"GET", "/api/form_submissions/{form_id}", handler.GetFormSubmissionsByForm},
 	{"GET", "/api/form_submission/{id}", handler.GetFormSubmission},
-	{"GET", "/api/form_submissions/search/{search}", handler.SearchFormSubmissions},
+	{"POST", "/api/form_submissions/search", handler.SearchFormSubmissions},
 	{"PUT", "/api/form_submission/{id}/{answer_id}", handler.EditFormSubmissionAnswer},
 	{"PUT", "/api/form_submission/{id}/flag/{flag}", handler.AddFlagToFormSubmission},
 	{"DELETE", "/api/form_submission/{id}/flag/{flag}", handler.RemoveFlagFromFormSubmission},

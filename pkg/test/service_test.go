@@ -63,7 +63,7 @@ var _ = Describe("Create", func() {
 
 		e = json.Unmarshal(file, &objectS)
 		if e != nil {
-			log.Fatalf("Error reading forms. %v", e.Error())
+			log.Fatalf("Error reading forms submissions. %v", e.Error())
 		}
 
 		c = web.NewContext(nil, nil)
@@ -132,6 +132,9 @@ var _ = Describe("Create", func() {
 			)
 
 			JustBeforeEach(func() {
+
+				loadformgalleriesfixtures()
+
 				// create a gallery
 				c := web.NewContext(nil, nil)
 				defer c.Close()
@@ -139,6 +142,7 @@ var _ = Describe("Create", func() {
 
 				var g []model.FormGallery
 				g, err = service.GetFormGalleriesByForm(c)
+
 				gallery = g[0]
 
 				// set the values into a context
@@ -148,6 +152,7 @@ var _ = Describe("Create", func() {
 				context.SetValue("id", gallery.ID.Hex())
 				context.SetValue("submission_id", resultS.ID.Hex())
 				c.SetValue("answer_id", resultS.Answers[0].WidgetId)
+
 			})
 
 			It("should return a gallery", func() {
@@ -202,7 +207,7 @@ var _ = Describe("Create", func() {
 
 				e = json.Unmarshal(file, &objects)
 				if e != nil {
-					log.Fatalf("Error reading forms. %v", e.Error())
+					log.Fatalf("Error reading sections. %v", e.Error())
 				}
 
 				c := web.NewContext(nil, nil)
@@ -235,7 +240,7 @@ var _ = Describe("Create", func() {
 
 				e = json.Unmarshal(file, &objects)
 				if e != nil {
-					log.Fatalf("Error reading forms. %v", e.Error())
+					log.Fatalf("Error reading tags. %v", e.Error())
 				}
 
 				c := web.NewContext(nil, nil)
@@ -260,7 +265,7 @@ var _ = Describe("Create", func() {
 				objects := []model.Tag{}
 				e = json.Unmarshal(file, &objects)
 				if e != nil {
-					log.Fatalf("Error reading forms. %v", e.Error())
+					log.Fatalf("Error reading new tags. %v", e.Error())
 				}
 
 				c := web.NewContext(nil, nil)
@@ -311,7 +316,7 @@ var _ = Describe("Create", func() {
 
 				e = json.Unmarshal(file, &objects)
 				if e != nil {
-					log.Fatalf("Error reading forms. %v", e.Error())
+					log.Fatalf("Error reading searches. %v", e.Error())
 				}
 
 				c := web.NewContext(nil, nil)
@@ -351,7 +356,7 @@ var _ = Describe("Create", func() {
 
 				e = json.Unmarshal(file, &objects)
 				if e != nil {
-					log.Fatalf("Error reading forms. %v", e.Error())
+					log.Fatalf("Error reading indexes. %v", e.Error())
 				}
 
 				c := web.NewContext(nil, nil)
@@ -425,7 +430,7 @@ var _ = Describe("Get", func() {
 
 		// get the fixtures for forms and forms submissions
 		loadformfixtures()
-		formid = "577c1c95a969c805f7f8c88a"
+		formid = "577c18f4a969c805f7f8c889"
 
 		loadformgalleriesfixtures()
 	})
@@ -475,9 +480,9 @@ var _ = Describe("Get", func() {
 
 				fss, err = service.GetFormSubmissionsByForm(c)
 			})
-			It("should return at least a form and no error", func() {
-				Expect(len(fss)).ShouldNot(Equal(0))
+			It("should return at least a submission to a form and no error", func() {
 				Expect(err).Should(BeNil())
+				Expect(len(fss)).ShouldNot(Equal(0))
 			})
 		})
 	})
@@ -610,7 +615,7 @@ var _ = Describe("Flag", func() {
 
 		e = json.Unmarshal(file, &objectS)
 		if e != nil {
-			log.Fatalf("Error reading forms. %v", e.Error())
+			log.Fatalf("Error reading forms submissions. %v", e.Error())
 		}
 
 		c = web.NewContext(nil, nil)
