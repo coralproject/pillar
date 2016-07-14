@@ -208,14 +208,11 @@ func setTestDatabase() {
 	// save back the MONGODB_URL env variable that it may be used for production
 	// this is sketchy and should be consider in the refactoring. We have the db package and web package getting MONGODB_URL everywhere
 	envmongodburl = os.Getenv("MONGODB_URL")
-
-	// use TEST_MONGODB_URL to create the connection to a new test database
-	mongodburl := os.Getenv("TEST_MONGODB_URL")
-	if mongodburl == "" {
-		log.Fatal("Setup environmental variable TEST_MONGODB_URL with connection string. Database does not have to exist.")
+	if envmongodburl == "" {
+		log.Fatal("Setup environmental variable MONGODB_URL with connection string.")
 	}
 	// the name of the database the instance use plus test plus a timestamp
-	testDBname = mongodburl + strconv.FormatInt(time.Now().UTC().Unix(), 10)
+	testDBname = envmongodburl + strconv.FormatInt(time.Now().UTC().Unix(), 10)
 	e := os.Setenv("MONGODB_URL", testDBname)
 	if e != nil {
 		log.Fatal("Error when setting environment test ", e)
