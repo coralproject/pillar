@@ -50,13 +50,6 @@ var Indicies = []Index{
 	//Form Submission Indexes
 	{
 		FormSubmissions, mgo.Index{
-			Key:      []string{"$text:$**"},
-			Unique:   false,
-			DropDups: false,
-		},
-	},
-	{
-		FormSubmissions, mgo.Index{
 			Key:      []string{"form_id"},
 			Unique:   false,
 			DropDups: false,
