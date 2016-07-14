@@ -75,7 +75,9 @@ func UpdateMetadata(context *web.AppContext) (interface{}, *web.AppError) {
 	var input model.Metadata
 	json.NewDecoder(context.Body).Decode(&input)
 
-	collection := db.Session.DB("").C(input.Target)
+	//collection := db.Session.DB("").C(input.Target)
+	collection := db.DB.C(input.Target)
+
 	var dbEntity bson.M
 	collection.FindId(input.TargetID).One(&dbEntity)
 	if len(dbEntity) == 0 {

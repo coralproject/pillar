@@ -1,4 +1,4 @@
-package service_test
+package test
 
 import (
 	"encoding/json"
@@ -7,7 +7,9 @@ import (
 	"log"
 	"os"
 	"reflect"
+	"strconv"
 	"strings"
+	"time"
 
 	"gopkg.in/mgo.v2/bson"
 
@@ -40,18 +42,14 @@ const (
 	dataFormGalleries    = "fixtures/crud/form_galleries.json"
 )
 
-// check if we are working with the test db
-func checkIsTestDB() bool {
-	s := strings.Split(os.Getenv("MONGODB_URL"), "_")
-	return (s[len(s)-1] == "test")
-}
+var (
+	envmongodburl string
+	testDBname    string
+)
 
 // remove the test database
-func emptydb() {
-	if test := checkIsTestDB(); !test {
-		log.Fatalf("Fail to setup test database with %s", os.Getenv("MONGODB_URL"))
-	}
-	deb := db.NewMongoDB(os.Getenv("MONGODB_URL"))
+func emptyDB() {
+	deb := db.NewMongoDB(testDBname)
 	defer deb.Close()
 
 	if e := deb.DB.DropDatabase(); e != nil {
@@ -59,11 +57,15 @@ func emptydb() {
 	}
 }
 
+func recoverEnvVariables() {
+	e := os.Setenv("MONGODB_URL", envmongodburl)
+	if e != nil {
+		log.Fatal("Error when setting back the MONGODB_URL environment variable.", e)
+	}
+}
+
 // load forms fixtures
 func loadformfixtures() {
-	if test := checkIsTestDB(); !test {
-		log.Fatalf("Fail to setup test database with %s", os.Getenv("MONGODB_URL"))
-	}
 
 	// connect to test mongo database
 	deb := db.NewMongoDB(os.Getenv("MONGODB_URL"))
@@ -109,35 +111,10 @@ func loadformfixtures() {
 	if _, e = b.Run(); e != nil {
 		log.Fatalf("Error when loading fixtures for %s. Error: %v", model.FormSubmissions, e)
 	}
-
-	// // create text indexes
-	// file, e = ioutil.ReadFile(dataFormIndexes) // os.Open(dataIndexes)
-	// if e != nil {
-	// 	log.Fatalf("opening config file %v", e.Error())
-	// }
-	//
-	// objectsI := []model.Index{}
-	// e = json.Unmarshal(file, &objectsI)
-	// if e != nil {
-	// 	log.Fatalf("Error reading index data %v", e.Error())
-	// }
-	// fmt.Println("DEBUG creating index?")
-	// for _, i := range objectsI {
-	// 	fmt.Println("DEBUG WTF DEBUG WTF DEBUG WTF DEBUG WTF DEBUG WTF DEBUG WTF DEBUG WTF")
-	// 	fmt.Println("DEBUG Index Keys", i.Index.Key)
-	// 	fmt.Println("DEBUG Target ", i.Target)
-	// 	err := deb.DB.C(i.Target).EnsureIndex(i.Index)
-	// 	if err != nil {
-	// 		log.Fatalf("Error %v creating index [%+v]", err, i)
-	// 	}
-	// }
 }
 
 // load form galleries fixtures
 func loadformgalleriesfixtures() {
-	if test := checkIsTestDB(); !test {
-		log.Fatalf("Fail to setup test database with %s", os.Getenv("MONGODB_URL"))
-	}
 
 	// connect to test mongo database
 	deb := db.NewMongoDB(os.Getenv("MONGODB_URL"))
@@ -221,4 +198,73 @@ func find(s string, r []model.FormSubmission) bool {
 	}
 
 	return found
+}
+
+// set the environment variables for a test database
+// in the tests we are creating a unique database for testing
+// and removing it after running all the tests
+func setTestDatabase() {
+
+	// save back the MONGODB_URL env variable that it may be used for production
+	// this is sketchy and should be consider in the refactoring. We have the db package and web package getting MONGODB_URL everywhere
+	envmongodburl = os.Getenv("MONGODB_URL")
+
+	// use TEST_MONGODB_URL to create the connection to a new test database
+	mongodburl := os.Getenv("TEST_MONGODB_URL")
+	if mongodburl == "" {
+		log.Fatal("Setup environmental variable TEST_MONGODB_URL with connection string. Database does not have to exist.")
+	}
+	// the name of the database the instance use plus test plus a timestamp
+	testDBname = mongodburl + strconv.FormatInt(time.Now().UTC().Unix(), 10)
+	e := os.Setenv("MONGODB_URL", testDBname)
+	if e != nil {
+		log.Fatal("Error when setting environment test ", e)
+	}
+}
+
+func getDataFormSubmissions(fileName string) model.FormSubmission {
+
+	objects := model.FormSubmission{}
+
+	file, e := ioutil.ReadFile(fileName)
+	if e != nil {
+		log.Fatalf("opening config file %v", e.Error())
+	}
+
+	e = json.Unmarshal(file, &objects)
+	if e != nil {
+		log.Fatalf("Error reading forms submissions. %v", e.Error())
+	}
+
+	return objects
+}
+
+func getDataTags(fileName string) []model.Tag {
+	var objects []model.Tag
+
+	file, e := ioutil.ReadFile(fileName)
+	if e != nil {
+		log.Fatalf("opening config file %v", e.Error())
+	}
+
+	e = json.Unmarshal(file, &objects)
+	if e != nil {
+		log.Fatalf("Error reading tags. %v", e.Error())
+	}
+
+	return objects
+}
+
+func getMetadata(fileName string) []model.Metadata {
+	var objects []model.Metadata
+	file, e := ioutil.ReadFile(fileName)
+	if e != nil {
+		log.Fatalf("opening config file %v", e.Error())
+	}
+
+	e = json.Unmarshal(file, &objects)
+	if e != nil {
+		log.Fatalf("Error reading metadata. %v", e.Error())
+	}
+	return objects
 }

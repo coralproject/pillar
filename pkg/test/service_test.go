@@ -1,11 +1,9 @@
-package service_test
+package test
 
 import (
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"log"
-	"os"
 
 	"github.com/coralproject/pillar/pkg/model"
 	"github.com/coralproject/pillar/pkg/service"
@@ -18,25 +16,16 @@ import (
 var _ = Describe("Create", func() {
 
 	var (
-		mongodb_url string
-		err         *web.AppError
-		errS        *web.AppError
-		object      model.Form
-		result      *model.Form
-		objectS     model.FormSubmission
-		resultS     *model.FormSubmission
+		err     *web.AppError
+		errS    *web.AppError
+		object  model.Form
+		result  *model.Form
+		objectS model.FormSubmission
+		resultS *model.FormSubmission
 	)
 
 	BeforeEach(func() {
-		// set test database
-		mongodb_url = os.Getenv("MONGODB_URL")
-		if mongodb_url == "" {
-			log.Fatal("MONGODB_URL needs to be setup.")
-		}
-		e := os.Setenv("MONGODB_URL", mongodb_url+"_test") //os.Setenv("MONGODB_URL", mongodb_url+"_"+strconv.Itoa(rand.Intn(10))+"_test")
-		if e != nil {
-			fmt.Println("Error when setting environment test ", e)
-		}
+		setTestDatabase()
 
 		// get the fixtures from appropiate json file for data form submission
 		file, e := ioutil.ReadFile(dataFormsIds)
@@ -56,15 +45,7 @@ var _ = Describe("Create", func() {
 		result, err = service.CreateUpdateForm(c)
 
 		// get the fixtures from appropiate json file for data form submission
-		file, e = ioutil.ReadFile(dataFormSubmissionsIds)
-		if e != nil {
-			log.Fatalf("opening config file %v", e.Error())
-		}
-
-		e = json.Unmarshal(file, &objectS)
-		if e != nil {
-			log.Fatalf("Error reading forms submissions. %v", e.Error())
-		}
+		objectS = getDataFormSubmissions(dataFormSubmissionsIds)
 
 		c = web.NewContext(nil, nil)
 		defer c.Close()
@@ -76,13 +57,10 @@ var _ = Describe("Create", func() {
 
 	AfterEach(func() {
 		// empty database
-		emptydb()
+		emptyDB()
 
-		// restore initial database
-		e := os.Setenv("MONGODB_URL", mongodb_url)
-		if e != nil {
-			fmt.Println("Error when setting environment back ", e)
-		}
+		// recover MONGODB_URL
+		recoverEnvVariables()
 	})
 
 	Describe("a form", func() {
@@ -233,15 +211,7 @@ var _ = Describe("Create", func() {
 
 			JustBeforeEach(func() {
 				// get the fixtures from appropiate json file for data tags
-				file, e := ioutil.ReadFile(dataTags)
-				if e != nil {
-					log.Fatalf("opening config file %v", e.Error())
-				}
-
-				e = json.Unmarshal(file, &objects)
-				if e != nil {
-					log.Fatalf("Error reading tags. %v", e.Error())
-				}
+				objects = getDataTags(dataTags)
 
 				c := web.NewContext(nil, nil)
 				defer c.Close()
@@ -249,24 +219,13 @@ var _ = Describe("Create", func() {
 				for _, o := range objects {
 					c.Marshall(o)
 					_, err = service.CreateUpdateTag(c)
+					Expect(err).Should(BeNil(), "Could not load tags")
 				}
-			})
-
-			It("should return no error", func() {
-				Expect(err).Should(BeNil(), "Could not load tags")
 			})
 
 			It("should rename without error", func() {
-				file, e := ioutil.ReadFile(dataNewTags)
-				if e != nil {
-					log.Fatalf("opening config file %v", e.Error())
-				}
-
-				objects := []model.Tag{}
-				e = json.Unmarshal(file, &objects)
-				if e != nil {
-					log.Fatalf("Error reading new tags. %v", e.Error())
-				}
+				// get the fixtures from appropiate json file for data tags
+				objects = getDataTags(dataNewTags)
 
 				c := web.NewContext(nil, nil)
 				defer c.Close()
@@ -411,22 +370,12 @@ var _ = Describe("Create", func() {
 var _ = Describe("Get", func() {
 
 	var (
-		err         *web.AppError
-		formid      string
-		mongodb_url string
+		err    *web.AppError
+		formid string
 	)
 
 	BeforeEach(func() {
-
-		// set test database
-		mongodb_url = os.Getenv("MONGODB_URL")
-		if mongodb_url == "" {
-			log.Fatal("MONGODB_URL needs to be setup.")
-		}
-		e := os.Setenv("MONGODB_URL", mongodb_url+"_test") //os.Setenv("MONGODB_URL", mongodb_url+"_"+strconv.Itoa(rand.Intn(10))+"_test")
-		if e != nil {
-			fmt.Println("Error when setting environment test ", e)
-		}
+		setTestDatabase()
 
 		// get the fixtures for forms and forms submissions
 		loadformfixtures()
@@ -437,13 +386,10 @@ var _ = Describe("Get", func() {
 
 	AfterEach(func() {
 		// empty database
-		emptydb()
+		emptyDB()
 
-		// restore initial database
-		e := os.Setenv("MONGODB_URL", mongodb_url)
-		if e != nil {
-			fmt.Println("Error when setting environment back ", e)
-		}
+		// recover MONGODB_URL
+		recoverEnvVariables()
 	})
 
 	Describe("forms", func() {
@@ -517,22 +463,12 @@ var _ = Describe("Search", func() {
 	)
 
 	var (
-		mongodb_url string
-		result      []model.FormSubmission
-		err         *web.AppError
+		result []model.FormSubmission
+		err    *web.AppError
 	)
 
 	BeforeEach(func() {
-
-		// set test database
-		mongodb_url = os.Getenv("MONGODB_URL")
-		if mongodb_url == "" {
-			log.Fatal("MONGODB_URL needs to be setup.")
-		}
-		e := os.Setenv("MONGODB_URL", mongodb_url+"_test") //os.Setenv("MONGODB_URL", mongodb_url+"_"+strconv.Itoa(rand.Intn(10))+"_test")
-		if e != nil {
-			fmt.Println("Error when setting environment test ", e)
-		}
+		setTestDatabase()
 
 		// add submissions from fixtures
 		loadformfixtures()
@@ -548,13 +484,10 @@ var _ = Describe("Search", func() {
 
 	AfterEach(func() {
 		// empty database
-		emptydb()
+		emptyDB()
 
-		// restore initial database
-		e := os.Setenv("MONGODB_URL", mongodb_url)
-		if e != nil {
-			fmt.Println("Error when setting environment back ", e)
-		}
+		// recover MONGODB_URL
+		recoverEnvVariables()
 	})
 
 	Describe("the form submissions ", func() {
@@ -571,24 +504,15 @@ var _ = Describe("Search", func() {
 var _ = Describe("Flag", func() {
 
 	var (
-		mongodb_url string
-		err         *web.AppError
-		object      model.Form
-		result      *model.Form
-		objectS     model.FormSubmission
-		resultS     *model.FormSubmission
+		err     *web.AppError
+		object  model.Form
+		result  *model.Form
+		objectS model.FormSubmission
+		resultS *model.FormSubmission
 	)
 
 	BeforeEach(func() {
-		// set test database
-		mongodb_url = os.Getenv("MONGODB_URL")
-		if mongodb_url == "" {
-			log.Fatal("MONGODB_URL needs to be setup.")
-		}
-		e := os.Setenv("MONGODB_URL", mongodb_url+"_test") //os.Setenv("MONGODB_URL", mongodb_url+"_"+strconv.Itoa(rand.Intn(10))+"_test")
-		if e != nil {
-			fmt.Println("Error when setting environment test ", e)
-		}
+		setTestDatabase()
 
 		// get the fixtures from appropiate json file for data form submission
 		file, e := ioutil.ReadFile(dataFormsIds)
@@ -607,16 +531,7 @@ var _ = Describe("Flag", func() {
 		c.Marshall(object)
 		result, err = service.CreateUpdateForm(c)
 
-		// get the fixtures from appropiate json file for data form submission
-		file, e = ioutil.ReadFile(dataFormSubmissionsIds)
-		if e != nil {
-			log.Fatalf("opening config file %v", e.Error())
-		}
-
-		e = json.Unmarshal(file, &objectS)
-		if e != nil {
-			log.Fatalf("Error reading forms submissions. %v", e.Error())
-		}
+		objectS = getDataFormSubmissions(dataFormSubmissionsIds)
 
 		c = web.NewContext(nil, nil)
 		defer c.Close()
@@ -628,13 +543,10 @@ var _ = Describe("Flag", func() {
 
 	AfterEach(func() {
 		// empty database
-		emptydb()
+		emptyDB()
 
-		// restore initial database
-		e := os.Setenv("MONGODB_URL", mongodb_url)
-		if e != nil {
-			fmt.Println("Error when setting environment back ", e)
-		}
+		// recover MONGODB_URL
+		recoverEnvVariables()
 	})
 
 	Describe("a form submission", func() {
@@ -708,24 +620,15 @@ var _ = Describe("Flag", func() {
 var _ = Describe("Edit", func() {
 
 	var (
-		mongodb_url string
-		err         *web.AppError
-		object      model.Form
-		result      *model.Form
-		objectS     model.FormSubmission
-		resultS     *model.FormSubmission
+		err     *web.AppError
+		object  model.Form
+		result  *model.Form
+		objectS model.FormSubmission
+		resultS *model.FormSubmission
 	)
 
 	BeforeEach(func() {
-		// set test database
-		mongodb_url = os.Getenv("MONGODB_URL")
-		if mongodb_url == "" {
-			log.Fatal("MONGODB_URL needs to be setup.")
-		}
-		e := os.Setenv("MONGODB_URL", mongodb_url+"_test") //os.Setenv("MONGODB_URL", mongodb_url+"_"+strconv.Itoa(rand.Intn(10))+"_test")
-		if e != nil {
-			fmt.Println("Error when setting environment test ", e)
-		}
+		setTestDatabase()
 
 		// get the fixtures from appropiate json file for data form submission
 		file, e := ioutil.ReadFile(dataFormsIds)
@@ -766,13 +669,10 @@ var _ = Describe("Edit", func() {
 
 	AfterEach(func() {
 		// empty database
-		emptydb()
+		emptyDB()
 
-		// restore initial database
-		e := os.Setenv("MONGODB_URL", mongodb_url)
-		if e != nil {
-			fmt.Println("Error when setting environment back ", e)
-		}
+		// recover MONGODB_URL
+		recoverEnvVariables()
 	})
 
 	Describe("a form submission answer", func() {
@@ -811,21 +711,12 @@ var _ = Describe("Edit", func() {
 var _ = Describe("Import", func() {
 
 	var (
-		mongodb_url string
-		err         *web.AppError
-		objects     []model.Asset
+		err     *web.AppError
+		objects []model.Asset
 	)
 
 	BeforeEach(func() {
-		// set test database
-		mongodb_url = os.Getenv("MONGODB_URL")
-		if mongodb_url == "" {
-			log.Fatal("MONGODB_URL needs to be setup.")
-		}
-		e := os.Setenv("MONGODB_URL", mongodb_url+"_test") //os.Setenv("MONGODB_URL", mongodb_url+"_"+strconv.Itoa(rand.Intn(10))+"_test")
-		if e != nil {
-			fmt.Println("Error when setting environment test ", e)
-		}
+		setTestDatabase()
 
 		// get the fixtures from appropiate json file for data assets
 		file, e := ioutil.ReadFile(dataAssets)
@@ -848,13 +739,10 @@ var _ = Describe("Import", func() {
 
 	AfterEach(func() {
 		// empty database
-		emptydb()
+		emptyDB()
 
-		// restore initial database
-		e := os.Setenv("MONGODB_URL", mongodb_url)
-		if e != nil {
-			fmt.Println("Error when setting environment back ", e)
-		}
+		// recover MONGODB_URL
+		recoverEnvVariables()
 	})
 
 	Describe("an asset", func() {
@@ -869,22 +757,13 @@ var _ = Describe("Import", func() {
 var _ = Describe("Import", func() {
 
 	var (
-		mongodb_url string
-		err         *web.AppError
-		objects     []model.User
-		c           *web.AppContext
+		err     *web.AppError
+		objects []model.User
+		c       *web.AppContext
 	)
 
 	BeforeEach(func() {
-		// set test database
-		mongodb_url = os.Getenv("MONGODB_URL")
-		if mongodb_url == "" {
-			log.Fatal("MONGODB_URL needs to be setup.")
-		}
-		e := os.Setenv("MONGODB_URL", mongodb_url+"_test") //os.Setenv("MONGODB_URL", mongodb_url+"_"+strconv.Itoa(rand.Intn(10))+"_test")
-		if e != nil {
-			fmt.Println("Error when setting environment test ", e)
-		}
+		setTestDatabase()
 
 		// get the fixtures from appropiate json file for data users
 		file, e := ioutil.ReadFile(dataUsers)
@@ -909,13 +788,10 @@ var _ = Describe("Import", func() {
 
 	AfterEach(func() {
 		// empty database
-		emptydb()
+		emptyDB()
 
-		// restore initial database
-		e := os.Setenv("MONGODB_URL", mongodb_url)
-		if e != nil {
-			fmt.Println("Error when setting environment back ", e)
-		}
+		// recover MONGODB_URL
+		recoverEnvVariables()
 	})
 
 	Describe("a user", func() {
@@ -1022,9 +898,7 @@ var _ = Describe("Import", func() {
 				for _, i := range assets {
 					c1.Marshall(i)
 					_, e := service.ImportAsset(c1)
-					if e != nil {
-						fmt.Println(e)
-					}
+					Expect(e).Should(BeNil())
 				}
 
 				// get the fixtures from appropiate json file for data comment
@@ -1044,9 +918,7 @@ var _ = Describe("Import", func() {
 				for _, i := range comments {
 					c2.Marshall(i)
 					_, e := service.ImportComment(c2)
-					if e != nil {
-						fmt.Println(e)
-					}
+					Expect(e).Should(BeNil())
 				}
 
 				// get the fixtures from appropiate json file for data actions
@@ -1084,20 +956,10 @@ var _ = Describe("Import", func() {
 
 var _ = Describe("Update", func() {
 	var (
-		mongodb_url string
-		err         *web.AppError
-		objects     []model.Metadata
+		objects []model.Metadata
 	)
 	BeforeEach(func() {
-		// set test database
-		mongodb_url = os.Getenv("MONGODB_URL")
-		if mongodb_url == "" {
-			log.Fatal("MONGODB_URL needs to be setup.")
-		}
-		e := os.Setenv("MONGODB_URL", mongodb_url+"_test")
-		if e != nil {
-			fmt.Println("Error when setting environment test ", e)
-		}
+		setTestDatabase()
 
 		// get the fixtures from appropiate json file for data assets
 		file, e := ioutil.ReadFile(dataAssets)
@@ -1119,39 +981,28 @@ var _ = Describe("Update", func() {
 			service.ImportAsset(c1)
 		}
 
-		file, e = ioutil.ReadFile(dataMetadata)
-		if e != nil {
-			log.Fatalf("opening config file %v", e.Error())
-		}
+		objects = getMetadata(dataMetadata)
 
-		e = json.Unmarshal(file, &objects)
-		if e != nil {
-			log.Fatalf("Error reading metadata. %v", e.Error())
-		}
-
-		c := web.NewContext(nil, nil)
-		defer c.Close()
-
-		for _, one := range objects {
-			c.Marshall(one)
-			_, err = service.UpdateMetadata(c)
-		}
 	})
 	AfterEach(func() {
 		// empty database
-		emptydb()
+		emptyDB()
 
-		// restore initial database
-		e := os.Setenv("MONGODB_URL", mongodb_url)
-		if e != nil {
-			fmt.Println("Error when setting environment back ", e)
-		}
+		// recover MONGODB_URL
+		recoverEnvVariables()
 	})
 
 	Describe("metadata", func() {
 		Context("with appropiate context", func() {
 			It("should not return an Error", func() {
-				Expect(err).Should(BeNil())
+				c := web.NewContext(nil, nil)
+				defer c.Close()
+
+				for _, one := range objects {
+					c.Marshall(one)
+					_, err := service.UpdateMetadata(c)
+					Expect(err).Should(BeNil())
+				}
 			})
 		})
 	})
