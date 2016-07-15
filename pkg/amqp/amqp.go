@@ -109,7 +109,7 @@ func (m *MQ) Receive() (<-chan amqp.Delivery, error) {
 	return m.Channel.Consume(
 		q.Name, // queue
 		"",     // consumer
-		true,   // auto-ack
+		false,  // auto-ack
 		false,  // exclusive
 		false,  // no-local
 		false,  // no-wait
