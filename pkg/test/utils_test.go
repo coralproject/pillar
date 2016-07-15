@@ -265,3 +265,35 @@ func getMetadata(fileName string) []model.Metadata {
 	}
 	return objects
 }
+
+func getDataAssets(fileName string) []model.Asset {
+	var assets []model.Asset
+
+	file, e := ioutil.ReadFile(fileName)
+	if e != nil {
+		log.Fatalf("When opening fixtures on assets: %v", e.Error())
+	}
+
+	e = json.Unmarshal(file, &assets)
+	if e != nil {
+		log.Fatalf("Error reading assets: %v", e.Error())
+	}
+
+	return assets
+}
+
+func getDataUsers(fileName string) []model.User {
+	var users []model.User
+
+	file, e := ioutil.ReadFile(fileName)
+	if e != nil {
+		log.Fatalf("opening config file %v", e.Error())
+	}
+
+	e = json.Unmarshal(file, &users)
+	if e != nil {
+		log.Fatalf("Error reading assets. %v", e.Error())
+	}
+
+	return users
+}

@@ -712,29 +712,35 @@ var _ = Describe("Import", func() {
 
 	var (
 		err     *web.AppError
-		objects []model.Asset
+		erra    *web.AppError
+		objects []model.User
+		assets  []model.Asset
+		c       *web.AppContext
 	)
 
 	BeforeEach(func() {
 		setTestDatabase()
 
 		// get the fixtures from appropiate json file for data assets
-		file, e := ioutil.ReadFile(dataAssets)
-		if e != nil {
-			log.Fatalf("opening config file %v", e.Error())
-		}
+		assets = getDataAssets(dataAssets)
 
-		e = json.Unmarshal(file, &objects)
-		if e != nil {
-			log.Fatalf("Error reading assets. %v", e.Error())
-		}
+		ca := web.NewContext(nil, nil)
+		defer ca.Close()
+		ca.Marshall(assets[0])
 
-		c := web.NewContext(nil, nil)
+		_, erra = service.ImportAsset(ca)
+
+		// get the fixtures from appropiate json file for data users
+		objects = getDataUsers(dataUsers)
+
+		c = web.NewContext(nil, nil)
 		defer c.Close()
 
-		c.Marshall(objects[0])
+		for _, i := range objects {
+			c.Marshall(i)
+			_, err = service.ImportUser(c)
+		}
 
-		_, err = service.ImportAsset(c)
 	})
 
 	AfterEach(func() {
@@ -748,50 +754,9 @@ var _ = Describe("Import", func() {
 	Describe("an asset", func() {
 		Context("with appropiate context", func() {
 			It("should not return an Error", func() {
-				Expect(err).Should(BeNil())
+				Expect(erra).Should(BeNil())
 			})
 		})
-	})
-})
-
-var _ = Describe("Import", func() {
-
-	var (
-		err     *web.AppError
-		objects []model.User
-		c       *web.AppContext
-	)
-
-	BeforeEach(func() {
-		setTestDatabase()
-
-		// get the fixtures from appropiate json file for data users
-		file, e := ioutil.ReadFile(dataUsers)
-		if e != nil {
-			log.Fatalf("opening config file %v", e.Error())
-		}
-
-		e = json.Unmarshal(file, &objects)
-		if e != nil {
-			log.Fatalf("Error reading assets. %v", e.Error())
-		}
-
-		c = web.NewContext(nil, nil)
-		defer c.Close()
-
-		for _, i := range objects {
-			c.Marshall(i)
-
-			_, err = service.ImportUser(c)
-		}
-	})
-
-	AfterEach(func() {
-		// empty database
-		emptyDB()
-
-		// recover MONGODB_URL
-		recoverEnvVariables()
 	})
 
 	Describe("a user", func() {
