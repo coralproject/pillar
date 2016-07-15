@@ -55,13 +55,6 @@ var Indicies = []Index{
 			DropDups: false,
 		},
 	},
-	{
-		FormSubmissions, mgo.Index{
-			Key:      []string{"$text:replies.answer"},
-			Unique:   false,
-			DropDups: false,
-		},
-	},
 
 	//Tags Indexes
 	{

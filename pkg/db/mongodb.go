@@ -2,7 +2,6 @@ package db
 
 import (
 	"log"
-	"os"
 	"strings"
 	"sync"
 
@@ -39,9 +38,7 @@ func (m *MongoDB) Upsert(objectType string, id, object interface{}) error {
 	session := m.Session.Copy()
 	defer session.Close()
 
-	dbname := getDBName()
-
-	_, err := m.Session.DB(dbname).C(objectType).UpsertId(id, object)
+	_, err := m.Session.DB("").C(objectType).UpsertId(id, object)
 	return err
 }
 
@@ -51,12 +48,10 @@ func (m *MongoDB) Find(objectType string, query map[string]interface{}) (Iterato
 		return nil, err
 	}
 
-	dbName := getDBName()
-
 	session := m.Session.Copy()
 	return &iter{
 		session: session,
-		iter:    session.DB(dbName).C(objectType).Find(query).Iter(),
+		iter:    session.DB("").C(objectType).Find(query).Iter(),
 		result: func() interface{} {
 			return model.ObjectTypeInstance(objectType)
 		},
@@ -77,10 +72,9 @@ func connect(url string) *mgo.Session {
 		return nil
 	}
 
-	dbname := getDBName()
 	// Ensure indicies are built.
 	for _, one := range model.Indicies {
-		c := session.DB(dbname).C(one.Target)
+		c := session.DB("").C(one.Target)
 		if err := c.EnsureIndex(one.Index); err != nil {
 			log.Fatalf("Error building indicies: %s", err)
 		}
@@ -131,11 +125,4 @@ func (i *iter) Next() (interface{}, bool, error) {
 	}
 
 	return nil, true, nil
-}
-
-// this is a total hack to get the database name that we want to connect to
-func getDBName() string {
-	dbname := strings.Split(os.Getenv("MONGODB_URL"), "/")[1]
-
-	return dbname
 }

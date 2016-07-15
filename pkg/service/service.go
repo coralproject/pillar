@@ -75,6 +75,7 @@ func UpdateMetadata(context *web.AppContext) (interface{}, *web.AppError) {
 	var input model.Metadata
 	json.NewDecoder(context.Body).Decode(&input)
 
+	//collection := db.Session.DB("").C(input.Target)
 	collection := db.DB.C(input.Target)
 
 	var dbEntity bson.M
@@ -103,7 +104,7 @@ func CreateIndex(context *web.AppContext) *web.AppError {
 	var input model.Index
 	json.NewDecoder(context.Body).Decode(&input)
 
-	err := db.DB.C(input.Target).EnsureIndex(input.Index)
+	err := db.Session.DB("").C(input.Target).EnsureIndex(input.Index)
 	if err != nil {
 		message := fmt.Sprintf("Error creating index [%+v]", input)
 		return &web.AppError{err, message, http.StatusInternalServerError}
