@@ -194,10 +194,22 @@ func GetFormSubmissionsByForm(c *web.AppContext) ([]model.FormSubmission, *web.A
 		orderby = "date_created"
 	}
 
-	//convert to an ObjectId
+	// convert to an ObjectId
 	id := bson.ObjectIdHex(idStr)
+
+	// create find query
+	var find bson.M
+
+	// filter by flagged, bookmarked or any other flags (or not)
+	if flag := c.GetValue("filterby"); flag != "" {
+		filterby := bson.M{"$regex": flag}
+		find = bson.M{"form_id": id, "flags": filterby}
+	} else {
+		find = bson.M{"form_id": id}
+	}
+
 	var fss []model.FormSubmission
-	if err := c.MDB.DB.C(model.FormSubmissions).Find(bson.M{"form_id": id}).Skip(skip).Limit(limit).Sort(orderby).All(&fss); err != nil {
+	if err := c.MDB.DB.C(model.FormSubmissions).Find(find).Skip(skip).Limit(limit).Sort(orderby).All(&fss); err != nil {
 		message := fmt.Sprintf("Error fetching FormSubmissions")
 		return nil, &web.AppError{err, message, http.StatusInternalServerError}
 	}
