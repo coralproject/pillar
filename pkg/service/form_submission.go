@@ -186,10 +186,18 @@ func GetFormSubmissionsByForm(c *web.AppContext) ([]model.FormSubmission, *web.A
 		skip = 0
 	}
 
+	// always order by date, asc or desc
+	orderby := c.GetValue("orderby")
+	if orderby == "dsc" {
+		orderby = "-date_created"
+	} else {
+		orderby = "date_created"
+	}
+
 	//convert to an ObjectId
 	id := bson.ObjectIdHex(idStr)
-	fss := make([]model.FormSubmission, 0)
-	if err := c.MDB.DB.C(model.FormSubmissions).Find(bson.M{"form_id": id}).Skip(skip).Limit(limit).All(&fss); err != nil {
+	var fss []model.FormSubmission
+	if err := c.MDB.DB.C(model.FormSubmissions).Find(bson.M{"form_id": id}).Skip(skip).Limit(limit).Sort(orderby).All(&fss); err != nil {
 		message := fmt.Sprintf("Error fetching FormSubmissions")
 		return nil, &web.AppError{err, message, http.StatusInternalServerError}
 	}
