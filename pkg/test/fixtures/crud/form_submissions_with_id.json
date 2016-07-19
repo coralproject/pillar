@@ -1,53 +1,479 @@
-{
-  "ID" : "577c197810780b3401e7a3af",
-  "form_id" : "577c18f4a969c805f7f8c889",
-    "status" : "",
-    "replies" : [
-        {
-            "widget_id" : "1",
-            "identity" : false,
-            "answer" : "Gophers everywhere",
-            "edited" : null,
-            "question" : "Is there anybody out there?",
-            "props" : {
-                "a" : "B",
-                "c" : 4.0
-            }
-        },
-        {
-            "widget_id" : "2",
-            "identity" : true,
-            "answer" : "Dave",
-            "edited" : null,
-            "question" : "Name",
-            "props" : {
-                "a" : "B",
-                "c" : 4.0
-            }
-        },
-        {
-            "widget_id" : "3",
-            "identity" : true,
-            "answer" : "D@ve.name",
-            "edited" : null,
-            "question" : "Email",
-            "props" : {
-                "a" : "B",
-                "c" : 4.0
-            }
+[
+  {
+    "ID": "577c197810780b3401e7a3af",
+    "form_id": "577c18f4a969c805f7f8c889",
+    "status": "",
+    "replies": [
+      {
+        "widget_id": "1",
+        "identity": false,
+        "answer": "Gophers everywhere",
+        "edited": null,
+        "question": "Is there anybody out there?",
+        "props": {
+          "a": "B",
+          "c": 4
         }
+      },
+      {
+        "widget_id": "2",
+        "identity": true,
+        "answer": "Dave",
+        "edited": null,
+        "question": "Name",
+        "props": {
+          "a": "B",
+          "c": 4
+        }
+      },
+      {
+        "widget_id": "3",
+        "identity": true,
+        "answer": "D@ve.name",
+        "edited": null,
+        "question": "Email",
+        "props": {
+          "a": "B",
+          "c": 4
+        }
+      }
     ],
-    "flags" : [],
-    "header" : {
-        "description" : "of the rest of your life",
-        "title" : "This is the first form"
+    "flags": [],
+    "header": {
+      "description": "of the rest of your life",
+      "title": "This is the first form"
     },
-    "footer" : {
-        "conditions" : "lots of conditions"
+    "footer": {
+      "conditions": "lots of conditions"
     },
-    "finishedScreen" : null,
-    "created_by" : null,
-    "updated_by" : null,
-    "date_created" : "2016-07-02T03:31:45Z",
-    "date_updated" : "2016-07-02T03:31:45Z"
-}
+    "finishedScreen": null,
+    "created_by": null,
+    "updated_by": null,
+    "date_created": "2016-07-02T03:31:45Z",
+    "date_updated": "2016-07-02T03:31:45Z"
+  },
+  {
+    "ID": "577c197810780b3401e7a3bf",
+    "form_id": "577c18f4a969c805f7f8c889",
+    "status": "",
+    "replies": [
+      {
+        "widget_id": "1",
+        "identity": false,
+        "answer": "Pythoners everywhere",
+        "edited": null,
+        "question": "Is there anybody out there?",
+        "props": {
+          "a": "B",
+          "c": 4
+        }
+      },
+      {
+        "widget_id": "2",
+        "identity": true,
+        "answer": "Juana",
+        "edited": null,
+        "question": "Name",
+        "props": {
+          "a": "B",
+          "c": 4
+        }
+      },
+      {
+        "widget_id": "3",
+        "identity": true,
+        "answer": "Pepe.name",
+        "edited": null,
+        "question": "Email",
+        "props": {
+          "a": "B",
+          "c": 4
+        }
+      }
+    ],
+    "flags": [],
+    "header": {
+      "description": "of the rest of your life",
+      "title": "This is the first form"
+    },
+    "footer": {
+      "conditions": "lots of conditions"
+    },
+    "finishedScreen": null,
+    "created_by": null,
+    "updated_by": null,
+    "date_created": "2016-07-02T03:31:45Z",
+    "date_updated": "2016-07-02T03:31:45Z"
+  },
+  {
+    "ID": "577c197810780b3401e7a3cf",
+    "form_id": "577c18f4a969c805f7f8c889",
+    "status": "",
+    "replies": [
+      {
+        "widget_id": "1",
+        "identity": false,
+        "answer": "C everywhere",
+        "edited": null,
+        "question": "Is there anybody out there?",
+        "props": {
+          "a": "B",
+          "c": 4
+        }
+      },
+      {
+        "widget_id": "2",
+        "identity": true,
+        "answer": "Dave",
+        "edited": null,
+        "question": "Name",
+        "props": {
+          "a": "B",
+          "c": 4
+        }
+      },
+      {
+        "widget_id": "3",
+        "identity": true,
+        "answer": "D@ve.name",
+        "edited": null,
+        "question": "Email",
+        "props": {
+          "a": "B",
+          "c": 4
+        }
+      }
+    ],
+    "flags": [],
+    "header": {
+      "description": "of the rest of your life",
+      "title": "This is the first form"
+    },
+    "footer": {
+      "conditions": "lots of conditions"
+    },
+    "finishedScreen": null,
+    "created_by": null,
+    "updated_by": null,
+    "date_created": "2016-07-02T03:31:45Z",
+    "date_updated": "2016-07-02T03:31:45Z"
+  },
+  {
+    "ID": "577c197810780b3401e7a3df",
+    "form_id": "577c18f4a969c805f7f8c889",
+    "status": "",
+    "replies": [
+      {
+        "widget_id": "1",
+        "identity": false,
+        "answer": "pepe everywhere",
+        "edited": null,
+        "question": "Is there anybody out there?",
+        "props": {
+          "a": "B",
+          "c": 4
+        }
+      },
+      {
+        "widget_id": "2",
+        "identity": true,
+        "answer": "Dave",
+        "edited": null,
+        "question": "Name",
+        "props": {
+          "a": "B",
+          "c": 4
+        }
+      },
+      {
+        "widget_id": "3",
+        "identity": true,
+        "answer": "D@ve.name",
+        "edited": null,
+        "question": "Email",
+        "props": {
+          "a": "B",
+          "c": 4
+        }
+      }
+    ],
+    "flags": [],
+    "header": {
+      "description": "of the rest of your life",
+      "title": "This is the first form"
+    },
+    "footer": {
+      "conditions": "lots of conditions"
+    },
+    "finishedScreen": null,
+    "created_by": null,
+    "updated_by": null,
+    "date_created": "2016-07-02T03:31:45Z",
+    "date_updated": "2016-07-02T03:31:45Z"
+  },
+  {
+    "ID": "577c197810780b3401e7a3ff",
+    "form_id": "577c18f4a969c805f7f8c889",
+    "status": "",
+    "replies": [
+      {
+        "widget_id": "1",
+        "identity": false,
+        "answer": "no, there is nobody out there",
+        "edited": null,
+        "question": "Is there anybody out there?",
+        "props": {
+          "a": "B",
+          "c": 4
+        }
+      },
+      {
+        "widget_id": "2",
+        "identity": true,
+        "answer": "Dave",
+        "edited": null,
+        "question": "Name",
+        "props": {
+          "a": "B",
+          "c": 4
+        }
+      },
+      {
+        "widget_id": "3",
+        "identity": true,
+        "answer": "D@ve.name",
+        "edited": null,
+        "question": "Email",
+        "props": {
+          "a": "B",
+          "c": 4
+        }
+      }
+    ],
+    "flags": [],
+    "header": {
+      "description": "of the rest of your life",
+      "title": "This is the first form"
+    },
+    "footer": {
+      "conditions": "lots of conditions"
+    },
+    "finishedScreen": null,
+    "created_by": null,
+    "updated_by": null,
+    "date_created": "2016-07-02T03:31:45Z",
+    "date_updated": "2016-07-02T03:31:45Z"
+  },
+  {
+    "ID": "577c197810780b3401e7a2af",
+    "form_id": "577c18f4a969c805f7f8c889",
+    "status": "",
+    "replies": [
+      {
+        "widget_id": "1",
+        "identity": false,
+        "answer": "just me",
+        "edited": null,
+        "question": "Is there anybody out there?",
+        "props": {
+          "a": "B",
+          "c": 4
+        }
+      },
+      {
+        "widget_id": "2",
+        "identity": true,
+        "answer": "Dave",
+        "edited": null,
+        "question": "Name",
+        "props": {
+          "a": "B",
+          "c": 4
+        }
+      },
+      {
+        "widget_id": "3",
+        "identity": true,
+        "answer": "D@ve.name",
+        "edited": null,
+        "question": "Email",
+        "props": {
+          "a": "B",
+          "c": 4
+        }
+      }
+    ],
+    "flags": [],
+    "header": {
+      "description": "of the rest of your life",
+      "title": "This is the first form"
+    },
+    "footer": {
+      "conditions": "lots of conditions"
+    },
+    "finishedScreen": null,
+    "created_by": null,
+    "updated_by": null,
+    "date_created": "2016-07-02T03:31:45Z",
+    "date_updated": "2016-07-02T03:31:45Z"
+  },
+  {
+    "ID": "577c197810780b3401e7a1af",
+    "form_id": "577c18f4a969c805f7f8c889",
+    "status": "",
+    "replies": [
+      {
+        "widget_id": "1",
+        "identity": false,
+        "answer": "nobody else i think",
+        "edited": null,
+        "question": "Is there anybody out there?",
+        "props": {
+          "a": "B",
+          "c": 4
+        }
+      },
+      {
+        "widget_id": "2",
+        "identity": true,
+        "answer": "Dave",
+        "edited": null,
+        "question": "Name",
+        "props": {
+          "a": "B",
+          "c": 4
+        }
+      },
+      {
+        "widget_id": "3",
+        "identity": true,
+        "answer": "D@ve.name",
+        "edited": null,
+        "question": "Email",
+        "props": {
+          "a": "B",
+          "c": 4
+        }
+      }
+    ],
+    "flags": ["flagged", "bookmarked", "test_the_flag"],
+    "header": {
+      "description": "of the rest of your life",
+      "title": "This is the first form"
+    },
+    "footer": {
+      "conditions": "lots of conditions"
+    },
+    "finishedScreen": null,
+    "created_by": null,
+    "updated_by": null,
+    "date_created": "2016-07-02T03:31:45Z",
+    "date_updated": "2016-07-02T03:31:45Z"
+  },
+  {
+    "ID": "577c197810780b3401e7a4af",
+    "form_id": "577c18f4a969c805f7f8c889",
+    "status": "",
+    "replies": [
+      {
+        "widget_id": "1",
+        "identity": false,
+        "answer": "in Montevideo",
+        "edited": null,
+        "question": "Is there anybody out there?",
+        "props": {
+          "a": "B",
+          "c": 4
+        }
+      },
+      {
+        "widget_id": "2",
+        "identity": true,
+        "answer": "Dave",
+        "edited": null,
+        "question": "Name",
+        "props": {
+          "a": "B",
+          "c": 4
+        }
+      },
+      {
+        "widget_id": "3",
+        "identity": true,
+        "answer": "D@ve.name",
+        "edited": null,
+        "question": "Email",
+        "props": {
+          "a": "B",
+          "c": 4
+        }
+      }
+    ],
+    "flags": ["yes","no_answer","moderated"],
+    "header": {
+      "description": "of the rest of your life",
+      "title": "This is the first form"
+    },
+    "footer": {
+      "conditions": "lots of conditions"
+    },
+    "finishedScreen": null,
+    "created_by": null,
+    "updated_by": null,
+    "date_created": "2016-07-02T03:31:45Z",
+    "date_updated": "2016-07-02T03:31:45Z"
+  },
+  {
+    "ID": "577c197810780b3401e7a1cf",
+    "form_id": "577c18f4a969c805f7f8c889",
+    "status": "",
+    "replies": [
+      {
+        "widget_id": "1",
+        "identity": false,
+        "answer": "some Gophers only",
+        "edited": null,
+        "question": "Is there anybody out there?",
+        "props": {
+          "a": "B",
+          "c": 4
+        }
+      },
+      {
+        "widget_id": "2",
+        "identity": true,
+        "answer": "Dave",
+        "edited": null,
+        "question": "Name",
+        "props": {
+          "a": "B",
+          "c": 4
+        }
+      },
+      {
+        "widget_id": "3",
+        "identity": true,
+        "answer": "D@ve.name",
+        "edited": null,
+        "question": "Email",
+        "props": {
+          "a": "B",
+          "c": 4
+        }
+      }
+    ],
+    "flags": [],
+    "header": {
+      "description": "of the rest of your life",
+      "title": "This is the first form"
+    },
+    "footer": {
+      "conditions": "lots of conditions"
+    },
+    "finishedScreen": null,
+    "created_by": null,
+    "updated_by": null,
+    "date_created": "2016-07-02T03:31:45Z",
+    "date_updated": "2016-07-02T03:31:45Z"
+  }
+]

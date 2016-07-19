@@ -98,7 +98,7 @@ func loadformfixtures() {
 		log.Fatalf("opening config file %v", e.Error())
 	}
 
-	var objectsS model.FormSubmission
+	var objectsS []model.FormSubmission
 	e = json.Unmarshal(file, &objectsS)
 	if e != nil {
 		log.Fatalf("Error reading forms submisions. %v", e.Error())
@@ -106,7 +106,10 @@ func loadformfixtures() {
 
 	// insert in bulk into mongo database
 	b = deb.DB.C(model.FormSubmissions).Bulk()
-	b.Insert(objectsS)
+	b.Unordered()
+	for _, o := range objectsS {
+		b.Insert(o)
+	}
 
 	if _, e = b.Run(); e != nil {
 		log.Fatalf("Error when loading fixtures for %s. Error: %v", model.FormSubmissions, e)
@@ -219,9 +222,9 @@ func setTestDatabase() {
 	}
 }
 
-func getDataFormSubmissions(fileName string) model.FormSubmission {
+func getDataFormSubmissions(fileName string) []model.FormSubmission {
 
-	objects := model.FormSubmission{}
+	var objects []model.FormSubmission
 
 	file, e := ioutil.ReadFile(fileName)
 	if e != nil {
@@ -264,4 +267,36 @@ func getMetadata(fileName string) []model.Metadata {
 		log.Fatalf("Error reading metadata. %v", e.Error())
 	}
 	return objects
+}
+
+func getDataAssets(fileName string) []model.Asset {
+	var assets []model.Asset
+
+	file, e := ioutil.ReadFile(fileName)
+	if e != nil {
+		log.Fatalf("When opening fixtures on assets: %v", e.Error())
+	}
+
+	e = json.Unmarshal(file, &assets)
+	if e != nil {
+		log.Fatalf("Error reading assets: %v", e.Error())
+	}
+
+	return assets
+}
+
+func getDataUsers(fileName string) []model.User {
+	var users []model.User
+
+	file, e := ioutil.ReadFile(fileName)
+	if e != nil {
+		log.Fatalf("opening config file %v", e.Error())
+	}
+
+	e = json.Unmarshal(file, &users)
+	if e != nil {
+		log.Fatalf("Error reading assets. %v", e.Error())
+	}
+
+	return users
 }

@@ -2,6 +2,7 @@ package test
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"log"
 
@@ -20,7 +21,7 @@ var _ = Describe("Create", func() {
 		errS    *web.AppError
 		object  model.Form
 		result  *model.Form
-		objectS model.FormSubmission
+		objectS []model.FormSubmission
 		resultS *model.FormSubmission
 	)
 
@@ -51,7 +52,7 @@ var _ = Describe("Create", func() {
 		defer c.Close()
 
 		c.SetValue("form_id", result.ID.Hex())
-		c.Marshall(objectS)
+		c.Marshall(objectS[0])
 		resultS, errS = service.CreateFormSubmission(c)
 	})
 
@@ -416,19 +417,85 @@ var _ = Describe("Get", func() {
 	Describe("submissions to a form", func() {
 		Context("with appropiate context", func() {
 
-			var fss []model.FormSubmission
+			var result map[string]interface{}
 
 			JustBeforeEach(func() {
 				// create the context for this form
 				c := web.NewContext(nil, nil)
 				defer c.Close()
 				c.SetValue("form_id", formid)
-
-				fss, err = service.GetFormSubmissionsByForm(c)
+				result, err = service.GetFormSubmissionsByForm(c)
 			})
 			It("should return at least a submission to a form and no error", func() {
 				Expect(err).Should(BeNil())
+				Expect(len(result["submissions"].([]model.FormSubmission))).ShouldNot(Equal(0))
+			})
+		})
+	})
+
+	Describe("submissions to a form", func() {
+		Context("order by date", func() {
+
+			var result map[string]interface{}
+
+			JustBeforeEach(func() {
+				// create the context for this form
+				c := web.NewContext(nil, nil)
+				defer c.Close()
+				c.SetValue("form_id", formid)
+				c.SetValue("limit", "5")
+				result, err = service.GetFormSubmissionsByForm(c)
+			})
+			It("should work with limit and skip", func() {
+				Expect(err).Should(BeNil())
+				Expect(len(result["submissions"].([]model.FormSubmission))).Should(Equal(5))
+			})
+		})
+	})
+
+	Describe("submissions to a form", func() {
+		Context("order by date", func() {
+
+			var result map[string]interface{}
+
+			JustBeforeEach(func() {
+				// create the context for this form
+				c := web.NewContext(nil, nil)
+				defer c.Close()
+				c.SetValue("form_id", formid)
+				c.SetValue("orderby", "asc")
+				result, err = service.GetFormSubmissionsByForm(c)
+			})
+			It("should order by date", func() {
+				fss := result["submissions"].([]model.FormSubmission)
+				Expect(err).Should(BeNil())
 				Expect(len(fss)).ShouldNot(Equal(0))
+
+				// order by date in an ascending mode
+				d := fss[1].DateCreated.Sub(fss[0].DateCreated).Seconds() >= 0
+				Expect(d).Should(BeTrue(), fmt.Sprintf("%v is newer than %v", fss[0].DateCreated, fss[1].DateCreated))
+			})
+		})
+	})
+
+	Describe("submissions to a form", func() {
+		Context("filter by a flag", func() {
+
+			var result map[string]interface{}
+
+			JustBeforeEach(func() {
+				// create the context for this form
+				c := web.NewContext(nil, nil)
+				defer c.Close()
+				c.SetValue("form_id", formid)
+				c.SetValue("filterby", "test_the_flag")
+				result, err = service.GetFormSubmissionsByForm(c)
+			})
+			It("should order by date", func() {
+				Expect(err).Should(BeNil())
+
+				fss := result["submissions"].([]model.FormSubmission)
+				Expect(len(fss)).Should(Equal(1))
 			})
 		})
 	})
@@ -507,7 +574,7 @@ var _ = Describe("Flag", func() {
 		err     *web.AppError
 		object  model.Form
 		result  *model.Form
-		objectS model.FormSubmission
+		objectS []model.FormSubmission
 		resultS *model.FormSubmission
 	)
 
@@ -537,7 +604,7 @@ var _ = Describe("Flag", func() {
 		defer c.Close()
 
 		c.SetValue("form_id", result.ID.Hex())
-		c.Marshall(objectS)
+		c.Marshall(objectS[0])
 		resultS, err = service.CreateFormSubmission(c)
 	})
 
@@ -623,7 +690,7 @@ var _ = Describe("Edit", func() {
 		err     *web.AppError
 		object  model.Form
 		result  *model.Form
-		objectS model.FormSubmission
+		objectS []model.FormSubmission
 		resultS *model.FormSubmission
 	)
 
@@ -662,7 +729,7 @@ var _ = Describe("Edit", func() {
 		defer c.Close()
 
 		c.SetValue("form_id", result.ID.Hex())
-		c.Marshall(objectS)
+		c.Marshall(objectS[0])
 		resultS, err = service.CreateFormSubmission(c)
 
 	})
@@ -712,29 +779,35 @@ var _ = Describe("Import", func() {
 
 	var (
 		err     *web.AppError
-		objects []model.Asset
+		erra    *web.AppError
+		objects []model.User
+		assets  []model.Asset
+		c       *web.AppContext
 	)
 
 	BeforeEach(func() {
 		setTestDatabase()
 
 		// get the fixtures from appropiate json file for data assets
-		file, e := ioutil.ReadFile(dataAssets)
-		if e != nil {
-			log.Fatalf("opening config file %v", e.Error())
-		}
+		assets = getDataAssets(dataAssets)
 
-		e = json.Unmarshal(file, &objects)
-		if e != nil {
-			log.Fatalf("Error reading assets. %v", e.Error())
-		}
+		ca := web.NewContext(nil, nil)
+		defer ca.Close()
+		ca.Marshall(assets[0])
 
-		c := web.NewContext(nil, nil)
+		_, erra = service.ImportAsset(ca)
+
+		// get the fixtures from appropiate json file for data users
+		objects = getDataUsers(dataUsers)
+
+		c = web.NewContext(nil, nil)
 		defer c.Close()
 
-		c.Marshall(objects[0])
+		for _, i := range objects {
+			c.Marshall(i)
+			_, err = service.ImportUser(c)
+		}
 
-		_, err = service.ImportAsset(c)
 	})
 
 	AfterEach(func() {
@@ -748,50 +821,9 @@ var _ = Describe("Import", func() {
 	Describe("an asset", func() {
 		Context("with appropiate context", func() {
 			It("should not return an Error", func() {
-				Expect(err).Should(BeNil())
+				Expect(erra).Should(BeNil())
 			})
 		})
-	})
-})
-
-var _ = Describe("Import", func() {
-
-	var (
-		err     *web.AppError
-		objects []model.User
-		c       *web.AppContext
-	)
-
-	BeforeEach(func() {
-		setTestDatabase()
-
-		// get the fixtures from appropiate json file for data users
-		file, e := ioutil.ReadFile(dataUsers)
-		if e != nil {
-			log.Fatalf("opening config file %v", e.Error())
-		}
-
-		e = json.Unmarshal(file, &objects)
-		if e != nil {
-			log.Fatalf("Error reading assets. %v", e.Error())
-		}
-
-		c = web.NewContext(nil, nil)
-		defer c.Close()
-
-		for _, i := range objects {
-			c.Marshall(i)
-
-			_, err = service.ImportUser(c)
-		}
-	})
-
-	AfterEach(func() {
-		// empty database
-		emptyDB()
-
-		// recover MONGODB_URL
-		recoverEnvVariables()
 	})
 
 	Describe("a user", func() {

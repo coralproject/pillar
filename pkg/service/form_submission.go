@@ -167,13 +167,17 @@ func CreateFormSubmission(context *web.AppContext) (*model.FormSubmission, *web.
 }
 
 // GetFormSubmissions returns an array of FormSubmissions
-func GetFormSubmissionsByForm(c *web.AppContext) ([]model.FormSubmission, *web.AppError) {
+func GetFormSubmissionsByForm(c *web.AppContext) (map[string]interface{}, *web.AppError) {
+
+	result := make(map[string]interface{}, 2)
+
+	/* Get form submissions */
 
 	idStr := c.GetValue("form_id")
 	//we must have an id to delete the search
 	if idStr == "" {
 		message := fmt.Sprintf("Cannot get FormSubmissions. Invalid Id [%s]", idStr)
-		return []model.FormSubmission{}, &web.AppError{nil, message, http.StatusInternalServerError}
+		return result, &web.AppError{nil, message, http.StatusInternalServerError}
 	}
 
 	limit, err := strconv.Atoi(c.GetValue("limit"))
@@ -186,15 +190,76 @@ func GetFormSubmissionsByForm(c *web.AppContext) ([]model.FormSubmission, *web.A
 		skip = 0
 	}
 
-	//convert to an ObjectId
-	id := bson.ObjectIdHex(idStr)
-	fss := make([]model.FormSubmission, 0)
-	if err := c.MDB.DB.C(model.FormSubmissions).Find(bson.M{"form_id": id}).Skip(skip).Limit(limit).All(&fss); err != nil {
-		message := fmt.Sprintf("Error fetching FormSubmissions")
-		return nil, &web.AppError{err, message, http.StatusInternalServerError}
+	// always order by date, asc or desc
+	orderby := c.GetValue("orderby")
+	if orderby == "dsc" {
+		orderby = "-date_created"
+	} else {
+		orderby = "date_created"
 	}
 
-	return fss, nil
+	// convert to an ObjectId
+	id := bson.ObjectIdHex(idStr)
+
+	// create find query
+	var find bson.M
+
+	// filter by flagged, bookmarked or any other flags (or not)
+	flag := c.GetValue("filterby")
+	if flag != "" {
+		filterby := bson.M{"$regex": flag}
+		find = bson.M{"form_id": id, "flags": filterby}
+	} else {
+		find = bson.M{"form_id": id}
+	}
+
+	query := c.MDB.DB.C(model.FormSubmissions).Find(find).Skip(skip).Limit(limit).Sort(orderby)
+
+	/* Get the form submissions */
+
+	var fss []model.FormSubmission
+	if e := query.All(&fss); e != nil {
+		message := fmt.Sprintf("Error fetching FormSubmissions")
+		return result, &web.AppError{e, message, http.StatusInternalServerError}
+	}
+
+	result["submissions"] = fss
+
+	/* Calculate totals */
+
+	// get totals for the specific search
+	if result["count"], err = getTotals(fss); err != nil {
+		message := fmt.Sprintf("Error calculating totals for FormSubmissions")
+		return result, &web.AppError{err, message, http.StatusInternalServerError}
+	}
+	// get all the form submissions in the system
+	if result["count"].(map[string]interface{})["total_submissions"], err = c.MDB.DB.C(model.FormSubmissions).Find(nil).Count(); err != nil {
+		message := fmt.Sprintf("Error count all FormSubmissions")
+		return result, &web.AppError{err, message, http.StatusInternalServerError}
+	}
+
+	return result, nil
+}
+
+func getTotals(fss []model.FormSubmission) (map[string]interface{}, error) {
+	totals := make(map[string]interface{}, 0)
+	var err error
+
+	totalsearch := 0
+	totalsperflag := make(map[string]int, 0)
+	// loop through the submissions to get total per flag
+	for _, f := range fss {
+		// count on the search per flag
+		for _, flag := range f.Flags {
+			totalsperflag[flag] = totalsperflag[flag] + 1
+		}
+		totalsearch = totalsearch + 1
+	}
+
+	totals["total_per_flag"] = totalsperflag
+	totals["total_search"] = totalsearch
+
+	return totals, err
 }
 
 // GetFormSubmissions returns a single FormSubmission by id
