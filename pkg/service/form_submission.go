@@ -228,12 +228,12 @@ func GetFormSubmissionsByForm(c *web.AppContext) (map[string]interface{}, *web.A
 	/* Calculate totals */
 
 	// get totals for the specific search
-	if result["count"], err = getTotals(fss); err != nil {
+	if result["counts"], err = getTotals(fss); err != nil {
 		message := fmt.Sprintf("Error calculating totals for FormSubmissions")
 		return result, &web.AppError{err, message, http.StatusInternalServerError}
 	}
 	// get all the form submissions in the system
-	if result["count"].(map[string]interface{})["total_submissions"], err = c.MDB.DB.C(model.FormSubmissions).Find(nil).Count(); err != nil {
+	if result["counts"].(map[string]interface{})["total_submissions"], err = c.MDB.DB.C(model.FormSubmissions).Find(nil).Count(); err != nil {
 		message := fmt.Sprintf("Error count all FormSubmissions")
 		return result, &web.AppError{err, message, http.StatusInternalServerError}
 	}
@@ -256,7 +256,7 @@ func getTotals(fss []model.FormSubmission) (map[string]interface{}, error) {
 		totalsearch = totalsearch + 1
 	}
 
-	totals["total_per_flag"] = totalsperflag
+	totals["search_by_flag"] = totalsperflag
 	totals["total_search"] = totalsearch
 
 	return totals, err
