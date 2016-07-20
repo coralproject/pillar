@@ -70,6 +70,7 @@ var _ = Describe("Create", func() {
 			It("should not give an error", func() {
 				Expect(err).Should(BeNil())
 				Expect(result).ShouldNot(BeNil())
+				//Expect(result.Number).Should(BeNumerically("==", 1))
 			})
 		})
 	})

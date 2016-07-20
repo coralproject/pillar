@@ -90,6 +90,8 @@ func CreateUpdateForm(context *web.AppContext) (*model.Form, *web.AppError) {
 
 		// append a fresh id to the input obj
 		input.ID = bson.NewObjectId()
+		// start with the next number for the submissions in 1
+		input.NextNumber = 1
 
 		// and insert it
 		if err := context.MDB.DB.C(model.Forms).Insert(input); err != nil {

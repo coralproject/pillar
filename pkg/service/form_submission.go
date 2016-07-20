@@ -57,6 +57,9 @@ func buildSubmissionFromForm(f model.Form) model.FormSubmission {
 	fs.Header = f.Header
 	fs.Footer = f.Footer
 
+	// get the next number from the form
+	fs.Number = f.GetNextNumber()
+
 	// for each widget in each step
 	for _, s := range f.Steps {
 		for _, w := range s.Widgets {

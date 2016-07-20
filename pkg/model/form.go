@@ -2,10 +2,13 @@ package model
 
 import (
 	"fmt"
+	"sync"
 	"time"
 
 	"gopkg.in/mgo.v2/bson"
 )
+
+var mutex = &sync.Mutex{}
 
 type FormWidget struct {
 	ID        string      `json:"id" bson:"_id"`
@@ -37,6 +40,7 @@ type Form struct {
 	FinishedScreen interface{}   `json:"finishedScreen" bson:"finishedScreen"`
 	Steps          []FormStep    `json:"steps" bson:"steps"`
 	Stats          FormStats     `json:"stats" bson:"stats"`
+	NextNumber     int64         `json:"next_form_submission_number" bson:"next_form_submission_number"`
 	CreatedBy      interface{}   `json:"created_by" bson:"created_by"` // Todo, decide how to represent ownership here
 	UpdatedBy      interface{}   `json:"updated_by" bson:"updated_by"` // Todo, decide how to represent ownership here
 	DeletedBy      interface{}   `json:"deleted_by" bson:"deleted_by"` // Todo, decide how to represent ownership here
@@ -62,4 +66,20 @@ func (object Form) Validate() error {
 	}
 
 	return nil
+}
+
+// Get next number for submissions
+func (object Form) GetNextNumber() int64 {
+
+	mutex.Lock()
+	nextNumber := object.NextNumber
+	object.SetNextNumber(nextNumber)
+	mutex.Unlock()
+
+	return nextNumber
+}
+
+// Set last number for submissions
+func (object Form) SetNextNumber(nextNumber int64) {
+	object.NextNumber = nextNumber + 1
 }
