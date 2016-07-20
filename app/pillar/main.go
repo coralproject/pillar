@@ -15,6 +15,7 @@ const (
 func main() {
 	//new Negroni Middleware
 	n := negroni.Classic()
+	n.Use(negroni.NewLogger())
 
 	//Add CORS
 	n.Use(handler.CORS())
