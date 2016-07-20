@@ -38,7 +38,7 @@
         }
       }
     ],
-    "flags": [],
+    "flags": ["test_the_flag", "test_another_flag", "gophers"],
     "header": {
       "description": "of the rest of your life",
       "title": "This is the first form"
@@ -144,7 +144,7 @@
         }
       }
     ],
-    "flags": [],
+    "flags": ["pythoners", "gophers"],
     "header": {
       "description": "of the rest of your life",
       "title": "This is the first form"
@@ -197,7 +197,7 @@
         }
       }
     ],
-    "flags": [],
+    "flags": ["gophers"],
     "header": {
       "description": "of the rest of your life",
       "title": "This is the first form"
