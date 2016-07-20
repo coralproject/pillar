@@ -434,7 +434,7 @@ var _ = Describe("Get", func() {
 	})
 
 	Describe("submissions to a form", func() {
-		Context("order by date", func() {
+		Context("when using limit", func() {
 
 			var result map[string]interface{}
 
@@ -446,7 +446,7 @@ var _ = Describe("Get", func() {
 				c.SetValue("limit", "5")
 				result, err = service.GetFormSubmissionsByForm(c)
 			})
-			It("should work with limit and skip", func() {
+			It("should not give back an error and return the limit submissions", func() {
 				Expect(err).Should(BeNil())
 				Expect(len(result["submissions"].([]model.FormSubmission))).Should(Equal(5))
 			})
@@ -495,7 +495,30 @@ var _ = Describe("Get", func() {
 				Expect(err).Should(BeNil())
 
 				fss := result["submissions"].([]model.FormSubmission)
-				Expect(len(fss)).Should(Equal(1))
+				Expect(len(fss)).Should(Equal(2))
+			})
+		})
+	})
+
+	Describe("submissions to a specific form", func() {
+		Context("with the right context", func() {
+
+			var result map[string]interface{}
+
+			JustBeforeEach(func() {
+				// create the context for this form
+				c := web.NewContext(nil, nil)
+				defer c.Close()
+				c.SetValue("form_id", formid)
+				c.SetValue("filterby", "test_the_flag")
+				result, err = service.GetFormSubmissionsByForm(c)
+			})
+			It("should bring back total of submissions to that form", func() {
+				Expect(err).Should(BeNil())
+
+				counts := result["counts"].(map[string]interface{})
+				expectedCounts := 9 // total of all submissions for that form
+				Expect(counts["total_submissions"]).Should(Equal(expectedCounts))
 			})
 		})
 	})

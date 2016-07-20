@@ -233,7 +233,7 @@ func GetFormSubmissionsByForm(c *web.AppContext) (map[string]interface{}, *web.A
 		return result, &web.AppError{err, message, http.StatusInternalServerError}
 	}
 	// get all the form submissions in the system
-	if result["counts"].(map[string]interface{})["total_submissions"], err = c.MDB.DB.C(model.FormSubmissions).Find(nil).Count(); err != nil {
+	if result["counts"].(map[string]interface{})["total_submissions"], err = c.MDB.DB.C(model.FormSubmissions).Find(bson.M{"form_id": id}).Count(); err != nil {
 		message := fmt.Sprintf("Error count all FormSubmissions")
 		return result, &web.AppError{err, message, http.StatusInternalServerError}
 	}
