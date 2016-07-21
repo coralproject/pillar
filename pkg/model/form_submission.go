@@ -25,7 +25,7 @@ type FormSubmissionInput struct {
 
 // here's what a form submission is
 type FormSubmissionAnswer struct {
-	WidgetID     string      `json:"widget_id" bson:"widget_id"`
+	WidgetId     string      `json:"widget_id" bson:"widget_id"`
 	Identity     bool        `json:"identity" bson:"identity"`
 	Answer       interface{} `json:"answer" bson:"answer"`
 	EditedAnswer interface{} `json:"edited" bson:"edited"`
@@ -35,7 +35,7 @@ type FormSubmissionAnswer struct {
 
 type FormSubmission struct {
 	ID             bson.ObjectId          `json:"id" bson:"_id"`
-	FormID         bson.ObjectId          `json:"form_id" bson:"form_id"`
+	FormId         bson.ObjectId          `json:"form_id" bson:"form_id"`
 	Number         int64                  `json:"number" bson:"number"`
 	Status         string                 `json:"status" bson:"status"`
 	Answers        []FormSubmissionAnswer `json:"replies" bson:"replies"`

@@ -281,7 +281,7 @@ func GetFormSubmission(c *web.AppContext) (model.FormSubmission, *web.AppError) 
 
 	f := model.FormSubmission{}
 	if err := c.MDB.DB.C(model.FormSubmissions).Find(bson.M{"_id": id}).One(&f); err != nil {
-		message := fmt.Sprintf("Error fetching FormSubmissions")
+		message := fmt.Sprintf("Error fetching FormSubmission with id %s", id)
 		return model.FormSubmission{}, &web.AppError{err, message, http.StatusInternalServerError}
 	}
 

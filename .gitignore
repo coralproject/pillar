@@ -3,3 +3,5 @@ gaba.cfg
 app/pillar/pillar
 pillar.log
 cmd/stats/stats
+.tags
+.tags1
