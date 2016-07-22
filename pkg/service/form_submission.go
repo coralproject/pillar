@@ -202,20 +202,59 @@ func GetFormSubmissionsByForm(c *web.AppContext) (map[string]interface{}, *web.A
 	id := bson.ObjectIdHex(idStr)
 
 	// create find query
-	var find bson.M
+	find := bson.M{"form_id": id}
+
+	// get what we are searching for
+	search := c.GetValue("search")
+
+	if search != "" {
+		// ensure that the text index is created
+		index := mgo.Index{
+			Key:        []string{"$text:replies.answer"},
+			Unique:     false,
+			DropDups:   false,
+			Background: false,
+			Sparse:     true,
+			Name:       "replies.answer.text",
+		}
+		_ = c.MDB.DB.C(model.FormSubmissions).EnsureIndex(index)
+
+		// add a text search to the query
+		find["$text"] = bson.M{"$search": search}
+	}
+
+	searchquery := c.MDB.DB.C(model.FormSubmissions).Find(find).Skip(skip).Limit(limit).Sort(orderby)
+
+	/* Calculate totals */
+	var onlysearchfss []model.FormSubmission
+	if e := searchquery.All(&onlysearchfss); e != nil {
+		message := fmt.Sprintf("Error fetching FormSubmissions")
+		return result, &web.AppError{e, message, http.StatusInternalServerError}
+	}
+
+	// get totals for the specific search
+	if result["counts"], err = getTotals(onlysearchfss); err != nil {
+		message := fmt.Sprintf("Error calculating totals for FormSubmissions")
+		return result, &web.AppError{err, message, http.StatusInternalServerError}
+	}
+
+	// get all the form submissions in the system
+	if result["counts"].(map[string]interface{})["total_submissions"], err = c.MDB.DB.C(model.FormSubmissions).Find(bson.M{"form_id": id}).Count(); err != nil {
+		message := fmt.Sprintf("Error count all FormSubmissions")
+		return result, &web.AppError{err, message, http.StatusInternalServerError}
+	}
+
+	/* Get the form submissions filter by flag */
 
 	// filter by flagged, bookmarked or any other flags (or not)
 	flag := c.GetValue("filterby")
+
+	// build the query to filter by flag
 	if flag != "" {
-		filterby := bson.M{"$regex": flag}
-		find = bson.M{"form_id": id, "flags": filterby}
-	} else {
-		find = bson.M{"form_id": id}
+		find["flags"] = bson.M{"$regex": flag} // filterby flags
 	}
 
 	query := c.MDB.DB.C(model.FormSubmissions).Find(find).Skip(skip).Limit(limit).Sort(orderby)
-
-	/* Get the form submissions */
 
 	var fss []model.FormSubmission
 	if e := query.All(&fss); e != nil {
@@ -224,20 +263,6 @@ func GetFormSubmissionsByForm(c *web.AppContext) (map[string]interface{}, *web.A
 	}
 
 	result["submissions"] = fss
-
-	/* Calculate totals */
-
-	// get totals for the specific search
-	if result["counts"], err = getTotals(fss); err != nil {
-		message := fmt.Sprintf("Error calculating totals for FormSubmissions")
-		return result, &web.AppError{err, message, http.StatusInternalServerError}
-	}
-	// get all the form submissions in the system
-	if result["counts"].(map[string]interface{})["total_submissions"], err = c.MDB.DB.C(model.FormSubmissions).Find(bson.M{"form_id": id}).Count(); err != nil {
-		message := fmt.Sprintf("Error count all FormSubmissions")
-		return result, &web.AppError{err, message, http.StatusInternalServerError}
-	}
-
 	return result, nil
 }
 

@@ -427,8 +427,8 @@ var _ = Describe("Get", func() {
 				result, err = service.GetFormSubmissionsByForm(c)
 			})
 			It("should return at least a submission to a form and no error", func() {
-				Expect(err).Should(BeNil())
-				Expect(len(result["submissions"].([]model.FormSubmission))).ShouldNot(Equal(0))
+				Expect(err).Should(BeNil(), "is giving an error")
+				Expect(len(result["submissions"].([]model.FormSubmission))).ShouldNot(Equal(0), "it should return at least one submission")
 			})
 		})
 	})
@@ -479,28 +479,6 @@ var _ = Describe("Get", func() {
 	})
 
 	Describe("submissions to a form", func() {
-		Context("filter by a flag", func() {
-
-			var result map[string]interface{}
-
-			JustBeforeEach(func() {
-				// create the context for this form
-				c := web.NewContext(nil, nil)
-				defer c.Close()
-				c.SetValue("form_id", formid)
-				c.SetValue("filterby", "test_the_flag")
-				result, err = service.GetFormSubmissionsByForm(c)
-			})
-			It("should order by date", func() {
-				Expect(err).Should(BeNil())
-
-				fss := result["submissions"].([]model.FormSubmission)
-				Expect(len(fss)).Should(Equal(2))
-			})
-		})
-	})
-
-	Describe("submissions to a specific form", func() {
 		Context("with the right context", func() {
 
 			var result map[string]interface{}
@@ -519,6 +497,40 @@ var _ = Describe("Get", func() {
 				counts := result["counts"].(map[string]interface{})
 				expectedCounts := 9 // total of all submissions for that form
 				Expect(counts["total_submissions"]).Should(Equal(expectedCounts))
+			})
+		})
+	})
+
+	Describe("submissions to a form", func() {
+		Context("filtering and with search parameters", func() {
+
+			var result map[string]interface{}
+
+			JustBeforeEach(func() {
+				// create the context for this form
+				c := web.NewContext(nil, nil)
+				defer c.Close()
+				c.SetValue("form_id", formid)
+				c.SetValue("search", "Gophers")         //2 - 577c197810780b3401e7a1cf & 577c197810780b3401e7a3af
+				c.SetValue("filterby", "test_the_flag") //1 - 577c197810780b3401e7a3af
+				result, err = service.GetFormSubmissionsByForm(c)
+			})
+			It("should bring no errors and all the right numbers", func() {
+				Expect(err).Should(BeNil())
+
+				counts := result["counts"].(map[string]interface{})
+
+				expectedTotalSubmissions := 9 // total of all submissions for that form
+				Expect(counts["total_submissions"]).Should(Equal(expectedTotalSubmissions), "total submissions for this form")
+
+				expectedTotalSearch := 2
+				// total of all submissions with the search applied, without filtering
+				Expect(counts["total_search"]).Should(Equal(expectedTotalSearch), "total submissions for this specific search and filterby")
+
+				expectedSearchByFlag := map[string]int{"test_the_flag": 1, "something_else": 0}
+				// total of all submissions with the search applied, without filtering, by flag
+				Expect(counts["search_by_flag"].(map[string]int)["test_the_flag"]).Should(Equal(expectedSearchByFlag["test_the_flag"]), "total submissions by flag test_the_flag")
+				Expect(counts["search_by_flag"].(map[string]int)["something_else"]).Should(Equal(expectedSearchByFlag["something_else"]), "total submissions by flag something_else")
 			})
 		})
 	})
