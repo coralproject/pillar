@@ -40,7 +40,7 @@
     ],
     "flags": ["test_the_flag", "test_another_flag", "gophers"],
     "header": {
-      "description": "of the rest of your life",
+      "description": "of the rest of your life2",
       "title": "This is the first form"
     },
     "footer": {
@@ -252,7 +252,7 @@
     ],
     "flags": ["test_the_flag"],
     "header": {
-      "description": "of the rest of your life",
+      "description": "of the rest of your life4",
       "title": "This is the first form"
     },
     "footer": {
@@ -462,9 +462,9 @@
         }
       }
     ],
-    "flags": [],
+    "flags": ["test_the_flag", "something_else"],
     "header": {
-      "description": "of the rest of your life",
+      "description": "of the rest of your life2",
       "title": "This is the first form"
     },
     "footer": {
@@ -517,7 +517,7 @@
     ],
     "flags": ["test_the_flag"],
     "header": {
-      "description": "of the rest of your life",
+      "description": "of the rest of your life1",
       "title": "This is the first form"
     },
     "footer": {

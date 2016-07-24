@@ -225,7 +225,7 @@ func GetFormSubmissionsByForm(c *web.AppContext) (map[string]interface{}, *web.A
 		find["$text"] = bson.M{"$search": search}
 	}
 
-	searchquery := c.MDB.DB.C(model.FormSubmissions).Find(find).Skip(skip).Limit(limit).Sort(orderby)
+	searchquery := c.MDB.DB.C(model.FormSubmissions).Find(find)
 
 	/* Calculate totals */
 	var onlysearchfss []model.FormSubmission

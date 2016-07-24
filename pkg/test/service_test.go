@@ -444,12 +444,17 @@ var _ = Describe("Get", func() {
 				c := web.NewContext(nil, nil)
 				defer c.Close()
 				c.SetValue("form_id", formid)
-				c.SetValue("limit", "5")
+				c.SetValue("limit", "3")
 				result, err = service.GetFormSubmissionsByForm(c)
 			})
-			It("should not give back an error and return the limit submissions", func() {
+			It("should not give back an error and return right amounts", func() {
+				countsbyflag := result["counts"].(map[string]interface{})["search_by_flag"].(map[string]int)
 				Expect(err).Should(BeNil())
-				Expect(len(result["submissions"].([]model.FormSubmission))).Should(Equal(5))
+				Expect(len(result["submissions"].([]model.FormSubmission))).Should(Equal(3), "on limit on submissions")
+				Expect(countsbyflag["test_the_flag"]).Should(Equal(4), "on test_the_flag")
+				Expect(countsbyflag["test_another_flag"]).Should(Equal(1), "on test_another_flag")
+				Expect(countsbyflag["gophers"]).Should(Equal(3), "on gophers")
+				Expect(countsbyflag["pythoners"]).Should(Equal(1), "on pythoners")
 			})
 		})
 	})
@@ -528,7 +533,7 @@ var _ = Describe("Get", func() {
 				// total of all submissions with the search applied, without filtering
 				Expect(counts["total_search"]).Should(Equal(expectedTotalSearch), "total submissions for this specific search and filterby")
 
-				expectedSearchByFlag := map[string]int{"test_the_flag": 1, "something_else": 0}
+				expectedSearchByFlag := map[string]int{"test_the_flag": 2, "something_else": 1}
 				// total of all submissions with the search applied, without filtering, by flag
 				Expect(counts["search_by_flag"].(map[string]int)["test_the_flag"]).Should(Equal(expectedSearchByFlag["test_the_flag"]), "total submissions by flag test_the_flag")
 				Expect(counts["search_by_flag"].(map[string]int)["something_else"]).Should(Equal(expectedSearchByFlag["something_else"]), "total submissions by flag something_else")
