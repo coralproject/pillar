@@ -70,6 +70,9 @@ var _ = Describe("Create", func() {
 			It("should not give an error", func() {
 				Expect(err).Should(BeNil())
 				Expect(result).ShouldNot(BeNil())
+				expectedDescription := "of the rest of your life"
+				header := result.Header.(map[string]interface{})
+				Expect(header["description"]).Should(Equal(expectedDescription))
 			})
 		})
 	})
