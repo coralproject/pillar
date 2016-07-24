@@ -36,6 +36,7 @@ type FormSubmissionAnswer struct {
 type FormSubmission struct {
 	ID             bson.ObjectId          `json:"id" bson:"_id"`
 	FormId         bson.ObjectId          `json:"form_id" bson:"form_id"`
+	Number         int                    `json:"number" bson:"number"`
 	Status         string                 `json:"status" bson:"status"`
 	Answers        []FormSubmissionAnswer `json:"replies" bson:"replies"`
 	Flags          []string               `json:"flags" bson:"flags"` // simple, flexible string flagging

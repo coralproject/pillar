@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"time"
 
-	"gopkg.in/mgo.v2"
+	mgo "gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 
 	"github.com/coralproject/pillar/pkg/model"
@@ -108,7 +108,6 @@ func setAnswersToFormSubmission(fs model.FormSubmission, fsi model.FormSubmissio
 
 }
 
-//  ** consider implementing this as a method on FormSubmission **
 func CreateFormSubmission(context *web.AppContext) (*model.FormSubmission, *web.AppError) {
 
 	// we take an input type here as what's passed needs some work
@@ -148,6 +147,9 @@ func CreateFormSubmission(context *web.AppContext) (*model.FormSubmission, *web.
 	// set miscellenia
 	fs.DateCreated = time.Now()
 	fs.DateUpdated = time.Now()
+
+	// set the number
+	fs.Number = getSubmissionCountByForm(fc) + 1
 
 	// aaaand save it
 	fs.ID = bson.NewObjectId()
