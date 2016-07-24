@@ -12,6 +12,20 @@ import (
 	"github.com/coralproject/pillar/pkg/web"
 )
 
+// getSubmissionCountByForm returns the submission count for a form
+func getSubmissionCountByForm(context *web.AppContext) int {
+
+	fId := bson.ObjectIdHex(context.GetValue("id"))
+
+	n, err := context.MDB.DB.C(model.FormSubmissions).Find(bson.M{"form_id": fId}).Count()
+	if err != nil {
+		fmt.Sprintf("Unable to determine submission number: %v", err)
+	}
+
+	return n
+
+}
+
 // calculate stats for Forms
 func updateStats(context *web.AppContext) *web.AppError {
 

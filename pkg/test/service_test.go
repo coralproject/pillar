@@ -425,6 +425,7 @@ var _ = Describe("Get", func() {
 				defer c.Close()
 				c.SetValue("form_id", formid)
 				result, err = service.GetFormSubmissionsByForm(c)
+
 			})
 			It("should return at least a submission to a form and no error", func() {
 				Expect(err).Should(BeNil(), "is giving an error")
