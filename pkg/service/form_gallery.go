@@ -53,6 +53,9 @@ func AddAnswerToFormGallery(context *web.AppContext) (*model.FormGallery, *web.A
 		return nil, &web.AppError{err, message, http.StatusInternalServerError}
 	}
 
+	// hydrate the form gallery to populate the new answer
+	g = hydrateFormGallery(g)
+
 	return &g, nil
 
 }
@@ -215,7 +218,7 @@ func GetFormGalleriesByForm(c *web.AppContext) ([]model.FormGallery, *web.AppErr
 func GetFormGallery(c *web.AppContext) (model.FormGallery, *web.AppError) {
 
 	idStr := c.GetValue("id")
-	//we must have an id to delete the search
+	//we must have an id for the form gallery
 	if idStr == "" {
 		message := fmt.Sprintf("Cannot get FormGallery. Invalid Id [%s]", idStr)
 		return model.FormGallery{}, &web.AppError{nil, message, http.StatusInternalServerError}
