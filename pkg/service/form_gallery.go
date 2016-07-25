@@ -239,33 +239,6 @@ func GetFormGallery(c *web.AppContext) (model.FormGallery, *web.AppError) {
 	return f, nil
 }
 
-func UpdateFormGallery(context *web.AppContext) (*model.FormGallery, *web.AppError) {
-
-	// unmarshall the input
-	var input model.FormGallery
-	if err := UnmarshallAndValidate(context, &input); err != nil {
-		return nil, err
-	}
-
-	// ensure the form gallery exists
-	var dbEntity model.FormGallery
-	err := context.MDB.DB.C(model.Forms).FindId(input.ID).One(&dbEntity)
-	if err != nil {
-		message := fmt.Sprintf("Could not find form gallery to update")
-		return nil, &web.AppError{err, message, http.StatusInternalServerError}
-	}
-
-	input.DateUpdated = time.Now()
-
-	if _, err := context.MDB.DB.C(model.Forms).UpsertId(input.ID, input); err != nil {
-		message := fmt.Sprintf("Error updating Form gallery")
-		return nil, &web.AppError{err, message, http.StatusInternalServerError}
-	}
-
-	return &input, nil
-
-}
-
 // DeleteFormGallery deletes a FormGallery
 func DeleteFormGallery(c *web.AppContext) *web.AppError {
 
