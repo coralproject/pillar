@@ -70,7 +70,7 @@ var routes = []Route{
 	{"GET", "/api/form_gallery/{id}", handler.GetFormGallery},
 	{"GET", "/api/form_galleries/{form_id}", handler.GetFormGalleriesByForm},
 	{"GET", "/api/form_galleries/form/{form_id}", handler.GetFormGalleriesByForm}, // a more explicit version of the above for clarity
-	{"PUT", "/api/form_gallery/{gallery_id}", handler.UpdateFormGallery},
 	{"PUT", "/api/form_gallery/{id}/add/{submission_id}/{answer_id}", handler.AddAnswerToFormGallery},
+	{"PUT", "/api/form_gallery/{gallery_id}", handler.UpdateFormGallery},
 	{"DELETE", "/api/form_gallery/{id}/remove/{submission_id}/{answer_id}", handler.RemoveAnswerFromFormGallery},
 }

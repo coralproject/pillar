@@ -255,9 +255,11 @@ func UpdateFormGallery(context *web.AppContext) (*model.FormGallery, *web.AppErr
 		return nil, &web.AppError{err, message, http.StatusInternalServerError}
 	}
 
+	// set the miscellanea
 	input.DateUpdated = time.Now()
 
-	if _, err := context.MDB.DB.C(model.Forms).UpsertId(input.ID, input); err != nil {
+	// perform the update
+	if _, err := context.MDB.DB.C(model.FormGalleries).UpsertId(input.ID, input); err != nil {
 		message := fmt.Sprintf("Error updating Form gallery")
 		return nil, &web.AppError{err, message, http.StatusInternalServerError}
 	}
