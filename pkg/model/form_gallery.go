@@ -15,14 +15,11 @@ type FormGalleryAnswer struct {
 }
 
 type FormGallery struct {
-	ID          bson.ObjectId          `json:"id" bson:"_id"`
-	Headline    string                 `json:"headline" bson:"headline"`
-	Description string                 `json:"description" bson:"description"`
-	Config      map[string]interface{} `json:"config" bson:"config"`
-	FormId      bson.ObjectId          `json:"form_id" bson:"form_id"`
-	Answers     []FormGalleryAnswer    `json:"answers" bson:"answers"`
-	DateCreated time.Time              `json:"date_created,omitempty" bson:"date_created,omitempty"`
-	DateUpdated time.Time              `json:"date_updated,omitempty" bson:"date_updated,omitempty"`
+	ID          bson.ObjectId       `json:"id" bson:"_id"`
+	FormId      bson.ObjectId       `json:"form_id" bson:"form_id"`
+	Answers     []FormGalleryAnswer `json:"answers" bson:"answers"`
+	DateCreated time.Time           `json:"date_created,omitempty" bson:"date_created,omitempty"`
+	DateUpdated time.Time           `json:"date_updated,omitempty" bson:"date_updated,omitempty"`
 }
 
 // I am, form_gallery
