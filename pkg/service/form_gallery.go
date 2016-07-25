@@ -246,7 +246,7 @@ func UpdateFormGallery(context *web.AppContext) (*model.FormGallery, *web.AppErr
 
 	// ensure the form gallery exists
 	var dbEntity model.FormGallery
-	err := context.MDB.DB.C(model.Forms).FindId(id).One(&dbEntity)
+	err := context.MDB.DB.C(model.FormGalleries).FindId(id).One(&dbEntity)
 	if err != nil {
 		message := fmt.Sprintf("Could not find form gallery to update")
 		return nil, &web.AppError{err, message, http.StatusInternalServerError}
@@ -262,7 +262,7 @@ func UpdateFormGallery(context *web.AppContext) (*model.FormGallery, *web.AppErr
 	input.DateUpdated = time.Now()
 
 	// perform the update
-	if _, err := context.MDB.DB.C(model.Forms).UpsertId(id, input); err != nil {
+	if _, err := context.MDB.DB.C(model.FormGalleries).UpsertId(id, input); err != nil {
 		message := fmt.Sprintf("Error updating Form gallery")
 		return nil, &web.AppError{err, message, http.StatusInternalServerError}
 	}
