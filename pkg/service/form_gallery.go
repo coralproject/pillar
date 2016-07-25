@@ -241,7 +241,7 @@ func GetFormGallery(c *web.AppContext) (model.FormGallery, *web.AppError) {
 
 func UpdateFormGallery(context *web.AppContext) (*model.FormGallery, *web.AppError) {
 
-	idStr := context.GetValue("id")
+	idStr := context.GetValue("gallery_id")
 	id := bson.ObjectIdHex(idStr)
 
 	// ensure the form gallery exists
