@@ -103,6 +103,11 @@ func GetFormGallery(c *web.AppContext) {
 	doRespond(c, dbObject, err)
 }
 
+func UpdateFormGallery(c *web.AppContext) {
+	dbObject, err := service.UpdateFormGallery(c)
+	doRespond(c, dbObject, err)
+}
+
 func SearchFormSubmissions(c *web.AppContext) {
 
 	//Get the search string from request
