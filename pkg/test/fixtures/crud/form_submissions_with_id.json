@@ -38,7 +38,7 @@
         }
       }
     ],
-    "flags": ["test_the_flag", "test_another_flag", "gophers"],
+    "flags": ["flagged", "test_another_flag", "gophers"],
     "header": {
       "description": "of the rest of your life2",
       "title": "This is the first form"
@@ -250,7 +250,7 @@
         }
       }
     ],
-    "flags": ["test_the_flag"],
+    "flags": ["flagged"],
     "header": {
       "description": "of the rest of your life4",
       "title": "This is the first form"
@@ -356,7 +356,7 @@
         }
       }
     ],
-    "flags": ["flagged", "bookmarked", "test_the_flag"],
+    "flags": ["flagged", "bookmarked", "flagged"],
     "header": {
       "description": "of the rest of your life",
       "title": "This is the first form"
@@ -462,7 +462,7 @@
         }
       }
     ],
-    "flags": ["test_the_flag", "something_else"],
+    "flags": ["flagged", "something_else"],
     "header": {
       "description": "of the rest of your life2",
       "title": "This is the first form"
@@ -515,7 +515,7 @@
         }
       }
     ],
-    "flags": ["test_the_flag"],
+    "flags": ["flagged"],
     "header": {
       "description": "of the rest of your life1",
       "title": "This is the first form"

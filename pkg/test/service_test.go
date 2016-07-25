@@ -454,7 +454,7 @@ var _ = Describe("Get", func() {
 				countsbyflag := result["counts"].(map[string]interface{})["search_by_flag"].(map[string]int)
 				Expect(err).Should(BeNil())
 				Expect(len(result["submissions"].([]model.FormSubmission))).Should(Equal(3), "on limit on submissions")
-				Expect(countsbyflag["test_the_flag"]).Should(Equal(4), "on test_the_flag")
+				Expect(countsbyflag["flagged"]).Should(Equal(5), "on flagged")
 				Expect(countsbyflag["test_another_flag"]).Should(Equal(1), "on test_another_flag")
 				Expect(countsbyflag["gophers"]).Should(Equal(3), "on gophers")
 				Expect(countsbyflag["pythoners"]).Should(Equal(1), "on pythoners")
@@ -497,7 +497,7 @@ var _ = Describe("Get", func() {
 				c := web.NewContext(nil, nil)
 				defer c.Close()
 				c.SetValue("form_id", formid)
-				c.SetValue("filterby", "test_the_flag")
+				c.SetValue("filterby", "flagged")
 				result, err = service.GetFormSubmissionsByForm(c)
 			})
 			It("should bring back total of submissions to that form", func() {
@@ -520,7 +520,7 @@ var _ = Describe("Get", func() {
 				c := web.NewContext(nil, nil)
 				defer c.Close()
 				c.SetValue("form_id", formid)
-				c.SetValue("filterby", "-test_the_flag")
+				c.SetValue("filterby", "-flagged")
 				result, err = service.GetFormSubmissionsByForm(c)
 			})
 			It("should bring back total of submissions to that form", func() {
@@ -530,8 +530,14 @@ var _ = Describe("Get", func() {
 				expectedCounts := 9 // total of all submissions for that form
 				Expect(counts["total_submissions"]).Should(Equal(expectedCounts))
 
-				expectedLen := 6
+				for _, s := range result["submissions"].([]model.FormSubmission) {
+					Expect(s.Flags).ShouldNot(ContainElement("flagged"))
+				}
+
+				// total of submissions that do not have flagged as a flag
+				expectedLen := 5 // there are 5 submissions with flag flagged
 				Expect(len(result["submissions"].([]model.FormSubmission))).Should(Equal(expectedLen))
+
 			})
 		})
 	})
@@ -546,8 +552,8 @@ var _ = Describe("Get", func() {
 				c := web.NewContext(nil, nil)
 				defer c.Close()
 				c.SetValue("form_id", formid)
-				c.SetValue("search", "Gophers")         //2 - 577c197810780b3401e7a1cf & 577c197810780b3401e7a3af
-				c.SetValue("filterby", "test_the_flag") //1 - 577c197810780b3401e7a3af
+				c.SetValue("search", "Gophers")   //2 - 577c197810780b3401e7a1cf & 577c197810780b3401e7a3af
+				c.SetValue("filterby", "flagged") //1 - 577c197810780b3401e7a3af
 				result, err = service.GetFormSubmissionsByForm(c)
 			})
 			It("should bring no errors and all the right numbers", func() {
@@ -562,9 +568,9 @@ var _ = Describe("Get", func() {
 				// total of all submissions with the search applied, without filtering
 				Expect(counts["total_search"]).Should(Equal(expectedTotalSearch), "total submissions for this specific search and filterby")
 
-				expectedSearchByFlag := map[string]int{"test_the_flag": 2, "something_else": 1}
+				expectedSearchByFlag := map[string]int{"flagged": 2, "something_else": 1}
 				// total of all submissions with the search applied, without filtering, by flag
-				Expect(counts["search_by_flag"].(map[string]int)["test_the_flag"]).Should(Equal(expectedSearchByFlag["test_the_flag"]), "total submissions by flag test_the_flag")
+				Expect(counts["search_by_flag"].(map[string]int)["flagged"]).Should(Equal(expectedSearchByFlag["flagged"]), "total submissions by flag flagged")
 				Expect(counts["search_by_flag"].(map[string]int)["something_else"]).Should(Equal(expectedSearchByFlag["something_else"]), "total submissions by flag something_else")
 			})
 		})
@@ -704,7 +710,7 @@ var _ = Describe("Flag", func() {
 			})
 
 			It("should not give an error and should increment flag count after add", func() {
-				context.SetValue("flag", "test_the_flag")
+				context.SetValue("flag", "flagged")
 				sub, err = service.AddFlagToFormSubmission(context)
 
 				Expect(err).Should(BeNil())
@@ -712,7 +718,7 @@ var _ = Describe("Flag", func() {
 			})
 
 			It("should not be able to add a flag twice", func() {
-				context.SetValue("flag", "test_the_flag")
+				context.SetValue("flag", "flagged")
 				service.AddFlagToFormSubmission(context)
 				sub, err = service.AddFlagToFormSubmission(context)
 				Expect(err).Should(BeNil())
@@ -720,7 +726,7 @@ var _ = Describe("Flag", func() {
 			})
 
 			It("should be able to add a second flag", func() {
-				context.SetValue("flag", "test_the_flag")
+				context.SetValue("flag", "flagged")
 				service.AddFlagToFormSubmission(context)
 				context.SetValue("flag", "test_another__flag")
 				_, err = service.AddFlagToFormSubmission(context)
@@ -728,21 +734,21 @@ var _ = Describe("Flag", func() {
 			})
 
 			It("should be able to remove a flag to a gallery after removing it", func() {
-				context.SetValue("flag", "test_the_flag")
+				context.SetValue("flag", "flagged")
 				service.AddFlagToFormSubmission(context)
 				_, err = service.RemoveFlagFromFormSubmission(context)
 				Expect(err).Should(BeNil())
 			})
 
 			It("should get the right count after adding and removing", func() {
-				context.SetValue("flag", "test_the_flag")
+				context.SetValue("flag", "flagged")
 				service.AddFlagToFormSubmission(context)
 				sub, _ = service.RemoveFlagFromFormSubmission(context)
 				Expect(len(sub.Flags)).ShouldNot(Equal(fCount + 1))
 			})
 
 			It("should not be able to remove a flag twice", func() {
-				context.SetValue("flag", "test_the_flag")
+				context.SetValue("flag", "flagged")
 				service.AddFlagToFormSubmission(context)
 				service.RemoveFlagFromFormSubmission(context)
 				sub, err = service.RemoveFlagFromFormSubmission(context)
