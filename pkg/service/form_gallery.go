@@ -217,7 +217,7 @@ func GetFormGalleriesByForm(c *web.AppContext) ([]model.FormGallery, *web.AppErr
 // GetFormGallerys returns a single FormGallery by id
 func GetFormGallery(c *web.AppContext) (model.FormGallery, *web.AppError) {
 
-	idStr := c.GetValue("id")
+	idStr := context.GetValue("id")
 	//we must have an id for the form gallery
 	if idStr == "" {
 		message := fmt.Sprintf("Cannot get FormGallery. Invalid Id [%s]", idStr)
