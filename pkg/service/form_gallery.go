@@ -241,23 +241,28 @@ func GetFormGallery(c *web.AppContext) (model.FormGallery, *web.AppError) {
 
 func UpdateFormGallery(context *web.AppContext) (*model.FormGallery, *web.AppError) {
 
+	idStr := c.GetValue("id")
+	id := bson.ObjectIdHex(idStr)
+
+	// ensure the form gallery exists
+	var dbEntity model.FormGallery
+	err := context.MDB.DB.C(model.Forms).FindId(id).One(&dbEntity)
+	if err != nil {
+		message := fmt.Sprintf("Could not find form gallery to update")
+		return nil, &web.AppError{err, message, http.StatusInternalServerError}
+	}
+
 	// unmarshall the input
 	var input model.FormGallery
 	if err := UnmarshallAndValidate(context, &input); err != nil {
 		return nil, err
 	}
 
-	// ensure the form gallery exists
-	var dbEntity model.FormGallery
-	err := context.MDB.DB.C(model.Forms).FindId(input.ID).One(&dbEntity)
-	if err != nil {
-		message := fmt.Sprintf("Could not find form gallery to update")
-		return nil, &web.AppError{err, message, http.StatusInternalServerError}
-	}
-
+	// set the miscellanea
 	input.DateUpdated = time.Now()
 
-	if _, err := context.MDB.DB.C(model.Forms).UpsertId(input.ID, input); err != nil {
+	// perform the update
+	if _, err := context.MDB.DB.C(model.Forms).UpsertId(id, input); err != nil {
 		message := fmt.Sprintf("Error updating Form gallery")
 		return nil, &web.AppError{err, message, http.StatusInternalServerError}
 	}
