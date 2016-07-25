@@ -511,6 +511,32 @@ var _ = Describe("Get", func() {
 	})
 
 	Describe("submissions to a form", func() {
+		Context("filtering by not having a flag", func() {
+
+			var result map[string]interface{}
+
+			JustBeforeEach(func() {
+				// create the context for this form
+				c := web.NewContext(nil, nil)
+				defer c.Close()
+				c.SetValue("form_id", formid)
+				c.SetValue("filterby", "-test_the_flag")
+				result, err = service.GetFormSubmissionsByForm(c)
+			})
+			It("should bring back total of submissions to that form", func() {
+				Expect(err).Should(BeNil())
+
+				counts := result["counts"].(map[string]interface{})
+				expectedCounts := 9 // total of all submissions for that form
+				Expect(counts["total_submissions"]).Should(Equal(expectedCounts))
+
+				expectedLen := 6
+				Expect(len(result["submissions"].([]model.FormSubmission))).Should(Equal(expectedLen))
+			})
+		})
+	})
+
+	Describe("submissions to a form", func() {
 		Context("filtering and with search parameters", func() {
 
 			var result map[string]interface{}

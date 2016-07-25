@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 
 	mgo "gopkg.in/mgo.v2"
@@ -253,7 +254,13 @@ func GetFormSubmissionsByForm(c *web.AppContext) (map[string]interface{}, *web.A
 
 	// build the query to filter by flag
 	if flag != "" {
-		find["flags"] = bson.M{"$regex": flag} // filterby flags
+		// we are using -flag to bring all the submissions that do not contain that flag
+		if strings.HasPrefix(flag, "-") {
+			notflag := strings.TrimLeft(flag, "-")
+			find["flags"] = bson.M{"$regex": fmt.Sprintf("^(?!%s)", notflag)} // filter by not the flag
+		} else {
+			find["flags"] = bson.M{"$regex": flag} // filterby flag
+		}
 	}
 
 	query := c.MDB.DB.C(model.FormSubmissions).Find(find).Skip(skip).Limit(limit).Sort(orderby)
