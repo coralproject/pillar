@@ -257,7 +257,7 @@ func GetFormSubmissionsByForm(c *web.AppContext) (map[string]interface{}, *web.A
 		// we are using -flag to bring all the submissions that do not contain that flag
 		if strings.HasPrefix(flag, "-") {
 			notflag := strings.TrimLeft(flag, "-")
-			find["flags"] = bson.M{"$regex": fmt.Sprintf("^(?!%s)", notflag)} // filter by not the flag
+			find["flags"] = bson.M{"$not": bson.M{"$elemMatch": bson.M{"$in": []string{notflag}}}}
 		} else {
 			find["flags"] = bson.M{"$regex": flag} // filterby flag
 		}
