@@ -8,13 +8,14 @@ import (
 )
 
 type FormWidget struct {
-	ID        string      `json:"id" bson:"_id"`
-	Type      string      `json:"type" bson:"type"`
-	Identity  bool        `json:"identity" bson:"identity"`
-	Component string      `json:"component" bson:"component"`
-	Title     string      `json:"title" bson:"title"`
-	Wrapper   interface{} `json:"wrapper" bson:"wrapper"`
-	Props     interface{} `json:"props" bson:"props"`
+	ID          string      `json:"id" bson:"_id"`
+	Type        string      `json:"type" bson:"type"`
+	Identity    bool        `json:"identity" bson:"identity"`
+	Component   string      `json:"component" bson:"component"`
+	Title       string      `json:"title" bson:"title"`
+	Description string      `json:"description" bson:"description"`
+	Wrapper     interface{} `json:"wrapper" bson:"wrapper"`
+	Props       interface{} `json:"props" bson:"props"`
 }
 
 type FormStep struct {
