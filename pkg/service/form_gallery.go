@@ -239,10 +239,17 @@ func GetFormGallery(c *web.AppContext) (model.FormGallery, *web.AppError) {
 	return f, nil
 }
 
+// UpdateFormGallery receives a form gallery and its gallery_id and updates it
 func UpdateFormGallery(context *web.AppContext) (*model.FormGallery, *web.AppError) {
 
 	idStr := context.GetValue("gallery_id")
 	id := bson.ObjectIdHex(idStr)
+
+	// unmarshall the input
+	var input model.FormGallery
+	if err := UnmarshallAndValidate(context, &input); err != nil {
+		return nil, err
+	}
 
 	// ensure the form gallery exists
 	var dbEntity model.FormGallery
@@ -250,12 +257,6 @@ func UpdateFormGallery(context *web.AppContext) (*model.FormGallery, *web.AppErr
 	if err != nil {
 		message := fmt.Sprintf("Could not find form gallery to update")
 		return nil, &web.AppError{err, message, http.StatusInternalServerError}
-	}
-
-	// unmarshall the input
-	var input model.FormGallery
-	if err := UnmarshallAndValidate(context, &input); err != nil {
-		return nil, err
 	}
 
 	// set the miscellanea

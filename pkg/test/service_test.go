@@ -371,6 +371,106 @@ var _ = Describe("Create", func() {
 	})
 })
 
+var _ = Describe("Save", func() {
+
+	var (
+		object model.Form
+		result *model.Form
+	)
+
+	BeforeEach(func() {
+		setTestDatabase()
+
+		// get the fixtures from appropiate json file for data form submission
+		file, e := ioutil.ReadFile(dataFormsIds)
+		if e != nil {
+			log.Fatalf("opening config file %v", e.Error())
+		}
+
+		e = json.Unmarshal(file, &object)
+		if e != nil {
+			log.Fatalf("Error reading forms. %v", e.Error())
+		}
+
+		c := web.NewContext(nil, nil)
+		defer c.Close()
+
+		c.Marshall(object)
+		result, _ = service.CreateUpdateForm(c)
+	})
+
+	AfterEach(func() {
+		// empty database
+		emptyDB()
+
+		// recover MONGODB_URL
+		recoverEnvVariables()
+	})
+
+	Describe("a form gallery", func() {
+
+		Context("with appropiate context", func() {
+			var (
+				gal1, gal2 *model.FormGallery
+				errG       *web.AppError
+			)
+
+			JustBeforeEach(func() {
+
+				// get the fixtures from appropiate json file for data form submission
+				file, e := ioutil.ReadFile(dataFormGalleriesIds)
+				if e != nil {
+					log.Fatalf("opening config file %v", e.Error())
+				}
+
+				var gal model.FormGallery
+				e = json.Unmarshal(file, &gal)
+				if e != nil {
+					log.Fatalf("Error reading forms galleries. %v", e.Error())
+				}
+
+				// new context
+				c := web.NewContext(nil, nil)
+				defer c.Close()
+
+				// get the gallery to create
+				c.SetValue("form_id", result.ID.Hex())
+				c.Marshall(gal)
+
+				// create gallery
+				gal1, errG = service.CreateFormGallery(c)
+				Expect(errG).Should(BeNil())
+
+				// update fields
+				gal1.Description = "New Description"
+
+				// new context
+				c2 := web.NewContext(nil, nil)
+				defer c2.Close()
+
+				// get the gallery to create
+				c2.SetValue("gallery_id", gal1.ID.Hex())
+				c2.Marshall(gal1)
+
+				// update it
+				gal2, errG = service.UpdateFormGallery(c2)
+			})
+
+			It("should return save the form gallery without errors", func() {
+				Expect(errG).Should(BeNil())
+			})
+			It("should not create a new one", func() {
+				Expect(gal2.Id()).Should(Equal(gal1.Id()))
+			})
+			It("should update the new fields", func() {
+				Expect(gal2.Description).Should(Equal("New Description"))
+			})
+		})
+
+	})
+
+})
+
 var _ = Describe("Get", func() {
 
 	var (
