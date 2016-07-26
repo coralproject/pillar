@@ -449,6 +449,7 @@ var _ = Describe("Save", func() {
 				defer c2.Close()
 
 				// get the gallery to create
+				c2.SetValue("gallery_id", gal1.ID.Hex())
 				c2.Marshall(gal1)
 
 				// update it
