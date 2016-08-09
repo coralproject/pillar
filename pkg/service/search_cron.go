@@ -29,11 +29,14 @@ func UpdateSearch() {
 }
 
 func doUpdateSearch(c *web.AppContext, search model.Search) {
+
+	log.Printf("Starting UpdateSearch: %s", search.Name)
 	//map of new users from search
-	m, a := getNewUsers(c.MDB, search)
-	if m == nil || len(m) == 0 {
-		log.Printf("UpdateSearch - no new users, skipping [%s]\n", search.Query)
+	m, a, err := getNewUsers(c.MDB, search)
+	if err != nil {
+		log.Printf("UpdateSearch failed: %s", search.Name)
 		return
+
 	}
 
 	//remove tag when user from old list are no longer in new list
@@ -46,6 +49,7 @@ func doUpdateSearch(c *web.AppContext, search model.Search) {
 		}
 	}
 
+	// add tags to users who are returned by the search
 	for _, value := range m {
 		if user := addTag(c, value.ID, search.Tag); user != nil {
 			p := model.Event{model.EventTagAdded, model.PayloadTag{search.Tag, *user}}
@@ -100,15 +104,16 @@ func removeTag(c *web.AppContext, id bson.ObjectId, tag string) *model.User {
 }
 
 //returns new sets of users from the search
-func getNewUsers(db *db.MongoDB, search model.Search) (map[bson.ObjectId]model.User, []model.User) {
+func getNewUsers(db *db.MongoDB, search model.Search) (map[bson.ObjectId]model.User, []model.User, error) {
 
-	ids := getUserIds(search)
-	if ids == nil || len(ids) == 0 {
-		return nil, nil
+	ids, err := getUserIds(search)
+	if err != nil {
+		return nil, nil, err
 	}
 
 	m := make(map[bson.ObjectId]model.User, len(ids))
 	a := make([]model.User, len(ids))
+
 	for i := 0; i < len(ids); i++ {
 		var user model.User
 		key := bson.ObjectIdHex(ids[i])
@@ -117,5 +122,5 @@ func getNewUsers(db *db.MongoDB, search model.Search) (map[bson.ObjectId]model.U
 		a[i] = user
 	}
 
-	return m, a
+	return m, a, nil
 }
