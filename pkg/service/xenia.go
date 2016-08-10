@@ -2,15 +2,19 @@ package service
 
 import (
 	"encoding/json"
-	"github.com/coralproject/pillar/pkg/model"
-	"github.com/coralproject/pillar/pkg/web"
+	"errors"
+	"fmt"
 	"log"
 	"os"
+	"strconv"
 	"strings"
+
+	"github.com/coralproject/pillar/pkg/model"
+	"github.com/coralproject/pillar/pkg/web"
 )
 
 const (
-	MaxResults int = 20
+	MaxResults int = 1000
 )
 
 type body struct {
@@ -26,8 +30,20 @@ type doc struct {
 	ID string `json:"_id"`
 }
 
-func getUserIds(search model.Search) []string {
-	url := os.Getenv("XENIA_URL") + search.Query
+func getUserIds(search model.Search) ([]string, error) {
+
+	mu := MaxResults
+	var err error
+	mus := os.Getenv("PILLAR_CRON_SEARCH_MAX_USERS")
+	if mus != "" {
+		mu64, err := strconv.ParseInt(mus, 10, 64)
+		mu = int(mu64)
+		if err != nil {
+			log.Printf("Unrecognized value PILLAR_CRON_SEARCH_MAX_USERS, expecting int")
+		}
+	}
+
+	url := os.Getenv("XENIA_URL") + search.Query + "?limit=" + strconv.FormatInt(int64(mu), 10)
 
 	header := make(map[string]string)
 	header["Content-Type"] = "application/json"
@@ -37,26 +53,33 @@ func getUserIds(search model.Search) []string {
 	response, err := web.Request(web.GET, url, header, nil)
 	if err != nil {
 		log.Printf("Error getting response from Xenia [%v]\n", err)
-		return nil
+		return nil, err
+	}
+
+	if response.StatusCode == 404 {
+		fmt.Printf("Response from Xenia: 404 [%v]\n", response.Body)
+		return nil, errors.New("Response from Xenia: 404")
 	}
 
 	var b body
 	jsonParser := json.NewDecoder(strings.NewReader(response.Body))
 	if err := jsonParser.Decode(&b); err != nil {
 		log.Printf("Error decoding data [%s]", err.Error())
-		return nil
+		return nil, err
 	}
 
 	docs := b.Results[0].Docs
-	ids := make([]string, len(docs))
+	ids := make([]string, 0)
 	for i := 0; i < len(b.Results[0].Docs); i++ {
-		ids[i] = docs[i].ID
-		if i == MaxResults-1 {
+
+		ids = append(ids, docs[i].ID)
+
+		if i == mu-1 {
 			break
 		}
 	}
 
-	return ids
+	return ids, nil
 }
 
 ////when the item is an array, we must convert it to a slice
