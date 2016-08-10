@@ -77,6 +77,7 @@ func addTag(c *web.AppContext, id bson.ObjectId, tag string) *model.User {
 	}
 
 	//add the new tag
+	log.Printf("Adding tag [%s] to user [%s]", tag, user.ID)
 	tags := append(user.Tags, tag)
 	c.MDB.DB.C(model.Users).UpdateId(id, bson.M{"$set": bson.M{"tags": tags}})
 	c.SD.Client.Inc("New_Tag_Added", 1, 1.0)
@@ -98,6 +99,7 @@ func removeTag(c *web.AppContext, id bson.ObjectId, tag string) *model.User {
 		tags = append(tags, one)
 	}
 
+	log.Printf("Removing tag [%s] from user [%s]", tag, user.ID)
 	c.MDB.DB.C(model.Users).UpdateId(id, bson.M{"$set": bson.M{"tags": tags}})
 	c.SD.Client.Inc("Tag_Removed", 1, 1.0)
 	return &user

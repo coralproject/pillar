@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strconv"
 	"strings"
 
 	"github.com/coralproject/pillar/pkg/model"
@@ -13,7 +14,7 @@ import (
 )
 
 const (
-	MaxResults int = 20
+	MaxResults int = 1000
 )
 
 type body struct {
@@ -30,7 +31,19 @@ type doc struct {
 }
 
 func getUserIds(search model.Search) ([]string, error) {
-	url := os.Getenv("XENIA_URL") + search.Query
+
+	mu := MaxResults
+	var err error
+	mus := os.Getenv("PILLAR_CRON_SEARCH_MAX_USERS")
+	if mus != "" {
+		mu64, err := strconv.ParseInt(mus, 10, 64)
+		mu = int(mu64)
+		if err != nil {
+			log.Printf("Unrecognized value PILLAR_CRON_SEARCH_MAX_USERS, expecting int")
+		}
+	}
+
+	url := os.Getenv("XENIA_URL") + search.Query + "?limit=" + strconv.FormatInt(int64(mu), 10)
 
 	header := make(map[string]string)
 	header["Content-Type"] = "application/json"
@@ -61,7 +74,7 @@ func getUserIds(search model.Search) ([]string, error) {
 
 		ids = append(ids, docs[i].ID)
 
-		if i == MaxResults-1 {
+		if i == mu-1 {
 			break
 		}
 	}
